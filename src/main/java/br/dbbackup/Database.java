@@ -59,10 +59,10 @@ public class Database {
 
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(String.format("dump/%s.%s.sql", owner, table)), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -76,7 +76,7 @@ public class Database {
             MessageDigest md = MessageDigest.getInstance("MD5");
             bindName = String.format("%032x", new BigInteger(1, md.digest(bindName.getBytes())));
         } catch (NoSuchAlgorithmException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -98,13 +98,13 @@ public class Database {
 
             out.write(rs);
         } catch (UnsupportedEncodingException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
 

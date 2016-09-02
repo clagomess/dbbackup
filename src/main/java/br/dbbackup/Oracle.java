@@ -1,10 +1,13 @@
 package br.dbbackup;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -16,7 +19,7 @@ public class Oracle extends Database {
     private final String SQL_TAB_COLUMNS = "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
     "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
     "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
-    "WHERE SATC.OWNER = '%s'";
+    "WHERE SATC.OWNER = '%s' and satc.table_name = 'TBL_USUARIO'";
 
     public Oracle (Connection conn, String owner){
         this.conn = conn;
@@ -69,7 +72,7 @@ public class Oracle extends Database {
                             String.join(", ", param)
                     ));
                 } catch (IOException e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                     System.exit(0);
                 }
             }
@@ -77,7 +80,7 @@ public class Oracle extends Database {
             try {
                 out.close();
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
                 System.exit(0);
             }
         }
@@ -96,8 +99,11 @@ public class Oracle extends Database {
                         toReturn = String.format("'%s'", rs.getString(column));
                         break;
                     case "DATE":
-                        toReturn = "TO_DATE('%s', 'YYYY-MM-DD HH24-MI-SS.SSSSS')";
-                        toReturn = String.format(toReturn, rs.getString(column));
+                        toReturn = "TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS')";
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case "BLOB":
                         if(rs.getBytes(column).length == 0){
@@ -108,21 +114,24 @@ public class Oracle extends Database {
                         }
                         break;
                     case "CLOB":
-                        if(rs.getBytes(column).length == 0){
+                        if(rs.getString(column) == null){
                             toReturn = "EMPTY_CLOB()";
                         }else{
-                            toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
+                            toReturn = Database.lobWriter(owner, table, column, rs.getString(column).getBytes("UTF-8"));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
                     case "VARCHAR2":
                         toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
-                        toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes()));
+                        toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
                 }
             }
         }catch (SQLException e){
-            System.out.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(0);
+        }catch (UnsupportedEncodingException e){
+            e.printStackTrace();
             System.exit(0);
         }
 
