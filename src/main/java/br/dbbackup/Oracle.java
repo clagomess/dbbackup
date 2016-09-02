@@ -15,15 +15,24 @@ import java.util.List;
 public class Oracle extends Database {
     private Connection conn = null;
     private String owner = null;
+    private Boolean lob = false;
+    private String owner_exp = null;
 
     private final String SQL_TAB_COLUMNS = "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
     "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
     "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
-    "WHERE SATC.OWNER = '%s' and satc.table_name = 'TBL_USUARIO'";
+    "WHERE SATC.OWNER = '%s'";
 
-    public Oracle (Connection conn, String owner){
+    public Oracle (Connection conn, String owner, Boolean lob, String owner_exp){
         this.conn = conn;
         this.owner = owner;
+        this.lob = lob;
+
+        if(owner_exp != null){
+            this.owner_exp = owner_exp;
+        }else{
+            this.owner_exp = owner;
+        }
     }
 
     public void startDump() throws SQLException {
@@ -66,7 +75,7 @@ public class Oracle extends Database {
                 try {
                     out.write(String.format(
                             SQL_TPL,
-                            owner,
+                            owner_exp,
                             table,
                             String.join(", ", getColumns(table)),
                             String.join(", ", param)
@@ -106,7 +115,7 @@ public class Oracle extends Database {
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case "BLOB":
-                        if(rs.getBytes(column).length == 0){
+                        if(rs.getBytes(column).length == 0 || !lob){
                             toReturn = "EMPTY_BLOB()";
                         }else{
                             toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
@@ -114,7 +123,7 @@ public class Oracle extends Database {
                         }
                         break;
                     case "CLOB":
-                        if(rs.getString(column) == null){
+                        if(rs.getString(column) == null || !lob){
                             toReturn = "EMPTY_CLOB()";
                         }else{
                             toReturn = Database.lobWriter(owner, table, column, rs.getString(column).getBytes("UTF-8"));

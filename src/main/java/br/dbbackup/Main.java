@@ -1,35 +1,83 @@
 package br.dbbackup;
 
-import java.sql.*;
+import org.apache.commons.cli.*;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Main {
-    public static void main(String[] argv) throws SQLException {
-        if(argv.length != 6) {
-            System.out.println("É necessário preencher os parâmetros!");
-            System.out.println("\t# dbbackup operacao db url user pass database");
-            System.out.println("\t\toperacao: {get, put}");
-            System.out.println("\t\tdb: {oracle}");
-            System.out.println("\t\turl: jdbc:oracle:thin:@0.0.0.0:1521/0.0.0.0");
-            System.out.println("\t\tuser: user");
-            System.out.println("\t\tpass: pass");
-            System.out.println("\t\tdatabase: database");
+    public static void main(String[] args) throws SQLException {
+        Options options = new Options();
+        Option option;
 
-            System.exit(0);
+        option = new Option("ope", true, "{get, put}");
+        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option("db", true, "{oracle}");
+        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option("url", true, "jdbc:oracle:thin:@0.0.0.0:1521/0.0.0.0");
+        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option("user", true, "user");
+        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option("pass", true, "pass");
+        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option("schema", true, "schema");
+        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option("lob", true, "{1} - Importar/Exportar LOB");
+        options.addOption(option);
+
+        option = new Option("schema_exp", true, "Nome do schema para exportacao");
+        options.addOption(option);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp("dbbackup", options);
+
+            System.exit(1);
         }
 
-        Connection conexao = DriverManager.getConnection(argv[2], argv[3], argv[4]);
+        // ### INICIANDO ###
 
-        if (argv[0].equals("get")) {
-            switch (argv[1]){
+        Connection conexao = DriverManager.getConnection(
+                cmd.getOptionValue("url"),
+                cmd.getOptionValue("user"),
+                cmd.getOptionValue("pass")
+        );
+
+        if(cmd.getOptionValue("ope").equals("get")) {
+            switch (cmd.getOptionValue("db")) {
                 case "oracle":
-                    Oracle oracle = new Oracle(conexao, argv[5]);
+                    Oracle oracle = new Oracle(
+                            conexao,
+                            cmd.getOptionValue("schema"),
+                            (cmd.getOptionValue("lob") != null),
+                            cmd.getOptionValue("schema_exp")
+                    );
                     oracle.startDump();
                     break;
                 default:
-                    System.out.println(String.format("\"%s\" não implementado!", argv[1]));
+                    System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));
             }
         }else{
-            System.out.println(String.format("\"%s\" não implementado!", argv[0]));
+            System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("ope")));
         }
 
         conexao.close();
