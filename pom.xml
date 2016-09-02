@@ -10,27 +10,15 @@
     <version>1.0.0-BUILD-SNAPSHOT</version>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/com.oracle/ojdbc14 -->
         <dependency>
             <groupId>com.oracle</groupId>
-            <artifactId>ojdbc14</artifactId>
-            <version>10.2.0.3.0</version>
+            <artifactId>ojdbc6</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
-
-        <!-- Include FXML resources -->
-        <resources>
-            <resource>
-                <filtering>false</filtering>
-                <directory>${basedir}/src</directory>
-                <includes>
-                    <include>**/*.fxml</include>
-                </includes>
-            </resource>
-        </resources>
 
         <plugins>
             <plugin>
@@ -38,31 +26,39 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding><!-- try to force encoding -->
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4.1</version>
                 <configuration>
+                    <!-- get all project dependencies -->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <!-- MainClass in mainfest make a executable jar -->
                     <archive>
-                        <manifestEntries>
-                            <JavaFX-Version>2.0</JavaFX-Version>
-                            <Main-Class>br.unis.crack.Main</Main-Class>
-                            <Class-Path>br/unis/crack/*</Class-Path>
-                            <implementation-vendor>gomespro</implementation-vendor>
-                            <implementation-title>${project.name}</implementation-title>
-                            <implementation-version>1.0</implementation-version>
-                        </manifestEntries>
                         <manifest>
-                            <addClasspath>true</addClasspath>
+                            <mainClass>br.dbbackup.Main</mainClass>
                         </manifest>
                     </archive>
+
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
