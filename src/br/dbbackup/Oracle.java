@@ -38,8 +38,10 @@ public class Oracle extends Database {
                     rs.getString("COLUMN_NAME"),
                     rs.getString("DATA_TYPE")
             );
+        }
 
-            System.out.println(String.format("-> %s.%s", owner, rs.getString("COLUMN_NAME")));
+        for (String table : getTables()){
+            System.out.println(String.format("-> %s.%s", owner, table));
         }
 
         // Inicio processamento
@@ -98,10 +100,20 @@ public class Oracle extends Database {
                         toReturn = String.format(toReturn, rs.getString(column));
                         break;
                     case "BLOB":
-                        toReturn = "EMPTY_BLOB()";
+                        if(rs.getBytes(column).length == 0){
+                            toReturn = "EMPTY_BLOB()";
+                        }else{
+                            toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
+                            toReturn = ":lob_" + toReturn;
+                        }
                         break;
                     case "CLOB":
-                        toReturn = "EMPTY_CLOB()";
+                        if(rs.getBytes(column).length == 0){
+                            toReturn = "EMPTY_CLOB()";
+                        }else{
+                            toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
+                            toReturn = ":lob_" + toReturn;
+                        }
                         break;
                     case "VARCHAR2":
                         toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";

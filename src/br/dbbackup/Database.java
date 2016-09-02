@@ -1,7 +1,11 @@
 package br.dbbackup;
 
 import java.io.*;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -47,7 +51,13 @@ public class Database {
         Writer out = null;
 
         try {
-            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(String.format("%s.%s.sql", owner, table)), "UTF-8"));
+            File outDir = new File("dump/");
+
+            if(!outDir.exists()){
+                outDir.mkdir();
+            }
+
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(String.format("dump/%s.%s.sql", owner, table)), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             System.out.println(e.getMessage());
             System.exit(0);
@@ -57,5 +67,47 @@ public class Database {
         }
 
         return out;
+    }
+
+    public static String lobWriter(String owner, String table, String column, byte[] rs){
+        String bindName = Double.toString(Calendar.getInstance().getTime().getTime() * Math.random());
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            bindName = String.format("%032x", new BigInteger(1, md.digest(bindName.getBytes())));
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        try {
+            File outDir = new File("dump/" + table + "/");
+
+            if(!outDir.exists()){
+                outDir.mkdir();
+            }
+
+            FileOutputStream out = new FileOutputStream(String.format(
+                    "dump/%s/%s_%s_%s_%s.bin",
+                    table,
+                    owner,
+                    table,
+                    column,
+                    bindName
+            ));
+
+            out.write(rs);
+        } catch (UnsupportedEncodingException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        return bindName;
     }
 }
