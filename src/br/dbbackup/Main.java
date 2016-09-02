@@ -10,7 +10,7 @@ public class Main {
                 "homolog"
         );
 
-        Oracle oracle = new Oracle(conexao, "SIGARP_FNDE");
+        Oracle oracle = new Oracle(conexao, "CORREIO_FNDE");
         oracle.startDump();
 
         conexao.close();
