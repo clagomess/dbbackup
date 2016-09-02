@@ -27,7 +27,8 @@ public class Oracle extends Database {
         ResultSet rs;
         Statement stmt = conn.createStatement();
 
-        System.out.println("Conectado!");
+        System.out.println("### Conectado! ###");
+        System.out.println("Tabelas para exportação:");
 
         rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
 
@@ -37,13 +38,14 @@ public class Oracle extends Database {
                     rs.getString("COLUMN_NAME"),
                     rs.getString("DATA_TYPE")
             );
+
+            System.out.println(String.format("-> %s.%s", owner, rs.getString("COLUMN_NAME")));
         }
 
-        System.exit(1);
-
         // Inicio processamento
+        System.out.println("\n\n### Iniciando DUMP ###");
         for (String table : getTables()){
-            System.out.println(String.format("Dump table \"%s.%s\"", owner, table));
+            System.out.println(String.format("DUMP Table: \"%s.%s\"", owner, table));
 
             rs = stmt.executeQuery(String.format(SQL_QUERY, owner, table));
 
@@ -65,14 +67,16 @@ public class Oracle extends Database {
                             String.join(", ", param)
                     ));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+                    System.exit(0);
                 }
             }
 
             try {
                 out.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
+                System.exit(0);
             }
         }
     }
@@ -106,7 +110,8 @@ public class Oracle extends Database {
                 }
             }
         }catch (SQLException e){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            System.exit(0);
         }
 
         return toReturn;

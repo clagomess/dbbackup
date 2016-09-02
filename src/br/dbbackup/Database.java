@@ -49,9 +49,11 @@ public class Database {
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(String.format("%s.%s.sql", owner, table)), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            System.exit(0);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            System.exit(0);
         }
 
         return out;
