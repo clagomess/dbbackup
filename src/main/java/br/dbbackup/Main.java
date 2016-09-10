@@ -93,9 +93,11 @@ public class Main {
                 throw new Exception(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));
         }
 
-        if(cmd.getOptionValue("ope").equals("get")) {
+        if (cmd.getOptionValue("ope").equals("get")) {
             sgbd.startDump();
-        }else{
+        } else if (cmd.getOptionValue("ope").equals("put")) {
+            sgbd.startPump();
+        } else {
             System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("ope")));
         }
 

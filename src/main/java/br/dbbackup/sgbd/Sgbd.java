@@ -3,19 +3,20 @@ package br.dbbackup.sgbd;
 
 import br.dbbackup.core.DatabaseInterface;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface Sgbd extends DatabaseInterface {
     String SQL_TPL = "INSERT INTO %s.%s (%s) VALUES (%s);\r\n";
     String SQL_QUERY = "SELECT * FROM %s.%s";
 
     void startDump() throws SQLException;
+
+    void startPump() throws Exception;
 
     String formatColumn(ResultSet rs, String table, String column);
 
@@ -62,6 +63,59 @@ public interface Sgbd extends DatabaseInterface {
                 e.printStackTrace();
                 System.exit(0);
             }
+        }
+    }
+
+    default void startPumpProcess(Connection conn) throws Exception {
+        File dumpDir = new File("dump/");
+        File[] sqlList = dumpDir.listFiles();
+
+        if(sqlList != null) {
+            for (File sql : sqlList) {
+                if (sql.isFile()) {
+                    if(sql.getName().contains(".sql")) {
+                        // abre aquivo para leitura
+                        System.out.println(String.format("### %s", sql.getName()));
+
+                        BufferedReader br = new BufferedReader(new FileReader("dump/" + sql.getName()));
+
+                        String dml;
+                        while ((dml = br.readLine()) != null) {
+                            System.out.println(dml);
+
+                            // Verifica se tem lob
+                            if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
+                                Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);
+
+                                List<String> hash = new ArrayList<>();
+                                while(matcher.find()) {
+                                    hash.add(matcher.group(0));
+                                }
+
+                                for(String hitem : hash){
+                                    dml = dml.replace(":lob_" + hitem, "?");
+                                }
+
+                                PreparedStatement pstmt = conn.prepareStatement(dml);
+
+                                int bindIdx = 1;
+                                for(String hitem : hash){
+                                    dml = dml.replace(":lob_" + hash, "?");
+                                    pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("dump/lob/lob_%s.bin", hitem)));
+                                    bindIdx++;
+                                }
+
+                                pstmt.execute();
+                            }else{
+                                Statement stmt = conn.createStatement();
+                                stmt.execute(dml);
+                            }
+                        }
+                    }
+                }
+            }
+        }else{
+            throw new Exception("Pasta não localizada!");
         }
     }
 }

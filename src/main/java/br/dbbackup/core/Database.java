@@ -66,7 +66,7 @@ public abstract class Database implements DatabaseInterface {
         return out;
     }
 
-    public static String lobWriter(String owner, String table, String column, byte[] rs){
+    public static String lobWriter(byte[] rs){
         String bindName = Double.toString(Calendar.getInstance().getTime().getTime() * Math.random());
 
         try {
@@ -78,20 +78,13 @@ public abstract class Database implements DatabaseInterface {
         }
 
         try {
-            File outDir = new File("dump/" + table + "/");
+            File outDir = new File("dump/lob/");
 
             if(!outDir.exists()){
                 outDir.mkdir();
             }
 
-            FileOutputStream out = new FileOutputStream(String.format(
-                    "dump/%s/%s_%s_%s_%s.bin",
-                    table,
-                    owner,
-                    table,
-                    column,
-                    bindName
-            ));
+            FileOutputStream out = new FileOutputStream(String.format("dump/lob/lob_%s.bin", bindName));
 
             out.write(rs);
         } catch (UnsupportedEncodingException e) {

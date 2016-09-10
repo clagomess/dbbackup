@@ -54,6 +54,10 @@ public class Oracle extends Database implements Sgbd {
         startDumpProcess(stmt, owner, owner_exp);
     }
 
+    public void startPump() throws Exception {
+        startPumpProcess(conn);
+    }
+
     public String formatColumn(ResultSet rs, String table, String column){
         String toReturn = "NULL";
 
@@ -77,7 +81,7 @@ public class Oracle extends Database implements Sgbd {
                         if(rs.getBytes(column).length == 0 || !lob){
                             toReturn = "EMPTY_BLOB()";
                         }else{
-                            toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
+                            toReturn = Database.lobWriter(rs.getBytes(column));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
@@ -85,7 +89,7 @@ public class Oracle extends Database implements Sgbd {
                         if(rs.getString(column) == null || !lob){
                             toReturn = "EMPTY_CLOB()";
                         }else{
-                            toReturn = Database.lobWriter(owner, table, column, rs.getString(column).getBytes("UTF-8"));
+                            toReturn = Database.lobWriter(rs.getString(column).getBytes("UTF-8"));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;

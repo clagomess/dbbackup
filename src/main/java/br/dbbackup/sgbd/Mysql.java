@@ -52,6 +52,10 @@ public class Mysql extends Database implements Sgbd {
         startDumpProcess(stmt, owner, owner_exp);
     }
 
+    public void startPump() throws Exception {
+        startPumpProcess(conn);
+    }
+
     public String formatColumn(ResultSet rs, String table, String column){
         String toReturn = "null";
 
@@ -86,7 +90,7 @@ public class Mysql extends Database implements Sgbd {
                         if(rs.getBytes(column).length == 0 || !lob){
                             toReturn = "null";
                         }else{
-                            toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
+                            toReturn = Database.lobWriter(rs.getBytes(column));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
