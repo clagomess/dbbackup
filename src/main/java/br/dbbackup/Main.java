@@ -15,11 +15,11 @@ public class Main {
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("db", true, "{oracle}");
+        option = new Option("db", true, "{oracle, mysql}");
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("url", true, "jdbc:oracle:thin:@0.0.0.0:1521/0.0.0.0");
+        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - jdbc:mysql://localhost/database");
         option.setRequired(true);
         options.addOption(option);
 
@@ -55,6 +55,11 @@ public class Main {
         }
 
         // ### INICIANDO ###
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         Connection conexao = DriverManager.getConnection(
                 cmd.getOptionValue("url"),
@@ -72,6 +77,15 @@ public class Main {
                             cmd.getOptionValue("schema_exp")
                     );
                     oracle.startDump();
+                    break;
+                case "mysql":
+                    Mysql mysql = new Mysql(
+                            conexao,
+                            cmd.getOptionValue("schema"),
+                            (cmd.getOptionValue("lob") != null),
+                            cmd.getOptionValue("schema_exp")
+                    );
+                    mysql.startDump();
                     break;
                 default:
                     System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));

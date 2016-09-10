@@ -9,15 +9,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-public class Database {
-    public final String SQL_TPL = "INSERT INTO %s.%s (%s) VALUES (%s);\r\n";
-    public final String SQL_QUERY = "SELECT * FROM %s.%s";
-
+abstract class Database implements DatabaseInterface {
     private HashMap<String, HashMap<String, String>> tabcolumns = new HashMap<>();
 
     public void setTabColumn(String table, String column, String type) {
         if(!tabcolumns.containsKey(table)){
-            tabcolumns.put(table, new HashMap<String, String>());
+            tabcolumns.put(table, new HashMap<>());
         }
 
         tabcolumns.get(table).put(column, type);
