@@ -1,5 +1,7 @@
-package br.dbbackup;
+package br.dbbackup.sgbd;
 
+
+import br.dbbackup.core.DatabaseInterface;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -9,15 +11,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-interface DatabaseInterface {
+public interface Sgbd extends DatabaseInterface {
     String SQL_TPL = "INSERT INTO %s.%s (%s) VALUES (%s);\r\n";
     String SQL_QUERY = "SELECT * FROM %s.%s";
 
-    List<String> getTables();
-    List<String> getColumns(String table);
-    Writer getSqlWriter(String owner, String table);
-
-    // PARA SGDB
     void startDump() throws SQLException;
 
     String formatColumn(ResultSet rs, String table, String column);

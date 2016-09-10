@@ -1,4 +1,7 @@
-package br.dbbackup;
+package br.dbbackup.sgbd;
+
+import br.dbbackup.core.Database;
+import br.dbbackup.core.Msg;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
@@ -8,16 +11,18 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 
-class Mysql extends Database {
+public class Oracle extends Database implements Sgbd {
     private Connection conn = null;
     private String owner = null;
     private Boolean lob = false;
     private String owner_exp = null;
 
-    private final String SQL_TAB_COLUMNS = "select table_name, column_name, data_type " +
-            "from information_schema.columns where table_schema = '%s'";
+    private final String SQL_TAB_COLUMNS = "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
+    "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
+    "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
+    "WHERE SATC.OWNER = '%s'";
 
-    Mysql(Connection conn, String owner, Boolean lob, String owner_exp){
+    public Oracle(Connection conn, String owner, Boolean lob, String owner_exp){
         this.conn = conn;
         this.owner = owner;
         this.lob = lob;
@@ -40,9 +45,9 @@ class Mysql extends Database {
 
         while(rs.next()) {
             setTabColumn(
-                    rs.getString("table_name"),
-                    rs.getString("column_name"),
-                    rs.getString("data_type")
+                    rs.getString("TABLE_NAME"),
+                    rs.getString("COLUMN_NAME"),
+                    rs.getString("DATA_TYPE")
             );
         }
 
@@ -50,46 +55,42 @@ class Mysql extends Database {
     }
 
     public String formatColumn(ResultSet rs, String table, String column){
-        String toReturn = "null";
+        String toReturn = "NULL";
 
         try {
             if(rs.getObject(column) != null){
-                SimpleDateFormat sdf;
-
                 switch (getColumnType(table, column)){
-                    case "int":
-                    case "bigint":
-                    case "decimal":
-                    case "tinyint":
+                    case "NUMBER":
                         toReturn = rs.getString(column);
                         break;
-                    case "datetime":
-                        toReturn = "str_to_date('%s', '%%Y-%%m-%%d %%H:%%i:%%s')";
+                    case "CHAR":
+                        toReturn = String.format("'%s'", rs.getString(column));
+                        break;
+                    case "DATE":
+                        toReturn = "TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS')";
 
-                        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "date":
-                        toReturn = "str_to_date('%s', '%%Y-%%m-%%d')";
-
-                        sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
-                        break;
-                    case "blob":
-                    case "longblob":
-                    case "longtext":
+                    case "BLOB":
                         if(rs.getBytes(column).length == 0 || !lob){
-                            toReturn = "null";
+                            toReturn = "EMPTY_BLOB()";
                         }else{
                             toReturn = Database.lobWriter(owner, table, column, rs.getBytes(column));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
-                    case "varchar":
-                    case "text":
-                        toReturn = "from_base64('%s')";
+                    case "CLOB":
+                        if(rs.getString(column) == null || !lob){
+                            toReturn = "EMPTY_CLOB()";
+                        }else{
+                            toReturn = Database.lobWriter(owner, table, column, rs.getString(column).getBytes("UTF-8"));
+                            toReturn = ":lob_" + toReturn;
+                        }
+                        break;
+                    case "VARCHAR2":
+                        toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
                 }

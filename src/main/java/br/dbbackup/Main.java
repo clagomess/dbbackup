@@ -1,13 +1,15 @@
 package br.dbbackup;
 
+import br.dbbackup.sgbd.Mysql;
+import br.dbbackup.sgbd.Oracle;
+import br.dbbackup.sgbd.Sgbd;
 import org.apache.commons.cli.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws Exception {
         Options options = new Options();
         Option option;
 
@@ -67,29 +69,32 @@ public class Main {
                 cmd.getOptionValue("pass")
         );
 
+        // ### Instanciando SGBD ###
+        Sgbd sgbd;
+
+        switch (cmd.getOptionValue("db")) {
+            case "oracle":
+                sgbd = new Oracle(
+                        conexao,
+                        cmd.getOptionValue("schema"),
+                        (cmd.getOptionValue("lob") != null),
+                        cmd.getOptionValue("schema_exp")
+                );
+                break;
+            case "mysql":
+                sgbd = new Mysql(
+                        conexao,
+                        cmd.getOptionValue("schema"),
+                        (cmd.getOptionValue("lob") != null),
+                        cmd.getOptionValue("schema_exp")
+                );
+                break;
+            default:
+                throw new Exception(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));
+        }
+
         if(cmd.getOptionValue("ope").equals("get")) {
-            switch (cmd.getOptionValue("db")) {
-                case "oracle":
-                    Oracle oracle = new Oracle(
-                            conexao,
-                            cmd.getOptionValue("schema"),
-                            (cmd.getOptionValue("lob") != null),
-                            cmd.getOptionValue("schema_exp")
-                    );
-                    oracle.startDump();
-                    break;
-                case "mysql":
-                    Mysql mysql = new Mysql(
-                            conexao,
-                            cmd.getOptionValue("schema"),
-                            (cmd.getOptionValue("lob") != null),
-                            cmd.getOptionValue("schema_exp")
-                    );
-                    mysql.startDump();
-                    break;
-                default:
-                    System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));
-            }
+            sgbd.startDump();
         }else{
             System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("ope")));
         }

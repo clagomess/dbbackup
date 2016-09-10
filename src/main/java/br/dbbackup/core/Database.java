@@ -1,4 +1,4 @@
-package br.dbbackup;
+package br.dbbackup.core;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-abstract class Database implements DatabaseInterface {
+public abstract class Database implements DatabaseInterface {
     private HashMap<String, HashMap<String, String>> tabcolumns = new HashMap<>();
 
     public void setTabColumn(String table, String column, String type) {
