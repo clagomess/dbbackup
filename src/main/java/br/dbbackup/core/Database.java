@@ -1,18 +1,20 @@
 package br.dbbackup.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public abstract class Database implements DatabaseInterface {
-    private HashMap<String, HashMap<String, String>> tabcolumns = new HashMap<>();
+    private Map<String, Map<String, String>> tabcolumns = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(Database.class);
+    private static final String EXCEPTION_LABEL = "ERRO NO Database";
 
-    public void setTabColumn(String table, String column, String type) {
+    protected void setTabColumn(String table, String column, String type) {
         if(!tabcolumns.containsKey(table)){
             tabcolumns.put(table, new HashMap<>());
         }
@@ -20,7 +22,7 @@ public abstract class Database implements DatabaseInterface {
         tabcolumns.get(table).put(column, type);
     }
 
-    public String getColumnType(String table, String column) {
+    protected String getColumnType(String table, String column) {
         return tabcolumns.get(table).get(column);
     }
 
@@ -55,25 +57,22 @@ public abstract class Database implements DatabaseInterface {
             }
 
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(String.format("dump/%s.%s.sql", owner, table)), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException|FileNotFoundException e) {
+            logger.warn(EXCEPTION_LABEL, e);
             System.exit(0);
         }
 
         return out;
     }
 
-    public static String lobWriter(byte[] rs){
+    protected static String lobWriter(byte[] rs){
         String bindName = Double.toString(Calendar.getInstance().getTime().getTime() * Math.random());
 
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             bindName = String.format("%032x", new BigInteger(1, md.digest(bindName.getBytes())));
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.warn(EXCEPTION_LABEL, e);
             System.exit(0);
         }
 
@@ -87,14 +86,8 @@ public abstract class Database implements DatabaseInterface {
             FileOutputStream out = new FileOutputStream(String.format("dump/lob/lob_%s.bin", bindName));
 
             out.write(rs);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.exit(0);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(EXCEPTION_LABEL, e);
             System.exit(0);
         }
 

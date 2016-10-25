@@ -2,6 +2,8 @@ package br.dbbackup.sgbd;
 
 import br.dbbackup.core.Database;
 import br.dbbackup.core.Msg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
@@ -12,6 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 public class Mysql extends Database implements Sgbd {
+    private static final Logger logger = LoggerFactory.getLogger(Mysql.class);
+    private static final String EXCEPTION_LABEL = "ERRO NO Mysql";
+
     private Connection conn = null;
     private String owner = null;
     private Boolean lob = false;
@@ -36,8 +41,8 @@ public class Mysql extends Database implements Sgbd {
         ResultSet rs;
         Statement stmt = conn.createStatement();
 
-        System.out.println(Msg.MSG_CONECTADO);
-        System.out.println(Msg.MSG_TBL_EXPORTACAO);
+        logger.info(Msg.MSG_CONECTADO);
+        logger.info(Msg.MSG_TBL_EXPORTACAO);
 
         rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
 
@@ -101,11 +106,8 @@ public class Mysql extends Database implements Sgbd {
                         break;
                 }
             }
-        }catch (SQLException e){
-            e.printStackTrace();
-            System.exit(0);
-        }catch (UnsupportedEncodingException e){
-            e.printStackTrace();
+        }catch (SQLException|UnsupportedEncodingException e){
+            logger.warn(EXCEPTION_LABEL, e);
             System.exit(0);
         }
 

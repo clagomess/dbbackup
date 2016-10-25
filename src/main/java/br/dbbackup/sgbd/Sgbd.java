@@ -2,6 +2,8 @@ package br.dbbackup.sgbd;
 
 
 import br.dbbackup.core.DatabaseInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.*;
@@ -11,6 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Sgbd extends DatabaseInterface {
+    Logger logger = LoggerFactory.getLogger(Sgbd.class);
+    String EXCEPTION_LABEL = "ERRO NO Sgbd";
+
     String SQL_TPL = "INSERT INTO %s.%s (%s) VALUES (%s);\r\n";
     String SQL_QUERY = "SELECT * FROM %s.%s";
 
@@ -24,13 +29,13 @@ public interface Sgbd extends DatabaseInterface {
         ResultSet rs;
 
         for (String table : getTables()){
-            System.out.println(String.format("-> %s.%s", owner, table));
+            logger.info("-> {}.{}", owner, table);
         }
 
         // Inicio processamento
-        System.out.println("\n\n### Iniciando DUMP ###");
+        logger.info("\n\n### Iniciando DUMP ###");
         for (String table : getTables()){
-            System.out.println(String.format("DUMP Table: \"%s.%s\"", owner, table));
+            logger.info("DUMP Table: \"{}.{}\"", owner, table);
 
             rs = stmt.executeQuery(String.format(SQL_QUERY, owner, table));
 
@@ -52,7 +57,7 @@ public interface Sgbd extends DatabaseInterface {
                             String.join(", ", param)
                     ));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.warn(EXCEPTION_LABEL, e);
                     System.exit(0);
                 }
             }
@@ -60,7 +65,7 @@ public interface Sgbd extends DatabaseInterface {
             try {
                 out.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn(EXCEPTION_LABEL, e);
                 System.exit(0);
             }
         }
@@ -75,13 +80,13 @@ public interface Sgbd extends DatabaseInterface {
                 if (sql.isFile()) {
                     if(sql.getName().contains(".sql")) {
                         // abre aquivo para leitura
-                        System.out.println(String.format("### %s", sql.getName()));
+                        logger.info("### {}", sql.getName());
 
                         BufferedReader br = new BufferedReader(new FileReader("dump/" + sql.getName()));
 
                         String dml;
                         while ((dml = br.readLine()) != null) {
-                            System.out.println(dml);
+                            logger.info("### {}", dml);
 
                             // Verifica se tem lob
                             if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){

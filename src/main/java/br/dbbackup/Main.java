@@ -4,11 +4,16 @@ import br.dbbackup.sgbd.Mysql;
 import br.dbbackup.sgbd.Oracle;
 import br.dbbackup.sgbd.Sgbd;
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final String EXCEPTION_LABEL = "ERRO NO Main";
+
     public static void main(String[] args) throws Exception {
         Options options = new Options();
         Option option;
@@ -50,7 +55,7 @@ public class Main {
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            logger.info(e.getMessage());
             formatter.printHelp("dbbackup", options);
 
             System.exit(1);
@@ -60,7 +65,8 @@ public class Main {
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.warn(EXCEPTION_LABEL, e);
+            return;
         }
 
         Connection conexao = DriverManager.getConnection(
@@ -90,7 +96,8 @@ public class Main {
                 );
                 break;
             default:
-                throw new Exception(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));
+                logger.warn("{} não implementado!", cmd.getOptionValue("db"));
+                return;
         }
 
         if (cmd.getOptionValue("ope").equals("get")) {
@@ -98,7 +105,7 @@ public class Main {
         } else if (cmd.getOptionValue("ope").equals("put")) {
             sgbd.startPump();
         } else {
-            System.out.println(String.format("\"%s\" não implementado!", cmd.getOptionValue("ope")));
+            logger.warn("{} não implementado!", cmd.getOptionValue("ope"));
         }
 
         conexao.close();
