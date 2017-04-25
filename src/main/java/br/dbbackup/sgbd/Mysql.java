@@ -1,7 +1,10 @@
 package br.dbbackup.sgbd;
 
 import br.dbbackup.core.Database;
+import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.Msg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
@@ -12,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 public class Mysql extends Database implements Sgbd {
+    private Logger logger = LoggerFactory.getLogger(Mysql.class);
     private Connection conn = null;
     private String owner = null;
     private Boolean lob = false;
@@ -32,31 +36,43 @@ public class Mysql extends Database implements Sgbd {
         }
     }
 
-    public void startDump() throws SQLException {
-        ResultSet rs;
-        Statement stmt = conn.createStatement();
+    public void startDump() throws DbbackupException {
+        ResultSet rs = null;
 
-        System.out.println(Msg.MSG_CONECTADO);
-        System.out.println(Msg.MSG_TBL_EXPORTACAO);
+        try(Statement stmt = conn.createStatement()) {
+            logger.info(Msg.MSG_CONECTADO);
+            logger.info(Msg.MSG_TBL_EXPORTACAO);
 
-        rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
+            rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
 
-        while(rs.next()) {
-            setTabColumn(
-                    rs.getString("table_name"),
-                    rs.getString("column_name"),
-                    rs.getString("data_type")
-            );
+            while (rs.next()) {
+                setTabColumn(
+                        rs.getString("table_name"),
+                        rs.getString("column_name"),
+                        rs.getString("data_type")
+                );
+            }
+
+            this.startDumpProcess(stmt, owner, owner_exp);
+        } catch (SQLException e) {
+            logger.warn(Mysql.class.getName(), e);
+            throw new DbbackupException(e.getMessage());
+        } finally {
+            if(rs != null){
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    logger.warn(Mysql.class.getName(), e);
+                }
+            }
         }
-
-        startDumpProcess(stmt, owner, owner_exp);
     }
 
-    public void startPump() throws Exception {
+    public void startPump() throws DbbackupException {
         startPumpProcess(conn);
     }
 
-    public String formatColumn(ResultSet rs, String table, String column){
+    public String formatColumn(ResultSet rs, String table, String column) throws DbbackupException {
         String toReturn = "null";
 
         try {
@@ -101,12 +117,9 @@ public class Mysql extends Database implements Sgbd {
                         break;
                 }
             }
-        }catch (SQLException e){
-            e.printStackTrace();
-            System.exit(0);
-        }catch (UnsupportedEncodingException e){
-            e.printStackTrace();
-            System.exit(0);
+        }catch (SQLException | UnsupportedEncodingException e){
+            logger.warn(Mysql.class.getName(), e);
+            throw new DbbackupException(e.getMessage());
         }
 
         return toReturn;
