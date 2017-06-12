@@ -3,6 +3,7 @@ package br.dbbackup;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.sgbd.Mysql;
 import br.dbbackup.sgbd.Oracle;
+import br.dbbackup.sgbd.Postgresql;
 import br.dbbackup.sgbd.Sgbd;
 import org.apache.commons.cli.*;
 import org.apache.log4j.*;
@@ -76,16 +77,27 @@ public class Main {
                             cmd.getOptionValue("schema_exp")
                     );
                     break;
+                case "postgresql":
+                    sgbd = new Postgresql(
+                            conexao,
+                            cmd.getOptionValue("schema"),
+                            (cmd.getOptionValue("lob") != null),
+                            cmd.getOptionValue("schema_exp")
+                    );
+                    break;
                 default:
                     throw new DbbackupException(String.format("\"%s\" não implementado!", cmd.getOptionValue("db")));
             }
 
-            if ("get".equals(cmd.getOptionValue("ope"))) {
-                sgbd.startDump();
-            } else if ("put".equals(cmd.getOptionValue("ope"))) {
-                sgbd.startPump();
-            } else {
-                throw new DbbackupException(String.format("\"%s\" não implementado!", cmd.getOptionValue("ope")));
+            switch (cmd.getOptionValue("ope")){
+                case "get":
+                    sgbd.startDump();
+                    break;
+                case "put":
+                    sgbd.startPump();
+                    break;
+                default:
+                    throw new DbbackupException(String.format("\"%s\" não implementado!", cmd.getOptionValue("ope")));
             }
         } catch (SQLException e) {
             logger.warn(Sgbd.class.getName(), e);
@@ -109,11 +121,11 @@ public class Main {
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("db", true, "{oracle, mysql}");
+        option = new Option("db", true, "{oracle, mysql, postgresql}");
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - jdbc:mysql://localhost/database");
+        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - jdbc:mysql://localhost/database - jdbc:postgresql://localhost:5432/postgres");
         option.setRequired(true);
         options.addOption(option);
 

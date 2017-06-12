@@ -14,17 +14,17 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 
-public class Mysql extends Database implements Sgbd {
-    private Logger logger = LoggerFactory.getLogger(Mysql.class);
+public class Postgresql extends Database implements Sgbd {
+    private Logger logger = LoggerFactory.getLogger(Postgresql.class);
     private Connection conn = null;
     private String owner = null;
     private Boolean lob = false;
     private String owner_exp = null;
 
-    private final String SQL_TAB_COLUMNS = "select table_name, column_name, data_type " +
+    private final String SQL_TAB_COLUMNS = "select table_name, column_name, udt_name " +
             "from information_schema.columns where table_schema = '%s'";
 
-    public Mysql(Connection conn, String owner, Boolean lob, String owner_exp){
+    public Postgresql(Connection conn, String owner, Boolean lob, String owner_exp){
         this.conn = conn;
         this.owner = owner;
         this.lob = lob;
@@ -49,20 +49,20 @@ public class Mysql extends Database implements Sgbd {
                 setTabColumn(
                         rs.getString("table_name"),
                         rs.getString("column_name"),
-                        rs.getString("data_type")
+                        rs.getString("udt_name")
                 );
             }
 
             this.startDumpProcess(stmt, owner, owner_exp);
         } catch (SQLException e) {
-            logger.warn(Mysql.class.getName(), e);
+            logger.warn(Postgresql.class.getName(), e);
             throw new DbbackupException(e.getMessage());
         } finally {
             if(rs != null){
                 try {
                     rs.close();
                 } catch (SQLException e) {
-                    logger.warn(Mysql.class.getName(), e);
+                    logger.warn(Postgresql.class.getName(), e);
                 }
             }
         }
@@ -80,29 +80,29 @@ public class Mysql extends Database implements Sgbd {
                 SimpleDateFormat sdf;
 
                 switch (getColumnType(table, column)){
-                    case "int":
-                    case "bigint":
-                    case "decimal":
-                    case "tinyint":
+                    case "float8":
+                    case "numeric":
+                    case "int4":
+                    case "int8":
+                    case "int2":
                         toReturn = rs.getString(column);
                         break;
-                    case "datetime":
-                        toReturn = "str_to_date('%s', '%%Y-%%m-%%d %%H:%%i:%%s')";
+                    case "timestamptz":
+                    case "timestamp":
+                        toReturn = "to_date('%s', 'YYYY-MM-DD HH24:MI:SS')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case "date":
-                        toReturn = "str_to_date('%s', '%%Y-%%m-%%d')";
+                        toReturn = "to_date('%s', 'YYYY-MM-DD')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "blob":
-                    case "longblob":
-                    case "longtext":
+                    case "text":
                         if(rs.getBytes(column).length == 0 || !lob){
                             toReturn = "null";
                         }else{
@@ -111,8 +111,7 @@ public class Mysql extends Database implements Sgbd {
                         }
                         break;
                     case "varchar":
-                    case "text":
-                        toReturn = "from_base64('%s')";
+                        toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
                     default:
@@ -121,7 +120,7 @@ public class Mysql extends Database implements Sgbd {
                 }
             }
         }catch (SQLException | UnsupportedEncodingException e){
-            logger.warn(Mysql.class.getName(), e);
+            logger.warn(Postgresql.class.getName(), e);
             throw new DbbackupException(e.getMessage());
         }
 

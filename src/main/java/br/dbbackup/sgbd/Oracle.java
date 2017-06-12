@@ -113,6 +113,9 @@ public class Oracle extends Database implements Sgbd {
                         toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
+                    default:
+                        toReturn = "'%s'";
+                        toReturn = String.format(toReturn, rs.getString(column));
                 }
             }
         } catch (SQLException | UnsupportedEncodingException e){
