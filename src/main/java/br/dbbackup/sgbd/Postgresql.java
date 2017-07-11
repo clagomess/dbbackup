@@ -21,8 +21,13 @@ public class Postgresql extends Database implements Sgbd {
     private Boolean lob = false;
     private String owner_exp = null;
 
-    private final String SQL_TAB_COLUMNS = "select table_name, column_name, udt_name " +
-            "from information_schema.columns where table_schema = '%s'";
+    private final String SQL_TAB_COLUMNS = "select c.table_name, c.column_name, c.udt_name\n" +
+            "from information_schema.columns c\n" +
+            "JOIN information_schema.tables t\n" +
+            "  on t.table_catalog = c.table_catalog\n" +
+            "  AND t.table_schema = c.table_schema\n" +
+            "  AND t.table_name = c.table_name\n" +
+            "where c.table_schema = '%s' AND t.table_type <> 'VIEW'";
 
     public Postgresql(Connection conn, String owner, Boolean lob, String owner_exp){
         this.conn = conn;
