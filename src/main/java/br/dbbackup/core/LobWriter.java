@@ -17,6 +17,7 @@ public class LobWriter {
         String bindName = Double.toString(Calendar.getInstance().getTime().getTime() * Math.random());
 
         try {
+            // @TODO: botar UUID
             MessageDigest md = MessageDigest.getInstance("MD5");
             bindName = String.format("%032x", new BigInteger(1, md.digest(bindName.getBytes())));
         } catch (NoSuchAlgorithmException e) {
