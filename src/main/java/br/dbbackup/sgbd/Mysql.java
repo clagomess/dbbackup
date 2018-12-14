@@ -14,13 +14,29 @@ import java.util.Map;
 
 @Slf4j
 public class Mysql implements SgbdImpl {
-    protected static String SQL_TAB_COLUMNS = "select table_name, column_name, data_type " +
-            "from information_schema.columns where table_schema = '%s'";
-    String TAB_COLUMN_TABLE_NAME = "table_name";
-    String TAB_COLUMN_COLUMN_NAME = "column_name";
-    String TAB_COLUMN_DATA_TYPE = "data_type";
+    @Override
+    public String getSqlTabColumns() {
+        return "select table_name, column_name, data_type " +
+                "from information_schema.columns where table_schema = '%s'";
+    }
 
-    public static String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
+    @Override
+    public String getTabColumnTableName() {
+        return "table_name";
+    }
+
+    @Override
+    public String getTabColumnColumnName() {
+        return "column_name";
+    }
+
+    @Override
+    public String getTabColumnDataType() {
+        return "data_type";
+    }
+
+    @Override
+    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
         try {

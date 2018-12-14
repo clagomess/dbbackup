@@ -25,5 +25,9 @@ public class OptionsDto {
         this.schema = cmd.getOptionValue("schema");
         this.exportLob = cmd.getOptionValue("lob") != null;
         this.schemaNewName = cmd.getOptionValue("schema_exp");
+
+        if(this.schemaNewName == null){
+            this.schemaNewName = this.schema;
+        }
     }
 }

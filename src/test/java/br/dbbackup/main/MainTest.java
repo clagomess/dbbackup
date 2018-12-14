@@ -19,8 +19,6 @@ public class MainTest {
 
     @Test
     public void mysqlGet() throws Throwable {
-        exit.expectSystemExit();
-
         Main.main(new String[]{
                 "-db", "MYSQL",
                 "-lob", "1",

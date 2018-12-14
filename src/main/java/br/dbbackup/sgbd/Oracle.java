@@ -14,14 +14,30 @@ import java.util.Map;
 
 @Slf4j
 public class Oracle implements SgbdImpl {
-    private static final String SQL_TAB_COLUMNS = "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
-    "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
-    "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
-    "WHERE SATC.OWNER = '%s'";
-    String TAB_COLUMN_TABLE_NAME = "TABLE_NAME";
-    String TAB_COLUMN_COLUMN_NAME = "COLUMN_NAME";
-    String TAB_COLUMN_DATA_TYPE = "DATA_TYPE";
+    @Override
+    public String getSqlTabColumns() {
+        return "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
+                "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
+                "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
+                "WHERE SATC.OWNER = '%s'";
+    }
 
+    @Override
+    public String getTabColumnTableName() {
+        return "TABLE_NAME";
+    }
+
+    @Override
+    public String getTabColumnColumnName() {
+        return "COLUMN_NAME";
+    }
+
+    @Override
+    public String getTabColumnDataType() {
+        return "DATA_TYPE";
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws DbbackupException {
         String toReturn = "NULL";
 

@@ -46,13 +46,13 @@ public class Main {
 
             switch (options.getDatabase()) {
                 case ORACLE:
-                    sgbd = new Sgbd<Oracle>(conexao, options);
+                    sgbd = new Sgbd<>(new Oracle(), conexao, options);
                     break;
                 case MYSQL:
-                    sgbd = new Sgbd<Mysql>(conexao, options);
+                    sgbd = new Sgbd<>(new Mysql(), conexao, options);
                     break;
                 case POSTGRESQL:
-                    sgbd = new Sgbd<Postgresql>(conexao, options);
+                    sgbd = new Sgbd<>(new Postgresql(), conexao, options);
                     break;
                 default:
                     throw new DbbackupException(String.format("\"%s\" não implementado!", options.getDatabase()));

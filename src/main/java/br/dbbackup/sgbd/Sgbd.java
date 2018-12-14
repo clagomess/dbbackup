@@ -17,11 +17,13 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class Sgbd<T extends SgbdImpl> {
+    private T instance;
     private Map<String, Map<String, String>> tabcolumns = new HashMap<>();
     private Connection conn;
     private OptionsDto options;
 
-    public Sgbd(Connection conn, OptionsDto options){
+    public Sgbd(T instance, Connection conn, OptionsDto options){
+        this.instance = instance;
         this.conn = conn;
         this.options = options;
     }
@@ -33,13 +35,13 @@ public class Sgbd<T extends SgbdImpl> {
             log.info(Msg.MSG_CONECTADO);
             log.info(Msg.MSG_TBL_EXPORTACAO);
 
-            rs = stmt.executeQuery(String.format(T.SQL_TAB_COLUMNS, options.getSchema()));
+            rs = stmt.executeQuery(String.format(instance.getSqlTabColumns(), options.getSchema()));
 
             while (rs.next()) {
-                tabcolumns = T.setTabColumn(
-                        rs.getString(T.TAB_COLUMN_TABLE_NAME),
-                        rs.getString(T.TAB_COLUMN_COLUMN_NAME),
-                        rs.getString(T.TAB_COLUMN_DATA_TYPE)
+                setTabColumn(
+                        rs.getString(instance.getTabColumnTableName()),
+                        rs.getString(instance.getTabColumnColumnName()),
+                        rs.getString(instance.getTabColumnDataType())
                 );
             }
 
@@ -87,7 +89,7 @@ public class Sgbd<T extends SgbdImpl> {
                     List<String> param = new ArrayList<>();
 
                     for (String column : getColumns(table)) {
-                        param.add(T.formatColumn(options, tabcolumns, rs, table, column));
+                        param.add(instance.formatColumn(options, tabcolumns, rs, table, column));
                     }
 
                     out.write(String.format(
@@ -107,7 +109,7 @@ public class Sgbd<T extends SgbdImpl> {
         }
     }
 
-    protected void startPumpProcess(Connection conn) throws DbbackupException {
+    private void startPumpProcess(Connection conn) throws DbbackupException {
         File dumpDir = new File("dump/");
         File[] sqlList = dumpDir.listFiles();
         PreparedStatement pstmt = null;
@@ -181,7 +183,7 @@ public class Sgbd<T extends SgbdImpl> {
         }
     }
 
-    public List<String> getColumns(String table) {
+    private List<String> getColumns(String table) {
         ArrayList<String> columns = new ArrayList<>();
 
         columns.addAll(tabcolumns.get(table).keySet());
@@ -189,11 +191,19 @@ public class Sgbd<T extends SgbdImpl> {
         return columns;
     }
 
-    public List<String> getTables() {
+    private List<String> getTables() {
         ArrayList<String> tables = new ArrayList<>();
 
         tables.addAll(tabcolumns.keySet());
 
         return tables;
+    }
+
+    private void setTabColumn(String table, String column, String type) {
+        if(!tabcolumns.containsKey(table)){
+            tabcolumns.put(table, new HashMap<>());
+        }
+
+        tabcolumns.get(table).put(column, type);
     }
 }

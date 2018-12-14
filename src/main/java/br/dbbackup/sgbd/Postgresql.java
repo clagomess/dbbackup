@@ -14,18 +14,33 @@ import java.util.Map;
 
 @Slf4j
 public class Postgresql implements SgbdImpl {
-    private final String SQL_TAB_COLUMNS = "select c.table_name, c.column_name, c.udt_name\n" +
-            "from information_schema.columns c\n" +
-            "JOIN information_schema.tables t\n" +
-            "  on t.table_catalog = c.table_catalog\n" +
-            "  AND t.table_schema = c.table_schema\n" +
-            "  AND t.table_name = c.table_name\n" +
-            "where c.table_schema = '%s' AND t.table_type <> 'VIEW'";
+    @Override
+    public String getSqlTabColumns() {
+        return "select c.table_name, c.column_name, c.udt_name\n" +
+                "from information_schema.columns c\n" +
+                "JOIN information_schema.tables t\n" +
+                "  on t.table_catalog = c.table_catalog\n" +
+                "  AND t.table_schema = c.table_schema\n" +
+                "  AND t.table_name = c.table_name\n" +
+                "where c.table_schema = '%s' AND t.table_type <> 'VIEW'";
+    }
 
-    String TAB_COLUMN_TABLE_NAME = "table_name";
-    String TAB_COLUMN_COLUMN_NAME = "column_name";
-    String TAB_COLUMN_DATA_TYPE = "udt_name";
+    @Override
+    public String getTabColumnTableName() {
+        return "table_name";
+    }
 
+    @Override
+    public String getTabColumnColumnName() {
+        return "column_name";
+    }
+
+    @Override
+    public String getTabColumnDataType() {
+        return "udt_name";
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws DbbackupException {
         String toReturn = "null";
 
