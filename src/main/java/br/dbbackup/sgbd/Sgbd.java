@@ -1,32 +1,70 @@
 package br.dbbackup.sgbd;
 
 
-import br.dbbackup.core.DatabaseInterface;
 import br.dbbackup.core.DbbackupException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.dbbackup.core.Msg;
+import br.dbbackup.dto.OptionsDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface Sgbd extends DatabaseInterface {
-    Logger logger = LoggerFactory.getLogger(Sgbd.class);
-    String SQL_TPL = "INSERT INTO %s.%s (%s) VALUES (%s);\r\n";
-    String SQL_QUERY = "SELECT * FROM %s.%s";
+@Slf4j
+public class Sgbd<T extends SgbdImpl> {
+    private Map<String, Map<String, String>> tabcolumns = new HashMap<>();
+    private Connection conn;
+    private OptionsDto options;
 
-    void startDump() throws DbbackupException;
+    public Sgbd(Connection conn, OptionsDto options){
+        this.conn = conn;
+        this.options = options;
+    }
 
-    void startPump() throws DbbackupException;
+    public void startDump() throws Throwable {
+        ResultSet rs = null;
 
-    String formatColumn(ResultSet rs, String table, String column) throws DbbackupException;
+        try(Statement stmt = conn.createStatement()) {
+            log.info(Msg.MSG_CONECTADO);
+            log.info(Msg.MSG_TBL_EXPORTACAO);
 
-    default void startDumpProcess(Statement stmt, String owner, String owner_exp) throws DbbackupException {
+            rs = stmt.executeQuery(String.format(T.SQL_TAB_COLUMNS, options.getSchema()));
+
+            while (rs.next()) {
+                tabcolumns = T.setTabColumn(
+                        rs.getString(T.TAB_COLUMN_TABLE_NAME),
+                        rs.getString(T.TAB_COLUMN_COLUMN_NAME),
+                        rs.getString(T.TAB_COLUMN_DATA_TYPE)
+                );
+            }
+
+            this.startDumpProcess(stmt);
+        } catch (SQLException e) {
+            log.warn(Mysql.class.getName(), e);
+            throw new DbbackupException(e.getMessage());
+        } finally {
+            if(rs != null){
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    log.warn(Mysql.class.getName(), e);
+                }
+            }
+        }
+    }
+
+    public void startPump() throws Throwable {
+        startPumpProcess(conn);
+    }
+
+    private void startDumpProcess(Statement stmt) throws Throwable {
         for (String table : getTables()){
-            logger.info("-> {}.{}", owner, table);
+            log.info("-> {}.{}", options.getSchema(), table);
         }
 
         File outDir = new File("dump/");
@@ -35,13 +73,13 @@ public interface Sgbd extends DatabaseInterface {
         }
 
         // Inicio processamento
-        logger.info("### Iniciando DUMP ###");
+        log.info("### Iniciando DUMP ###");
         for (String table : getTables()){
-            logger.info("DUMP Table: \"{}.{}\"", owner, table);
+            log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
             try (
-                FileOutputStream fos = new FileOutputStream(String.format("dump/%s.%s.sql", owner, table));
-                ResultSet rs = stmt.executeQuery(String.format(SQL_QUERY, owner, table))
+                FileOutputStream fos = new FileOutputStream(String.format("dump/%s.%s.sql", options.getSchema(), table));
+                ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s", options.getSchema(), table))
             ){
                 OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
@@ -49,12 +87,12 @@ public interface Sgbd extends DatabaseInterface {
                     List<String> param = new ArrayList<>();
 
                     for (String column : getColumns(table)) {
-                        param.add(formatColumn(rs, table, column));
+                        param.add(T.formatColumn(options, tabcolumns, rs, table, column));
                     }
 
                     out.write(String.format(
-                            SQL_TPL,
-                            owner_exp,
+                            "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
+                            options.getSchemaNewName(),
                             table,
                             String.join(", ", getColumns(table)),
                             String.join(", ", param)
@@ -62,14 +100,14 @@ public interface Sgbd extends DatabaseInterface {
 
                     out.flush();
                 }
-            } catch (IOException|SQLException e) {
-                logger.warn(Sgbd.class.getName(), e);
+            } catch (Throwable e) {
+                log.warn(Sgbd.class.getName(), e);
                 throw new DbbackupException(e.getMessage());
             }
         }
     }
 
-    default void startPumpProcess(Connection conn) throws DbbackupException {
+    protected void startPumpProcess(Connection conn) throws DbbackupException {
         File dumpDir = new File("dump/");
         File[] sqlList = dumpDir.listFiles();
         PreparedStatement pstmt = null;
@@ -82,14 +120,14 @@ public interface Sgbd extends DatabaseInterface {
         for (File sql : sqlList) {
             if(sql.isFile() && sql.getName().contains(".sql")) {
                 // abre aquivo para leitura
-                logger.info("### {}", sql.getName());
+                log.info("### {}", sql.getName());
 
                 try (FileReader fr = new FileReader("dump/" + sql.getName())){
                     BufferedReader br = new BufferedReader(fr);
 
                     String dml;
                     while ((dml = br.readLine()) != null) {
-                        logger.info(dml);
+                        log.info(dml);
 
                         // Verifica se tem lob
                         if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
@@ -120,14 +158,14 @@ public interface Sgbd extends DatabaseInterface {
                         }
                     }
                 } catch (IOException | SQLException e) {
-                    logger.warn(Sgbd.class.getName(), e);
+                    log.warn(Sgbd.class.getName(), e);
                     throw new DbbackupException(e.getMessage());
                 } finally {
                     if(pstmt != null){
                         try {
                             pstmt.close();
                         } catch (SQLException e) {
-                            logger.warn(Sgbd.class.getName(), e);
+                            log.warn(Sgbd.class.getName(), e);
                         }
                     }
 
@@ -135,11 +173,27 @@ public interface Sgbd extends DatabaseInterface {
                         try {
                             stmt.close();
                         } catch (SQLException e) {
-                            logger.warn(Sgbd.class.getName(), e);
+                            log.warn(Sgbd.class.getName(), e);
                         }
                     }
                 }
             }
         }
+    }
+
+    public List<String> getColumns(String table) {
+        ArrayList<String> columns = new ArrayList<>();
+
+        columns.addAll(tabcolumns.get(table).keySet());
+
+        return columns;
+    }
+
+    public List<String> getTables() {
+        ArrayList<String> tables = new ArrayList<>();
+
+        tables.addAll(tabcolumns.keySet());
+
+        return tables;
     }
 }

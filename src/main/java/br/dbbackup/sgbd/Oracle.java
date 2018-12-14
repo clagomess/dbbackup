@@ -1,85 +1,33 @@
 package br.dbbackup.sgbd;
 
-import br.dbbackup.core.Database;
 import br.dbbackup.core.DbbackupException;
-import br.dbbackup.core.Msg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.dbbackup.core.LobWriter;
+import br.dbbackup.dto.OptionsDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Map;
 
-public class Oracle extends Database implements Sgbd {
-    private Logger logger = LoggerFactory.getLogger(Oracle.class);
-    private Connection conn = null;
-    private String owner = null;
-    private Boolean lob = false;
-    private String owner_exp = null;
-
+@Slf4j
+public class Oracle implements SgbdImpl {
     private static final String SQL_TAB_COLUMNS = "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
     "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
     "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
     "WHERE SATC.OWNER = '%s'";
+    String TAB_COLUMN_TABLE_NAME = "TABLE_NAME";
+    String TAB_COLUMN_COLUMN_NAME = "COLUMN_NAME";
+    String TAB_COLUMN_DATA_TYPE = "DATA_TYPE";
 
-    public Oracle(Connection conn, String owner, Boolean lob, String owner_exp){
-        this.conn = conn;
-        this.owner = owner.toUpperCase();
-        this.lob = lob;
-
-        if(owner_exp != null){
-            this.owner_exp = owner_exp.toUpperCase();
-        }else{
-            this.owner_exp = owner.toUpperCase();
-        }
-    }
-
-    public void startDump() throws DbbackupException {
-        ResultSet rs = null;
-
-        try(Statement stmt = conn.createStatement()) {
-            logger.info(Msg.MSG_CONECTADO);
-            logger.info(Msg.MSG_TBL_EXPORTACAO);
-
-            rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
-
-            while (rs.next()) {
-                setTabColumn(
-                        rs.getString("TABLE_NAME"),
-                        rs.getString("COLUMN_NAME"),
-                        rs.getString("DATA_TYPE")
-                );
-            }
-
-            startDumpProcess(stmt, owner, owner_exp);
-        } catch (SQLException e) {
-            logger.warn(Sgbd.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
-        } finally {
-            if(rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    logger.warn(Sgbd.class.getName(), e);
-                }
-            }
-        }
-    }
-
-    public void startPump() throws DbbackupException {
-        startPumpProcess(conn);
-    }
-
-    public String formatColumn(ResultSet rs, String table, String column) throws DbbackupException {
+    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws DbbackupException {
         String toReturn = "NULL";
 
         try {
             if(rs.getObject(column) != null){
-                switch (getColumnType(table, column)){
+                switch (tabcolumns.get(table).get(column)){
                     case "NUMBER":
                         toReturn = rs.getString(column);
                         break;
@@ -94,18 +42,18 @@ public class Oracle extends Database implements Sgbd {
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case "BLOB":
-                        if(rs.getBytes(column).length == 0 || !lob){
+                        if(rs.getBytes(column).length == 0 || !options.getExportLob()){
                             toReturn = "EMPTY_BLOB()";
                         }else{
-                            toReturn = Database.lobWriter(rs.getBytes(column));
+                            toReturn = LobWriter.write(rs.getBytes(column));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
                     case "CLOB":
-                        if(rs.getString(column) == null || !lob){
+                        if(rs.getString(column) == null || !options.getExportLob()){
                             toReturn = "EMPTY_CLOB()";
                         }else{
-                            toReturn = Database.lobWriter(rs.getString(column).getBytes("UTF-8"));
+                            toReturn = LobWriter.write(rs.getString(column).getBytes("UTF-8"));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
@@ -119,7 +67,7 @@ public class Oracle extends Database implements Sgbd {
                 }
             }
         } catch (SQLException | UnsupportedEncodingException e){
-            logger.warn(Sgbd.class.getName(), e);
+            log.warn(Sgbd.class.getName(), e);
             throw new DbbackupException(e.getMessage());
         }
 
