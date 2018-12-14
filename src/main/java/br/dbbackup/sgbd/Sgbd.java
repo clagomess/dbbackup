@@ -89,7 +89,7 @@ public class Sgbd<T extends SgbdImpl> {
                     List<String> param = new ArrayList<>();
 
                     for (String column : getColumns(table)) {
-                        param.add(instance.formatColumn(options, tabcolumns, rs, table, column));
+                        param.add(options.getSgbdInstance().formatColumn(options, tabcolumns, rs, table, column));
                     }
 
                     out.write(String.format(

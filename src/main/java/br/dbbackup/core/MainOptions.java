@@ -38,6 +38,10 @@ public class MainOptions {
         option = new Option("schema_exp", true, "Nome do schema para exportacao");
         options.addOption(option);
 
+        option = new Option("dump_format", true, "Formato de saida do dump. Ideal para migracao. Ex.: {ORACLE, MYSQL, POSTGRESQL}");
+        option.setRequired(false);
+        options.addOption(option);
+
         return options;
     }
 }
