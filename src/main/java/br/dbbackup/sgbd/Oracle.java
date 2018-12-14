@@ -16,25 +16,10 @@ import java.util.Map;
 public class Oracle implements SgbdImpl {
     @Override
     public String getSqlTabColumns() {
-        return "SELECT SATC.TABLE_NAME, SATC.COLUMN_NAME, SATC.DATA_TYPE\n" +
+        return "SELECT SATC.TABLE_NAME as \"table_name\", SATC.COLUMN_NAME as \"column_name\", SATC.DATA_TYPE as \"data_type\"\n" +
                 "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
                 "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
                 "WHERE SATC.OWNER = '%s'";
-    }
-
-    @Override
-    public String getTabColumnTableName() {
-        return "TABLE_NAME";
-    }
-
-    @Override
-    public String getTabColumnColumnName() {
-        return "COLUMN_NAME";
-    }
-
-    @Override
-    public String getTabColumnDataType() {
-        return "DATA_TYPE";
     }
 
     @Override

@@ -6,10 +6,7 @@ import java.sql.ResultSet;
 import java.util.Map;
 
 public interface SgbdImpl {
+    // CRIAR SELECT COM OS CAMPOS: table_name, column_name, data_type
     String getSqlTabColumns();
-    String getTabColumnTableName();
-    String getTabColumnColumnName();
-    String getTabColumnDataType();
-
     String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable;
 }

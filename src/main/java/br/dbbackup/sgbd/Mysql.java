@@ -21,21 +21,6 @@ public class Mysql implements SgbdImpl {
     }
 
     @Override
-    public String getTabColumnTableName() {
-        return "table_name";
-    }
-
-    @Override
-    public String getTabColumnColumnName() {
-        return "column_name";
-    }
-
-    @Override
-    public String getTabColumnDataType() {
-        return "data_type";
-    }
-
-    @Override
     public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 

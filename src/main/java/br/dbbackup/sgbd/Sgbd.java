@@ -39,9 +39,9 @@ public class Sgbd<T extends SgbdImpl> {
 
             while (rs.next()) {
                 setTabColumn(
-                        rs.getString(instance.getTabColumnTableName()),
-                        rs.getString(instance.getTabColumnColumnName()),
-                        rs.getString(instance.getTabColumnDataType())
+                        rs.getString("table_name"),
+                        rs.getString("column_name"),
+                        rs.getString("data_type")
                 );
             }
 
