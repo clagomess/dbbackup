@@ -1,5 +1,6 @@
 package br.dbbackup.sgbd;
 
+import br.dbbackup.constant.DataType;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.LobWriter;
 import br.dbbackup.dto.OptionsDto;
@@ -21,6 +22,30 @@ public class Mysql implements SgbdImpl {
     }
 
     @Override
+    public DataType getDataType(String dataType) {
+        switch (dataType){
+            case "int":
+            case "bigint":
+            case "decimal":
+            case "tinyint":
+                return DataType.NUMBER;
+            case "datetime":
+                return DataType.DATETIME;
+            case "date":
+                return DataType.DATE;
+            case "blob":
+            case "longblob":
+            case "longtext":
+                return DataType.BLOB;
+            case "varchar":
+            case "text":
+                return DataType.VARCHAR;
+            default:
+                return DataType.DEFAULT;
+        }
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
@@ -28,30 +53,25 @@ public class Mysql implements SgbdImpl {
             if(rs.getObject(column) != null){
                 SimpleDateFormat sdf;
 
-                switch (tabcolumns.get(table).get(column)){
-                    case "int":
-                    case "bigint":
-                    case "decimal":
-                    case "tinyint":
+                switch (getDataType(tabcolumns.get(table).get(column))){
+                    case NUMBER:
                         toReturn = rs.getString(column);
                         break;
-                    case "datetime":
+                    case DATETIME:
                         toReturn = "str_to_date('%s', '%%Y-%%m-%%d %%H:%%i:%%s')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "date":
+                    case DATE:
                         toReturn = "str_to_date('%s', '%%Y-%%m-%%d')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "blob":
-                    case "longblob":
-                    case "longtext":
+                    case BLOB:
                         if(rs.getBytes(column).length == 0 || !options.getExportLob()){
                             toReturn = "null";
                         }else{
@@ -59,8 +79,7 @@ public class Mysql implements SgbdImpl {
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
-                    case "varchar":
-                    case "text":
+                    case VARCHAR:
                         toReturn = "from_base64('%s')";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;

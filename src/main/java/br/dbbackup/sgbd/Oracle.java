@@ -1,5 +1,6 @@
 package br.dbbackup.sgbd;
 
+import br.dbbackup.constant.DataType;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.LobWriter;
 import br.dbbackup.dto.OptionsDto;
@@ -23,26 +24,43 @@ public class Oracle implements SgbdImpl {
     }
 
     @Override
+    public DataType getDataType(String dataType) {
+        switch (dataType){
+            case "NUMBER":
+                return DataType.NUMBER;
+            case "DATE":
+                return DataType.DATETIME;
+            case "BLOB":
+                return DataType.BLOB;
+            case "CLOB":
+                return DataType.CLOB;
+            case "VARCHAR2":
+                return DataType.VARCHAR;
+            default:
+                return DataType.DEFAULT;
+        }
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws DbbackupException {
         String toReturn = "NULL";
 
         try {
             if(rs.getObject(column) != null){
-                switch (tabcolumns.get(table).get(column)){
-                    case "NUMBER":
+                switch (getDataType(tabcolumns.get(table).get(column))){
+                    case NUMBER:
                         toReturn = rs.getString(column);
                         break;
-                    case "CHAR":
-                        toReturn = String.format("'%s'", rs.getString(column));
-                        break;
-                    case "DATE":
+                    case DATETIME:
+                    case DATE:
+                    case TIME:
                         toReturn = "TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS')";
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "BLOB":
+                    case BLOB:
                         if(rs.getBytes(column).length == 0 || !options.getExportLob()){
                             toReturn = "EMPTY_BLOB()";
                         }else{
@@ -50,7 +68,7 @@ public class Oracle implements SgbdImpl {
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
-                    case "CLOB":
+                    case CLOB:
                         if(rs.getString(column) == null || !options.getExportLob()){
                             toReturn = "EMPTY_CLOB()";
                         }else{
@@ -58,13 +76,12 @@ public class Oracle implements SgbdImpl {
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
-                    case "VARCHAR2":
+                    case VARCHAR:
                         toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
                     default:
-                        toReturn = "'%s'";
-                        toReturn = String.format(toReturn, rs.getString(column));
+                        toReturn = String.format("'%s'", rs.getString(column));
                 }
             }
         } catch (SQLException | UnsupportedEncodingException e){
