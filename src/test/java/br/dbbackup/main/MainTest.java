@@ -53,4 +53,37 @@ public class MainTest {
                 "-workdir", workdir
         });
     }
+
+    @Test
+    public void postgresql() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+        log.info("workdir: {}", workdir);
+
+        // DUMP
+        Main.main(new String[]{
+                "-db", "POSTGRESQL",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.URL_POSTGRESQL,
+                "-user", TestUtil.USER_POSTGRESQL,
+                "-pass", TestUtil.PASS_POSTGRESQL,
+                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup"
+        });
+
+        Assert.assertTrue((new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL))).isFile());
+
+        // PUMP
+        Main.main(new String[]{
+                "-db", "POSTGRESQL",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.URL_POSTGRESQL,
+                "-user", TestUtil.USER_POSTGRESQL,
+                "-pass", TestUtil.PASS_POSTGRESQL,
+                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-workdir", workdir
+        });
+    }
 }
