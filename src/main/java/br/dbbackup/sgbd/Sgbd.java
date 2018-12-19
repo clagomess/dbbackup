@@ -35,7 +35,7 @@ public class Sgbd<T extends SgbdImpl> {
             log.info(Msg.MSG_CONECTADO);
             log.info(Msg.MSG_TBL_EXPORTACAO);
 
-            rs = stmt.executeQuery(String.format(instance.getSqlTabColumns(), options.getSchema()));
+            rs = stmt.executeQuery(instance.getSqlTabColumns(options));
 
             while (rs.next()) {
                 setTabColumn(

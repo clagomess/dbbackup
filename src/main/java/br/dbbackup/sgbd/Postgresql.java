@@ -16,14 +16,22 @@ import java.util.Map;
 @Slf4j
 public class Postgresql implements SgbdImpl {
     @Override
-    public String getSqlTabColumns() {
-        return "select c.table_name, c.column_name, c.udt_name as data_type\n" +
+    public String getSqlTabColumns(OptionsDto options) {
+        String sql = "select c.table_name, c.column_name, c.udt_name as data_type\n" +
                 "from information_schema.columns c\n" +
                 "JOIN information_schema.tables t\n" +
                 "  on t.table_catalog = c.table_catalog\n" +
                 "  AND t.table_schema = c.table_schema\n" +
                 "  AND t.table_name = c.table_name\n" +
-                "where c.table_schema = '%s' AND t.table_type <> 'VIEW'";
+                "where c.table_schema = '%s' AND t.table_type <> 'VIEW'\n";
+
+        sql = String.format(sql, options.getSchema());
+
+        if(options.getTable() != null){
+            sql += String.format("and c.table_name in ('%s')", String.join("','", options.getTable()));
+        }
+
+        return sql;
     }
 
     @Override

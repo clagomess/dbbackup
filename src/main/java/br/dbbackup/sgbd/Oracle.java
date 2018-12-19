@@ -16,11 +16,19 @@ import java.util.Map;
 @Slf4j
 public class Oracle implements SgbdImpl {
     @Override
-    public String getSqlTabColumns() {
-        return "SELECT SATC.TABLE_NAME as \"table_name\", SATC.COLUMN_NAME as \"column_name\", SATC.DATA_TYPE as \"data_type\"\n" +
+    public String getSqlTabColumns(OptionsDto options) {
+        String sql = "SELECT SATC.TABLE_NAME as \"table_name\", SATC.COLUMN_NAME as \"column_name\", SATC.DATA_TYPE as \"data_type\"\n" +
                 "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
                 "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
-                "WHERE SATC.OWNER = '%s'";
+                "WHERE SATC.OWNER = '%s'\n";
+
+        sql = String.format(sql, options.getSchema());
+
+        if(options.getTable() != null){
+            sql += String.format("AND SATC.TABLE_NAME IN ('%s')", String.join("','", options.getTable()));
+        }
+
+        return sql;
     }
 
     @Override

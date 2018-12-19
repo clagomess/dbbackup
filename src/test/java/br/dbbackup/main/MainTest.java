@@ -35,7 +35,8 @@ public class MainTest {
                 "-user", TestUtil.USER_MYSQL,
                 "-pass", TestUtil.PASS_MYSQL,
                 "-schema", TestUtil.SCHEMA_MYSQL,
-                "-workdir", workdir
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup"
         });
 
         Assert.assertTrue((new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_MYSQL))).isFile());

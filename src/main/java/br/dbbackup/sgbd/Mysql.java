@@ -16,9 +16,17 @@ import java.util.Map;
 @Slf4j
 public class Mysql implements SgbdImpl {
     @Override
-    public String getSqlTabColumns() {
-        return "select table_name, column_name, data_type " +
-                "from information_schema.columns where table_schema = '%s'";
+    public String getSqlTabColumns(OptionsDto options) {
+        String sql = "select table_name, column_name, data_type\n" +
+                "from information_schema.columns where table_schema = '%s'\n";
+
+        sql = String.format(sql, options.getSchema());
+
+        if(options.getTable() != null){
+            sql += String.format("and table_name in ('%s')", String.join("','", options.getTable()));
+        }
+
+        return sql;
     }
 
     @Override

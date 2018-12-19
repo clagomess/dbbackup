@@ -26,7 +26,6 @@ public class OptionsDto {
     private List<String> table;
 
     /*
-    @TODO: implementar tabelas especifica
     @TODO: implementar limit de linhas
     @TODO: implementar CHARSET
     */
