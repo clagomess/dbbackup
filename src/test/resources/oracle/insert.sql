@@ -12,4 +12,4 @@ SYSDATE,
 'BLOB',
 'CLOB',
 'VARCHAR2'
-)
+);

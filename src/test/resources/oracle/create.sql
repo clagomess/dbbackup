@@ -4,5 +4,5 @@ create table tbl_dbbackup (
   field_date date,
   field_blob blob,
   field_clob clob,
-  field_varchar2 varchar2
-)
+  field_varchar2 varchar2(200)
+);
