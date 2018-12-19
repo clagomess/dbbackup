@@ -29,42 +29,31 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     public void startDump() throws Throwable {
-        ResultSet rs = null;
+        Statement stmt = conn.createStatement();
+        log.info(Msg.MSG_CONECTADO);
+        log.info(Msg.MSG_TBL_EXPORTACAO);
 
-        try(Statement stmt = conn.createStatement()) {
-            log.info(Msg.MSG_CONECTADO);
-            log.info(Msg.MSG_TBL_EXPORTACAO);
+        ResultSet rs = stmt.executeQuery(instance.getSqlTabColumns(options));
 
-            rs = stmt.executeQuery(instance.getSqlTabColumns(options));
-
-            while (rs.next()) {
-                setTabColumn(
-                        rs.getString("table_name"),
-                        rs.getString("column_name"),
-                        rs.getString("data_type")
-                );
-            }
-
-            this.startDumpProcess(stmt);
-        } catch (SQLException e) {
-            log.warn(Mysql.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
-        } finally {
-            if(rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    log.warn(Mysql.class.getName(), e);
-                }
-            }
+        while (rs.next()) {
+            setTabColumn(
+                    rs.getString("table_name"),
+                    rs.getString("column_name"),
+                    rs.getString("data_type")
+            );
         }
+
+        rs.close();
+        stmt.close();
+
+        this.startDumpProcess();
     }
 
     public void startPump() throws Throwable {
-        startPumpProcess(conn);
+        startPumpProcess();
     }
 
-    private void startDumpProcess(Statement stmt) throws Throwable {
+    private void startDumpProcess() throws Throwable {
         for (String table : getTables()){
             log.info("-> {}.{}", options.getSchema(), table);
         }
@@ -74,46 +63,45 @@ public class Sgbd<T extends SgbdImpl> {
             outDir.mkdir();
         }
 
+        Statement stmt = conn.createStatement();
+
         // Inicio processamento
         log.info("### Iniciando DUMP ###");
         for (String table : getTables()){
             log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
-            try (
-                FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
-                ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s", options.getSchema(), table))
-            ){
-                OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+            FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
+            ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s", options.getSchema(), table));
 
-                while (rs.next()) {
-                    List<String> param = new ArrayList<>();
+            OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
-                    for (String column : getColumns(table)) {
-                        param.add(options.getSgbdInstance().formatColumn(options, tabcolumns, rs, table, column));
-                    }
+            while (rs.next()) {
+                List<String> param = new ArrayList<>();
 
-                    out.write(String.format(
-                            "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
-                            options.getSchemaNewName(),
-                            table,
-                            String.join(", ", getColumns(table)),
-                            String.join(", ", param)
-                    ));
-
-                    out.flush();
+                for (String column : getColumns(table)) {
+                    param.add(options.getSgbdInstance().formatColumn(options, tabcolumns, rs, table, column));
                 }
-            } catch (Throwable e) {
-                log.warn(Sgbd.class.getName(), e);
-                throw new DbbackupException(e.getMessage());
+
+                out.write(String.format(
+                        "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
+                        options.getSchemaNewName(),
+                        table,
+                        String.join(", ", getColumns(table)),
+                        String.join(", ", param)
+                ));
+
+                out.flush();
             }
+
+            rs.close();
         }
+
+        stmt.close();
     }
 
-    private void startPumpProcess(Connection conn) throws DbbackupException {
+    private void startPumpProcess() throws Throwable {
         File dumpDir = new File(options.getWorkdir());
         File[] sqlList = dumpDir.listFiles();
-        PreparedStatement pstmt = null;
-        Statement stmt = null;
 
         if(sqlList == null) {
             throw new DbbackupException("Pasta não localizada!");
@@ -123,66 +111,50 @@ public class Sgbd<T extends SgbdImpl> {
             if(sql.isFile() && sql.getName().contains(".sql")) {
                 // abre aquivo para leitura
                 log.info("### {}", sql.getName());
+                FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
+                BufferedReader br = new BufferedReader(fr);
 
-                try (FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName())){
-                    BufferedReader br = new BufferedReader(fr);
-
-                    String dml;
-                    while ((dml = br.readLine()) != null) {
-                        log.info(dml);
-
-                        // remover ponto virgula
-                        dml = dml.replace(";", "");
-
-                        // Verifica se tem lob
-                        if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
-                            Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);
-
-                            List<String> hash = new ArrayList<>();
-                            while(matcher.find()) {
-                                hash.add(matcher.group(0));
-                            }
-
-                            for(String hitem : hash){
-                                dml = dml.replace(":lob_" + hitem, "?");
-                            }
-
-                            pstmt = conn.prepareStatement(dml);
-
-                            int bindIdx = 1;
-                            for(String hitem : hash){
-                                dml = dml.replace(":lob_" + hash, "?");
-                                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), hitem)));
-                                bindIdx++;
-                            }
-
-                            pstmt.execute();
-                        }else{
-                            stmt = conn.createStatement();
-                            stmt.execute(dml);
-                        }
-                    }
-                } catch (IOException | SQLException e) {
-                    log.warn(Sgbd.class.getName(), e);
-                    throw new DbbackupException(e.getMessage());
-                } finally {
-                    if(pstmt != null){
-                        try {
-                            pstmt.close();
-                        } catch (SQLException e) {
-                            log.warn(Sgbd.class.getName(), e);
-                        }
-                    }
-
-                    if(stmt != null){
-                        try {
-                            stmt.close();
-                        } catch (SQLException e) {
-                            log.warn(Sgbd.class.getName(), e);
-                        }
-                    }
+                String dml;
+                while ((dml = br.readLine()) != null) {
+                    log.info(dml);
+                    pumpScript(dml);
                 }
             }
+        }
+    }
+
+    protected void pumpScript(String dml) throws Throwable {
+        // remover ponto virgula
+        dml = dml.replace(";", "");
+
+        // Verifica se tem lob
+        if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
+            Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);
+
+            List<String> hash = new ArrayList<>();
+            while(matcher.find()) {
+                hash.add(matcher.group(0));
+            }
+
+            for(String hitem : hash){
+                dml = dml.replace(":lob_" + hitem, "?");
+            }
+
+            PreparedStatement pstmt = conn.prepareStatement(dml);
+
+            int bindIdx = 1;
+            for(String hitem : hash){
+                dml = dml.replace(":lob_" + hash, "?");
+                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), hitem)));
+                bindIdx++;
+            }
+
+            pstmt.execute();
+            pstmt.close();
+        }else{
+            Statement stmt = conn.createStatement();
+            stmt.execute(dml);
+            stmt.close();
         }
     }
 
