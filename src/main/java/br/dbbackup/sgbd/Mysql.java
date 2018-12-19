@@ -80,11 +80,8 @@ public class Mysql implements SgbdImpl {
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case BLOB:
-                        if(rs.getBytes(column).length == 0 || !options.getExportLob()){
-                            toReturn = "null";
-                        }else{
+                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
                             toReturn = LobWriter.write(options, rs.getBytes(column));
-                            toReturn = ":lob_" + toReturn;
                         }
                         break;
                     case VARCHAR:

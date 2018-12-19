@@ -50,7 +50,7 @@ public class Oracle implements SgbdImpl {
     }
 
     @Override
-    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws DbbackupException {
+    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "NULL";
 
         try {
@@ -69,19 +69,13 @@ public class Oracle implements SgbdImpl {
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case BLOB:
-                        if(rs.getBytes(column).length == 0 || !options.getExportLob()){
-                            toReturn = "EMPTY_BLOB()";
-                        }else{
+                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
                             toReturn = LobWriter.write(options, rs.getBytes(column));
-                            toReturn = ":lob_" + toReturn;
                         }
                         break;
                     case CLOB:
-                        if(rs.getString(column) == null || !options.getExportLob()){
-                            toReturn = "EMPTY_CLOB()";
-                        }else{
+                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
                             toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
-                            toReturn = ":lob_" + toReturn;
                         }
                         break;
                     case VARCHAR:

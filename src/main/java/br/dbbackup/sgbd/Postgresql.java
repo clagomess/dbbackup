@@ -49,7 +49,7 @@ public class Postgresql implements SgbdImpl {
             case "date":
                 return DataType.DATE;
             case "text":
-                return DataType.BLOB;
+                return DataType.CLOB;
             case "varchar":
                 return DataType.VARCHAR;
             default:
@@ -58,7 +58,7 @@ public class Postgresql implements SgbdImpl {
     }
 
     @Override
-    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws DbbackupException {
+    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
         try {
@@ -70,7 +70,7 @@ public class Postgresql implements SgbdImpl {
                         toReturn = rs.getString(column);
                         break;
                     case DATETIME:
-                        toReturn = "to_date('%s', 'YYYY-MM-DD HH24:MI:SS')";
+                        toReturn = "to_timestamp('%s', 'YYYY-MM-DD HH24:MI:SS')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -84,12 +84,12 @@ public class Postgresql implements SgbdImpl {
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case BLOB:
-                        if(rs.getBytes(column).length == 0 || !options.getExportLob()){
-                            toReturn = "null";
-                        }else{
+                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
                             toReturn = LobWriter.write(options, rs.getBytes(column));
-                            toReturn = ":lob_" + toReturn;
                         }
+                        break;
+                    case CLOB:
+                        toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
                         break;
                     case VARCHAR:
                         toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
