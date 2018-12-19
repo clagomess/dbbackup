@@ -131,6 +131,9 @@ public class Sgbd<T extends SgbdImpl> {
                     while ((dml = br.readLine()) != null) {
                         log.info(dml);
 
+                        // remover ponto virgula
+                        dml = dml.replace(";", "");
+
                         // Verifica se tem lob
                         if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
                             Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);

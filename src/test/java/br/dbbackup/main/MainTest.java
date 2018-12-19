@@ -86,4 +86,37 @@ public class MainTest {
                 "-workdir", workdir
         });
     }
+
+    @Test
+    public void oracle() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+        log.info("workdir: {}", workdir);
+
+        // DUMP
+        Main.main(new String[]{
+                "-db", "ORACLE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.URL_ORACLE,
+                "-user", TestUtil.USER_ORACLE,
+                "-pass", TestUtil.PASS_ORACLE,
+                "-schema", TestUtil.SCHEMA_ORACLE,
+                "-workdir", workdir,
+                "-table", "TBL_DBBACKUP"
+        });
+
+        Assert.assertTrue((new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_ORACLE))).isFile());
+
+        // PUMP
+        Main.main(new String[]{
+                "-db", "ORACLE",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.URL_ORACLE,
+                "-user", TestUtil.USER_ORACLE,
+                "-pass", TestUtil.PASS_ORACLE,
+                "-schema", TestUtil.SCHEMA_ORACLE,
+                "-workdir", workdir
+        });
+    }
 }
