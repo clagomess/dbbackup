@@ -1,38 +1,27 @@
 package br.dbbackup.core;
 
+import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.sgbd.Sgbd;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
+import java.util.UUID;
 
 @Slf4j
 public class LobWriter {
-    public static String write(byte[] rs) throws DbbackupException {
-        String bindName = Double.toString(Calendar.getInstance().getTime().getTime() * Math.random());
+    public static String write(OptionsDto options, byte[] rs) throws DbbackupException {
+        final String bindName = UUID.randomUUID().toString();
 
-        try {
-            // @TODO: botar UUID
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            bindName = String.format("%032x", new BigInteger(1, md.digest(bindName.getBytes())));
-        } catch (NoSuchAlgorithmException e) {
-            log.warn(Sgbd.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
-        }
-
-        File outDir = new File("dump/lob/");
+        File outDir = new File(options.getWorkdir() + File.separator + "lob");
 
         if(!outDir.exists()){
             outDir.mkdir();
         }
 
         try (
-                FileOutputStream out = new FileOutputStream(String.format("dump/lob/lob_%s.bin", bindName))
+                FileOutputStream out = new FileOutputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), bindName))
         ){
             out.write(rs);
             out.flush();

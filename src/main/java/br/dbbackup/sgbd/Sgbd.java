@@ -69,7 +69,7 @@ public class Sgbd<T extends SgbdImpl> {
             log.info("-> {}.{}", options.getSchema(), table);
         }
 
-        File outDir = new File("dump/");
+        File outDir = new File(options.getWorkdir());
         if(!outDir.exists()){
             outDir.mkdir();
         }
@@ -80,7 +80,7 @@ public class Sgbd<T extends SgbdImpl> {
             log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
             try (
-                FileOutputStream fos = new FileOutputStream(String.format("dump/%s.%s.sql", options.getSchema(), table));
+                FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
                 ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s", options.getSchema(), table))
             ){
                 OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
@@ -110,7 +110,7 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     private void startPumpProcess(Connection conn) throws DbbackupException {
-        File dumpDir = new File("dump/");
+        File dumpDir = new File(options.getWorkdir());
         File[] sqlList = dumpDir.listFiles();
         PreparedStatement pstmt = null;
         Statement stmt = null;
@@ -124,7 +124,7 @@ public class Sgbd<T extends SgbdImpl> {
                 // abre aquivo para leitura
                 log.info("### {}", sql.getName());
 
-                try (FileReader fr = new FileReader("dump/" + sql.getName())){
+                try (FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName())){
                     BufferedReader br = new BufferedReader(fr);
 
                     String dml;
@@ -149,7 +149,7 @@ public class Sgbd<T extends SgbdImpl> {
                             int bindIdx = 1;
                             for(String hitem : hash){
                                 dml = dml.replace(":lob_" + hash, "?");
-                                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("dump/lob/lob_%s.bin", hitem)));
+                                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), hitem)));
                                 bindIdx++;
                             }
 

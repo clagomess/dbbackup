@@ -2,9 +2,15 @@ package br.dbbackup.dto;
 
 import br.dbbackup.constant.Database;
 import br.dbbackup.constant.Operation;
-import br.dbbackup.sgbd.*;
+import br.dbbackup.sgbd.Mysql;
+import br.dbbackup.sgbd.Oracle;
+import br.dbbackup.sgbd.Postgresql;
+import br.dbbackup.sgbd.SgbdImpl;
 import lombok.Data;
 import org.apache.commons.cli.CommandLine;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Data
 public class OptionsDto {
@@ -16,6 +22,14 @@ public class OptionsDto {
     private String schema;
     private Boolean exportLob;
     private String schemaNewName;
+    private String workdir;
+    private List<String> table;
+
+    /*
+    @TODO: implementar tabelas especifica
+    @TODO: implementar limit de linhas
+    @TODO: implementar CHARSET
+    */
 
     // dump format
     private Database dumpFormat;
@@ -31,6 +45,8 @@ public class OptionsDto {
         this.exportLob = cmd.getOptionValue("lob") != null;
         this.schemaNewName = cmd.getOptionValue("schema_exp");
         this.dumpFormat = cmd.getOptionValue("dump_format") != null ? Database.valueOf(cmd.getOptionValue("dump_format")) : null;
+        this.workdir = cmd.getOptionValue("workdir") != null ? cmd.getOptionValue("workdir") : "dump";
+        this.table = cmd.getOptionValues("table") != null ? Arrays.asList(cmd.getOptionValues("table")) : null;
 
         if(this.schemaNewName == null){
             this.schemaNewName = this.schema;

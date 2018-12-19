@@ -64,7 +64,7 @@ public class Oracle implements SgbdImpl {
                         if(rs.getBytes(column).length == 0 || !options.getExportLob()){
                             toReturn = "EMPTY_BLOB()";
                         }else{
-                            toReturn = LobWriter.write(rs.getBytes(column));
+                            toReturn = LobWriter.write(options, rs.getBytes(column));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;
@@ -72,7 +72,7 @@ public class Oracle implements SgbdImpl {
                         if(rs.getString(column) == null || !options.getExportLob()){
                             toReturn = "EMPTY_CLOB()";
                         }else{
-                            toReturn = LobWriter.write(rs.getString(column).getBytes("UTF-8"));
+                            toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;

@@ -21,5 +21,5 @@ now(),
 'LONGBLOB',
 'LONGTEXT',
 'VARCHAR',
-'TEXT',
-)
+'TEXT'
+);

@@ -35,11 +35,17 @@ public class MainOptions {
         option = new Option("lob", true, "{1} - Importar/Exportar LOB");
         options.addOption(option);
 
-        option = new Option("schema_exp", true, "Nome do schema para exportacao");
+        option = new Option("schema_exp", true, "Nome do schema para exportação");
         options.addOption(option);
 
-        option = new Option("dump_format", true, "Formato de saida do dump. Ideal para migracao. Ex.: {ORACLE, MYSQL, POSTGRESQL}");
+        option = new Option("dump_format", true, "Formato de saída do dump. Ideal para migração. Ex.: {ORACLE, MYSQL, POSTGRESQL}");
         option.setRequired(false);
+        options.addOption(option);
+
+        option = new Option("workdir", true, "Pasta de localização do dump. default: ./dump");
+        options.addOption(option);
+
+        option = new Option("table", true, "Tabela(s) a ser exportadas. Ex.: -table foo -table bar ...");
         options.addOption(option);
 
         return options;

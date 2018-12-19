@@ -9,7 +9,7 @@ field_varchar2
 123,
 456.78,
 SYSDATE,
-'BLOB',
+utl_raw.cast_to_raw('BLOB'),
 'CLOB',
 'VARCHAR2'
 );

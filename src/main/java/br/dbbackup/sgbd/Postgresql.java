@@ -79,7 +79,7 @@ public class Postgresql implements SgbdImpl {
                         if(rs.getBytes(column).length == 0 || !options.getExportLob()){
                             toReturn = "null";
                         }else{
-                            toReturn = LobWriter.write(rs.getBytes(column));
+                            toReturn = LobWriter.write(options, rs.getBytes(column));
                             toReturn = ":lob_" + toReturn;
                         }
                         break;

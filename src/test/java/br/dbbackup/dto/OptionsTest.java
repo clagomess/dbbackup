@@ -4,6 +4,7 @@ import br.dbbackup.constant.Database;
 import br.dbbackup.core.MainOptions;
 import br.dbbackup.sgbd.Oracle;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
@@ -17,7 +18,7 @@ public class OptionsTest {
     public void dumpFormat() throws Throwable {
         Options opt = MainOptions.get();
         CommandLineParser parser = new DefaultParser();
-        OptionsDto dto = new OptionsDto(parser.parse(opt, new String[]{
+        CommandLine cmd = parser.parse(opt, new String[]{
                 "-db", "MYSQL",
                 "-lob", "1",
                 "-ope", "GET",
@@ -26,10 +27,15 @@ public class OptionsTest {
                 "-pass", "010203",
                 "-schema", "xxx",
                 "-dump_format", "ORACLE",
-        }));
+                "-table", "foo",
+                "-table", "bar",
+        });
+
+        OptionsDto dto = new OptionsDto(cmd);
 
         Assert.assertEquals(dto.getDatabase(), Database.MYSQL);
         Assert.assertEquals(dto.getDumpFormat(), Database.ORACLE);
         Assert.assertTrue(dto.getSgbdInstance() instanceof Oracle);
+        Assert.assertEquals(2, dto.getTable().size());
     }
 }
