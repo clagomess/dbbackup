@@ -12,7 +12,7 @@ import java.util.UUID;
 @Slf4j
 public class LobWriter {
     public static String write(OptionsDto options, byte[] rs) throws DbbackupException {
-        final String bindName = UUID.randomUUID().toString();
+        final String bindName = UUID.randomUUID().toString().replace("-", "");
 
         File outDir = new File(options.getWorkdir() + File.separator + "lob");
 
