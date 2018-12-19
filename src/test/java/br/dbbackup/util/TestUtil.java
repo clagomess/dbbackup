@@ -1,6 +1,7 @@
 package br.dbbackup.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class TestUtil {
     public static String getNewWorkDir(){
         String dir = System.getProperty("java.io.tmpdir");
         dir += File.separator;
+        dir += "dbbackup_";
         dir += UUID.randomUUID().toString();
 
         workdirs.add(new File(dir));
@@ -37,5 +39,17 @@ public class TestUtil {
         log.info("workdir: {}", dir);
 
         return dir;
+    }
+
+    public static void clearWorkDir() {
+        for (File dir : workdirs){
+            try {
+                FileUtils.deleteDirectory(dir);
+                workdirs.remove(dir);
+                log.info("removed workdir: {}", dir);
+            }catch (Throwable e){
+                log.error(e.getMessage());
+            }
+        }
     }
 }

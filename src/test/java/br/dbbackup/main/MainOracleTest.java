@@ -116,10 +116,7 @@ public class MainOracleTest {
     }
 
     @After
-    public void after() throws Exception {
-        //@TODO: implements
-        /*for (File dir : TestUtil.workdirs){
-            FileUtils.deleteDirectory(dir);
-        }*/
+    public void after() {
+        TestUtil.clearWorkDir();
     }
 }
