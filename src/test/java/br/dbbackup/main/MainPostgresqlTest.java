@@ -58,24 +58,24 @@ public class MainPostgresqlTest {
                 "-schema", TestUtil.SCHEMA_POSTGRESQL,
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
-                "-dump_format", "POSTGRESQL"
+                "-dump_format", "ORACLE",
+                "-schema_exp", TestUtil.SCHEMA_ORACLE
         });
 
         File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
-        dml = dml.replace(TestUtil.SCHEMA_POSTGRESQL, TestUtil.SCHEMA_POSTGRESQL);
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
-                "-db", "POSTGRESQL",
+                "-db", "ORACLE",
                 "-lob", "1",
                 "-ope", "PUT",
-                "-url", TestUtil.URL_POSTGRESQL,
-                "-user", TestUtil.USER_POSTGRESQL,
-                "-pass", TestUtil.PASS_POSTGRESQL,
-                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-url", TestUtil.URL_ORACLE,
+                "-user", TestUtil.USER_ORACLE,
+                "-pass", TestUtil.PASS_ORACLE,
+                "-schema", TestUtil.SCHEMA_ORACLE,
                 "-workdir", workdir
         });
     }
@@ -94,14 +94,14 @@ public class MainPostgresqlTest {
                 "-schema", TestUtil.SCHEMA_POSTGRESQL,
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
-                "-dump_format", "MYSQL"
+                "-dump_format", "MYSQL",
+                "-schema_exp", TestUtil.SCHEMA_MYSQL
         });
 
         File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
-        dml = dml.replace(TestUtil.SCHEMA_POSTGRESQL, TestUtil.SCHEMA_MYSQL);
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{

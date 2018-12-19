@@ -57,14 +57,14 @@ public class MainMysqlTest {
                 "-schema", TestUtil.SCHEMA_MYSQL,
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
-                "-dump_format", "ORACLE"
+                "-dump_format", "ORACLE",
+                "-schema_exp", TestUtil.SCHEMA_ORACLE
         });
 
         File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_MYSQL));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
-        dml = dml.replace(TestUtil.SCHEMA_MYSQL, TestUtil.SCHEMA_ORACLE);
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -93,14 +93,14 @@ public class MainMysqlTest {
                 "-schema", TestUtil.SCHEMA_MYSQL,
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
-                "-dump_format", "POSTGRESQL"
+                "-dump_format", "POSTGRESQL",
+                "-schema_exp", TestUtil.SCHEMA_POSTGRESQL
         });
 
         File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_MYSQL));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
-        dml = dml.replace(TestUtil.SCHEMA_MYSQL, TestUtil.SCHEMA_POSTGRESQL);
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
