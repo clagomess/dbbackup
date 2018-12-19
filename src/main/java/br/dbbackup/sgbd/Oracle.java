@@ -55,7 +55,7 @@ public class Oracle implements SgbdImpl {
 
         try {
             if(rs.getObject(column) != null){
-                switch (getDataType(tabcolumns.get(table).get(column))){
+                switch (options.getSgbdFromInstance().getDataType(tabcolumns.get(table).get(column))){
                     case NUMBER:
                         toReturn = rs.getString(column);
                         break;

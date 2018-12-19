@@ -32,7 +32,8 @@ public class OptionsDto {
 
     // dump format
     private Database dumpFormat;
-    private SgbdImpl sgbdInstance;
+    private SgbdImpl sgbdFromInstance;
+    private SgbdImpl sgbdToInstance;
 
     public OptionsDto(CommandLine cmd){
         this.operation = Operation.valueOf(cmd.getOptionValue("ope"));
@@ -46,15 +47,16 @@ public class OptionsDto {
         this.dumpFormat = cmd.getOptionValue("dump_format") != null ? Database.valueOf(cmd.getOptionValue("dump_format")) : null;
         this.workdir = cmd.getOptionValue("workdir") != null ? cmd.getOptionValue("workdir") : "dump";
         this.table = cmd.getOptionValues("table") != null ? Arrays.asList(cmd.getOptionValues("table")) : null;
+        this.sgbdFromInstance = getInstance(this.database);
 
         if(this.schemaNewName == null){
             this.schemaNewName = this.schema;
         }
 
         if(this.dumpFormat == null){
-            sgbdInstance = getInstance(database);
+            this.sgbdToInstance = getInstance(this.database);
         }else{
-            sgbdInstance = getInstance(dumpFormat);
+            this.sgbdToInstance = getInstance(this.dumpFormat);
         }
     }
 

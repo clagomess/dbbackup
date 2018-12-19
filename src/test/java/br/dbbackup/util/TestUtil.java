@@ -1,8 +1,13 @@
 package br.dbbackup.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 public class TestUtil {
     public static final String URL_MYSQL = "jdbc:mysql://localhost/rst";
     public static final String URL_ORACLE = "";
@@ -20,10 +25,16 @@ public class TestUtil {
     public static final String SCHEMA_ORACLE = "";
     public static final String SCHEMA_POSTGRESQL = "public";
 
+    public static List<File> workdirs = new ArrayList<>();
+
     public static String getNewWorkDir(){
         String dir = System.getProperty("java.io.tmpdir");
         dir += File.separator;
         dir += UUID.randomUUID().toString();
+
+        workdirs.add(new File(dir));
+
+        log.info("workdir: {}", dir);
 
         return dir;
     }

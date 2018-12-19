@@ -65,7 +65,7 @@ public class Postgresql implements SgbdImpl {
             if(rs.getObject(column) != null){
                 SimpleDateFormat sdf;
 
-                switch (getDataType(tabcolumns.get(table).get(column))){
+                switch (options.getSgbdFromInstance().getDataType(tabcolumns.get(table).get(column))){
                     case NUMBER:
                         toReturn = rs.getString(column);
                         break;
