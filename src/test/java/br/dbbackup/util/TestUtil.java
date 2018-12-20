@@ -12,7 +12,7 @@ import java.util.UUID;
 public class TestUtil {
     public static final String URL_MYSQL = "jdbc:mysql://localhost/rst";
     public static final String URL_ORACLE = "jdbc:oracle:thin:@localhost:1521:ORCLCDB";
-    public static final String URL_POSTGRESQL = "jdbc:postgresql://127.0.0.1:5432/postgres";
+    public static final String URL_POSTGRESQL = "jdbc:postgresql://localhost:5432/postgres";
 
     public static final String USER_MYSQL = "root";
     public static final String USER_ORACLE = "DBBACKUP";
@@ -20,7 +20,7 @@ public class TestUtil {
 
     public static final String PASS_MYSQL = "010203";
     public static final String PASS_ORACLE = "010203";
-    public static final String PASS_POSTGRESQL = "010203";
+    public static final String PASS_POSTGRESQL = "";
 
     public static final String SCHEMA_MYSQL = "rst";
     public static final String SCHEMA_ORACLE = "DBBACKUP";
@@ -42,7 +42,7 @@ public class TestUtil {
     }
 
     public static void clearWorkDir() {
-        for (File dir : workdirs){
+        /*for (File dir : workdirs){
             try {
                 FileUtils.deleteDirectory(dir);
                 workdirs.remove(dir);
@@ -50,6 +50,6 @@ public class TestUtil {
             }catch (Throwable e){
                 log.error(e.getMessage());
             }
-        }
+        }*/
     }
 }
