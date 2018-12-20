@@ -28,7 +28,7 @@ public class MainOracleTest {
                 "-table", "TBL_DBBACKUP"
         });
 
-        Assert.assertTrue((new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_ORACLE))).isFile());
+        Assert.assertTrue((new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_ORACLE))).isFile());
 
         // PUMP
         Main.main(new String[]{
@@ -61,7 +61,7 @@ public class MainOracleTest {
                 "-schema_exp", TestUtil.SCHEMA_MYSQL
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_ORACLE));
+        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_ORACLE));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_oracle");
@@ -97,7 +97,7 @@ public class MainOracleTest {
                 "-schema_exp", TestUtil.SCHEMA_POSTGRESQL
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_ORACLE));
+        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_ORACLE));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_oracle");
@@ -113,10 +113,5 @@ public class MainOracleTest {
                 "-schema", TestUtil.SCHEMA_POSTGRESQL,
                 "-workdir", workdir
         });
-    }
-
-    @After
-    public void after() {
-        TestUtil.clearWorkDir();
     }
 }

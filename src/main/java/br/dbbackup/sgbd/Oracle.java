@@ -74,7 +74,7 @@ public class Oracle implements SgbdImpl {
                         }
                         break;
                     case CLOB:
-                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
+                        if(rs.getString(column).length() >= 0 && options.getExportLob()){
                             toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
                         }
                         break;

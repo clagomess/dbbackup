@@ -115,9 +115,4 @@ public class MainPostgresqlTest {
                 "-workdir", workdir
         });
     }
-
-    @After
-    public void after() {
-        TestUtil.clearWorkDir();
-    }
 }

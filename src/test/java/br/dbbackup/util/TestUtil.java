@@ -29,7 +29,7 @@ public class TestUtil {
     public static List<File> workdirs = new ArrayList<>();
 
     public static String getNewWorkDir(){
-        String dir = System.getProperty("java.io.tmpdir");
+        String dir = "target";
         dir += File.separator;
         dir += "dbbackup_";
         dir += UUID.randomUUID().toString();
@@ -39,17 +39,5 @@ public class TestUtil {
         log.info("workdir: {}", dir);
 
         return dir;
-    }
-
-    public static void clearWorkDir() {
-        /*for (File dir : workdirs){
-            try {
-                FileUtils.deleteDirectory(dir);
-                workdirs.remove(dir);
-                log.info("removed workdir: {}", dir);
-            }catch (Throwable e){
-                log.error(e.getMessage());
-            }
-        }*/
     }
 }

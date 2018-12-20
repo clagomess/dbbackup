@@ -114,9 +114,4 @@ public class MainMysqlTest {
                 "-workdir", workdir
         });
     }
-
-    @After
-    public void after() {
-        TestUtil.clearWorkDir();
-    }
 }
