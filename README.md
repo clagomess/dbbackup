@@ -21,11 +21,12 @@ usage: dbbackup
 ```
 
 ### Docker Mount:
-- Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`
-- Baixar imagem: `docker pull store/oracle/database-enterprise:12.2.0.1-slim`
-- Build: `docker build -t dbbackup .`
-- Run: `docker run -d --name dbbackup -p 1521:1521 --net=host dbbackup:latest`
-- Finalizar: `docker stop dbbackup`
+1. Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`
+2. Baixar imagem Oracle: `docker pull store/oracle/database-enterprise:12.2.0.1-slim`
+3. Iniciar contêiners: `start_docker.sh`
+4. Rodar `run_script.sh` de cada contêiner
+5. Rodar testes
+6. Encerrar contêiners: `stop_docker.sh`
 
 ### Docker Utils
 - Remover lixo: `docker container rm $(docker container ls -a -q)`
