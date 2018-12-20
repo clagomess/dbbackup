@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Slf4j
 public class TestUtil {
-    public static final String URL_MYSQL = "jdbc:mysql://localhost/rst";
+    public static final String URL_MYSQL = "jdbc:mysql://localhost:3306/dbbackup";
     public static final String URL_ORACLE = "jdbc:oracle:thin:@localhost:1521:ORCLCDB";
     public static final String URL_POSTGRESQL = "jdbc:postgresql://localhost:5432/postgres";
 
@@ -22,7 +22,7 @@ public class TestUtil {
     public static final String PASS_ORACLE = "010203";
     public static final String PASS_POSTGRESQL = "";
 
-    public static final String SCHEMA_MYSQL = "rst";
+    public static final String SCHEMA_MYSQL = "dbbackup";
     public static final String SCHEMA_ORACLE = "DBBACKUP";
     public static final String SCHEMA_POSTGRESQL = "public";
 
