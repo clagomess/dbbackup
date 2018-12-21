@@ -43,8 +43,9 @@ public class Mysql implements SgbdImpl {
                 return DataType.DATE;
             case "blob":
             case "longblob":
-            case "longtext":
                 return DataType.BLOB;
+            case "longtext":
+                return DataType.CLOB;
             case "varchar":
             case "text":
                 return DataType.VARCHAR;
@@ -78,6 +79,9 @@ public class Mysql implements SgbdImpl {
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
+                        break;
+                    case CLOB:
+                        toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
                         break;
                     case BLOB:
                         if(rs.getBytes(column).length >= 0 && options.getExportLob()){

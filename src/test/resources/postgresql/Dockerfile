@@ -1,4 +1,4 @@
 FROM postgres:latest
 
-WORKDIR /root
-ADD . /root
+WORKDIR /root/dbbackup
+ADD . /root/dbbackup

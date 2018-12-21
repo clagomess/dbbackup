@@ -90,6 +90,7 @@ public class Postgresql implements SgbdImpl {
                         break;
                     case CLOB:
                         toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                        toReturn = String.format("encode(%s, 'escape')", toReturn);
                         break;
                     case VARCHAR:
                         toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
