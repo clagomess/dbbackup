@@ -10,7 +10,8 @@ create table tbl_dbbackup (
   field_longblob longblob,
   field_longtext longtext,
   field_varchar varchar(200),
-  field_text text
+  field_text text,
+  field_time time
 );
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
@@ -36,5 +37,6 @@ create table tbl_dbbackup_postgresql (
   field_date date,
   field_text longtext,
   field_varchar varchar(200),
-  field_bytea longblob
+  field_bytea longblob,
+  field_time time
 );

@@ -21,7 +21,8 @@ create table tbl_dbbackup_mysql (
   field_longblob blob,
   field_longtext clob,
   field_varchar varchar2(200),
-  field_text varchar2(200)
+  field_text varchar2(200),
+  field_time date
 );
 
 create table tbl_dbbackup_postgresql (
@@ -36,5 +37,6 @@ create table tbl_dbbackup_postgresql (
   field_date date,
   field_text clob,
   field_varchar varchar2(200),
-  field_bytea blob
+  field_bytea blob,
+  field_time date
 );

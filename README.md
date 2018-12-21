@@ -38,7 +38,7 @@ usage: dbbackup
 | `NUMBER` | <ul><li>int</li><li>bigint</li><li>decimal</li><li>tinyint</li></ul> | <ul><li>float8</li><li>numeric</li><li>int4</li><li>int8</li><li>int2</li></ul> | <ul><li>NUMBER</li></li> |
 | `DATETIME` | <ul><li>datetime</li></li> | <ul><li>timestamptz</li><li>timestamp</li></ul>  | <ul><li>DATE</li></li> |
 | `DATE` | <ul><li>date</li></li> | <ul><li>date</li></li> | <ul><li>DATE</li></li> |
-| `TIME` | - | - | <ul><li>DATE</li></li> |
+| `TIME` | <ul><li>time</li></li> | <ul><li>time</li></li> | <ul><li>DATE</li></li> |
 | `BLOB` | <ul><li>blob</li><li>longblob</li></ul> | <ul><li>bytea</li></li> | <ul><li>BLOB</li></li> |
 | `CLOB` | <ul><li>longtext</li></li> |  <ul><li>text</li></li> | <ul><li>CLOB</li></li> |
 | `VARCHAR` | <ul><li>varchar</li><li>text</li></ul> | <ul><li>varchar</li></li> | <ul><li>VARCHAR2</li></li> |

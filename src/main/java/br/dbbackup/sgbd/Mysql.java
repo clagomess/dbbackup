@@ -41,6 +41,8 @@ public class Mysql implements SgbdImpl {
                 return DataType.DATETIME;
             case "date":
                 return DataType.DATE;
+            case "time":
+                return DataType.TIME;
             case "blob":
             case "longblob":
                 return DataType.BLOB;
@@ -77,6 +79,13 @@ public class Mysql implements SgbdImpl {
                         toReturn = "str_to_date('%s', '%%Y-%%m-%%d')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
+                        break;
+                    case TIME:
+                        toReturn = "str_to_date('%s', '%%H:%%i:%%s')";
+
+                        sdf = new SimpleDateFormat("HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;

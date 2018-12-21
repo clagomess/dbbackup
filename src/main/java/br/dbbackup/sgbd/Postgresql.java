@@ -46,6 +46,8 @@ public class Postgresql implements SgbdImpl {
             case "timestamptz":
             case "timestamp":
                 return DataType.DATETIME;
+            case "time":
+                return DataType.TIME;
             case "date":
                 return DataType.DATE;
             case "bytea":
@@ -82,6 +84,13 @@ public class Postgresql implements SgbdImpl {
                         toReturn = "to_date('%s', 'YYYY-MM-DD')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
+                        break;
+                    case TIME:
+                        toReturn = "to_timestamp('%s', 'HH24:MI:SS')";
+
+                        sdf = new SimpleDateFormat("HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;

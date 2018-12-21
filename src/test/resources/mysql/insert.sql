@@ -10,7 +10,8 @@ field_blob,
 field_longblob,
 field_longtext,
 field_varchar,
-field_text
+field_text,
+field_time
 ) values (
 null,
 123,
@@ -23,5 +24,6 @@ now(),
 'LONGBLOB',
 'LONGTEXT',
 'VARCHAR',
-'TEXT'
+'TEXT',
+now()
 );

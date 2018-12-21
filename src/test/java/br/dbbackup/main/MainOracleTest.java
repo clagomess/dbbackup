@@ -2,7 +2,6 @@ package br.dbbackup.main;
 
 import br.dbbackup.util.TestUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 

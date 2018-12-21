@@ -10,7 +10,8 @@ create table tbl_dbbackup (
   field_date date,
   field_text text,
   field_varchar varchar(200),
-  field_bytea bytea
+  field_bytea bytea,
+  field_time time
 );
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
@@ -36,5 +37,6 @@ create table tbl_dbbackup_mysql (
   field_longblob bytea,
   field_longtext text,
   field_varchar varchar(200),
-  field_text varchar(200)
+  field_text varchar(200),
+  field_time time
 );

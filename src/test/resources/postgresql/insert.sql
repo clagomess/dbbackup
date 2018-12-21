@@ -10,7 +10,8 @@ field_timestamp,
 field_date,
 field_text,
 field_varchar,
-field_bytea
+field_bytea,
+field_time
 ) values (
 null,
 123.45,
@@ -23,5 +24,6 @@ now(),
 now(),
 'TEXT',
 'VARCHAR',
-'BLOB'
+'BLOB',
+now()
 );
