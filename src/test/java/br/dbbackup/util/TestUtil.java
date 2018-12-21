@@ -1,8 +1,11 @@
 package br.dbbackup.util;
 
+import br.dbbackup.core.DbbackupException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +25,7 @@ public class TestUtil {
     public static final String PASS_MYSQL = "010203";
     public static final String PASS_ORACLE = "010203";
     public static final String PASS_POSTGRESQL = "";
+    public static final String PASS_H2 = "";
 
     public static final String SCHEMA_MYSQL = "dbbackup";
     public static final String SCHEMA_ORACLE = "DBBACKUP";
@@ -41,5 +45,15 @@ public class TestUtil {
         log.info("workdir: {}", dir);
 
         return dir;
+    }
+
+    public static byte[] getResource(String path) throws Throwable {
+        URL url = Thread.currentThread().getContextClassLoader().getResource("samples/sample_001.sql");
+
+        if(url == null){
+            throw new DbbackupException("não encontrado");
+        }
+
+        return Files.readAllBytes(new File(url.getPath()).toPath());
     }
 }

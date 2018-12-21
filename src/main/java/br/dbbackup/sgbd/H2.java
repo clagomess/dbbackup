@@ -103,7 +103,7 @@ public class H2 implements SgbdImpl {
                         }
                         break;
                     case VARCHAR:
-                        toReturn = "'%s'"; //@TODO: implementar. Talvez: RAWTOHEX
+                        toReturn = String.format("hextoraw('%s')", encodeHex(rs.getString(column).getBytes()));
                         break;
                     case BOOL:
                         toReturn = rs.getBoolean(column) ? "1" : "0";
@@ -119,5 +119,15 @@ public class H2 implements SgbdImpl {
         }
 
         return toReturn;
+    }
+
+    String encodeHex(byte[] bytes){
+        StringBuilder sb = new StringBuilder();
+
+        for (byte aByte : bytes) {
+            sb.append(String.format("%04X", aByte));
+        }
+
+        return sb.toString().toLowerCase();
     }
 }

@@ -128,24 +128,17 @@ public class Sgbd<T extends SgbdImpl> {
         dml = dml.replace(";", "");
 
         // Verifica se tem lob
-        if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
-            Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);
-
-            List<String> hash = new ArrayList<>();
-            while(matcher.find()) {
-                hash.add(matcher.group(0));
-            }
-
-            for(String hitem : hash){
-                dml = dml.replace(":lob_" + hitem, "?");
+        List<String> lobs = getLobBindList(dml);
+        if(!lobs.isEmpty()){
+            for(String lob : lobs) {
+                dml = dml.replace(lob, "?");
             }
 
             PreparedStatement pstmt = conn.prepareStatement(dml);
 
             int bindIdx = 1;
-            for(String hitem : hash){
-                dml = dml.replace(":lob_" + hash, "?");
-                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), hitem)));
+            for(String lob : lobs){
+                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/%s.bin", options.getWorkdir(), lob.replace(":", ""))));
                 bindIdx++;
             }
 
@@ -156,6 +149,20 @@ public class Sgbd<T extends SgbdImpl> {
             stmt.execute(dml);
             stmt.close();
         }
+    }
+
+    List<String> getLobBindList(String dml){
+        List<String> hash = new ArrayList<>();
+
+        if(dml.matches("(.*):lob_([a-f0-9]{32})(.*)")){
+            Matcher matcher = Pattern.compile(":lob_([a-f0-9]{32})").matcher(dml);
+
+            while(matcher.find()) {
+                hash.add(matcher.group(0));
+            }
+        }
+
+        return hash;
     }
 
     private List<String> getColumns(String table) {
