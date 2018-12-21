@@ -74,21 +74,21 @@ public class H2 implements SgbdImpl {
                         toReturn = rs.getString(column);
                         break;
                     case DATETIME:
-                        toReturn = "FORMATDATETIME('%s', 'yyyy-MM-dd HH:mm:ss')";
+                        toReturn = "PARSEDATETIME('%s', 'yyyy-MM-dd HH:mm:ss')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case DATE:
-                        toReturn = "FORMATDATETIME('%s', 'yyyy-MM-dd ')";
+                        toReturn = "PARSEDATETIME('%s', 'yyyy-MM-dd')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
                     case TIME:
-                        toReturn = "FORMATDATETIME('%s', 'HH:mm:ss')";
+                        toReturn = "PARSEDATETIME('%s', 'HH:mm:ss')";
 
                         sdf = new SimpleDateFormat("HH:mm:ss");
 

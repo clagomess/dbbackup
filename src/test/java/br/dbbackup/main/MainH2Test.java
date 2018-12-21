@@ -63,7 +63,7 @@ public class MainH2Test {
         File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_H2));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_oracle");
+        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -99,7 +99,7 @@ public class MainH2Test {
         File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_H2));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_oracle");
+        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -127,15 +127,15 @@ public class MainH2Test {
                 "-pass", TestUtil.PASS_H2,
                 "-schema", TestUtil.SCHEMA_H2,
                 "-workdir", workdir,
-                "-table", "tbl_dbbackup",
+                "-table", "TBL_DBBACKUP",
                 "-dump_format", "ORACLE",
                 "-schema_exp", TestUtil.SCHEMA_ORACLE
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_H2));
+        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_H2));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
+        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
