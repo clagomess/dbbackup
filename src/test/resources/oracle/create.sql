@@ -1,4 +1,5 @@
 create table tbl_dbbackup (
+  field_null date,
   field_number number,
   field_number_precision number(10, 2),
   field_date date,
@@ -9,6 +10,7 @@ create table tbl_dbbackup (
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
 create table tbl_dbbackup_mysql (
+  field_null date,
   field_int number,
   field_bigint number,
   field_decimal number(10,2),
@@ -23,6 +25,7 @@ create table tbl_dbbackup_mysql (
 );
 
 create table tbl_dbbackup_postgresql (
+  field_null date,
   field_float8 number(10,2),
   field_numeric number,
   field_int4 number,

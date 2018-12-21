@@ -1,4 +1,5 @@
 create table tbl_dbbackup (
+  field_null date,
   field_int int,
   field_bigint bigint,
   field_decimal decimal(10,2),
@@ -14,6 +15,7 @@ create table tbl_dbbackup (
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
 create table tbl_dbbackup_oracle (
+  field_null date,
   field_number bigint,
   field_number_precision decimal(10,2),
   field_date datetime,
@@ -23,6 +25,7 @@ create table tbl_dbbackup_oracle (
 );
 
 create table tbl_dbbackup_postgresql (
+  field_null date,
   field_float8 decimal(10,2),
   field_numeric bigint,
   field_int4 int,

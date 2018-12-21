@@ -1,4 +1,5 @@
 insert into tbl_dbbackup (
+field_null,
 field_int,
 field_bigint,
 field_decimal,
@@ -11,6 +12,7 @@ field_longtext,
 field_varchar,
 field_text
 ) values (
+null,
 123,
 456,
 789.012,

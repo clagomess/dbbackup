@@ -1,4 +1,5 @@
 insert into tbl_dbbackup (
+field_null,
 field_float8,
 field_numeric,
 field_int4,
@@ -10,6 +11,7 @@ field_date,
 field_text,
 field_varchar
 ) values (
+null,
 123.45,
 678,
 910,
