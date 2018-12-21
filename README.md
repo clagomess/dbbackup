@@ -1,6 +1,9 @@
 # dbbackup
 
 ### Uso:
+Bash Ex.: `java -jar dbbackup.jar -db MYSQL -ope GET -url jdbc:mysql://localhost/database -user root -pass 010203 -schema dbbackup`
+
+CLI DOC:
 ```
 usage: dbbackup
  -db <arg>            {ORACLE, MYSQL, POSTGRESQL}
