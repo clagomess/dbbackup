@@ -20,6 +20,17 @@ usage: dbbackup
  -workdir <arg>       Pasta de localização do dump. default: ./dump
 ```
 
+### Conversão
+| generic | Mysql | Postgresql | Oracle |
+| --- | --- | --- | --- |
+| `NUMBER` | <ul><li>int</li><li>bigint</li><li>decimal</li><li>tinyint</li></ul> | <ul><li>float8</li><li>numeric</li><li>int4</li><li>int8</li><li>int2</li></ul> | NUMBER |
+| `DATETIME` | datetime | <ul><li>timestamptz</li><li>timestamp</li></ul>  | DATE |
+| `DATE` | date | date | DATE |
+| `TIME` | - | - | DATE |
+| `BLOB` | <ul><li>blob</li><li>longblob</li></ul> | - | BLOB |
+| `CLOB` | longtext | text | CLOB |
+| `VARCHAR` | <ul><li>varchar</li><li>text</li></ul> | varchar | VARCHAR2 |
+
 ### Docker Mount:
 1. Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`
 2. Baixar imagem Oracle: `docker pull store/oracle/database-enterprise:12.2.0.1-slim`
