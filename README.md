@@ -3,8 +3,7 @@
 ### Uso:
 Bash Ex.: 
 ```
-java -jar dbbackup.jar \ 
-    -db MYSQL \
+java -jar dbbackup.jar -db MYSQL \
     -ope GET \
     -url jdbc:mysql://localhost/database \
     -user root \
