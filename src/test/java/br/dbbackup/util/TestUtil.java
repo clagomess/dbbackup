@@ -42,7 +42,7 @@ public class TestUtil {
     }
 
     public static byte[] getResource(String path) throws Throwable {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("samples/sample_001.sql");
+        URL url = Thread.currentThread().getContextClassLoader().getResource(path);
 
         if(url == null){
             throw new DbbackupException("não encontrado");
