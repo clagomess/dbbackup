@@ -41,3 +41,24 @@ create table tbl_dbbackup_postgresql (
   field_time time,
   field_boolean tinyint(1)
 );
+
+create table tbl_dbbackup_h2 (
+  field_null date,
+  field_bigint bigint,
+  field_numeric numeric,
+  field_decimal decimal,
+  field_integer integer,
+  field_float float,
+  field_real real,
+  field_double double,
+  field_smallint smallint,
+  field_tinyint tinyint,
+  field_timestamp timestamp,
+  field_time time,
+  field_date date,
+  field_blob blob,
+  field_clob longtext,
+  field_varchar varchar(200),
+  field_varchar_ignorecase varchar(200),
+  field_boolean tinyint(1)
+);
