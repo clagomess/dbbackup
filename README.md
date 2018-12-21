@@ -42,7 +42,7 @@ usage: dbbackup
 | `BLOB` | <ul><li>blob</li><li>longblob</li></ul> | <ul><li>bytea</li></li> | <ul><li>BLOB</li></li> |
 | `CLOB` | <ul><li>longtext</li></li> |  <ul><li>text</li></li> | <ul><li>CLOB</li></li> |
 | `VARCHAR` | <ul><li>varchar</li><li>text</li></ul> | <ul><li>varchar</li></li> | <ul><li>VARCHAR2</li></li> |
-| `BOOL` | <ul><li>tinyint</li><li>text</li></ul> | <ul><li>bool</li></li> | <ul><li>NUMBER</li></li> |
+| `BOOL` | <ul><li>tinyint</li></ul> | <ul><li>bool</li></li> | <ul><li>NUMBER</li></li> |
 
 ### Docker Mount:
 1. Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`
