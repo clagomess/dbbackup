@@ -1,79 +1,107 @@
 package br.dbbackup.sgbd;
 
 
-import br.dbbackup.core.DatabaseInterface;
 import br.dbbackup.core.DbbackupException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.dbbackup.core.Msg;
+import br.dbbackup.dto.OptionsDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface Sgbd extends DatabaseInterface {
-    Logger logger = LoggerFactory.getLogger(Sgbd.class);
-    String SQL_TPL = "INSERT INTO %s.%s (%s) VALUES (%s);\r\n";
-    String SQL_QUERY = "SELECT * FROM %s.%s";
+@Slf4j
+public class Sgbd<T extends SgbdImpl> {
+    private T instance;
+    private Map<String, Map<String, String>> tabcolumns = new HashMap<>();
+    private Connection conn;
+    private OptionsDto options;
 
-    void startDump() throws DbbackupException;
+    public Sgbd(T instance, Connection conn, OptionsDto options){
+        this.instance = instance;
+        this.conn = conn;
+        this.options = options;
+    }
 
-    void startPump() throws DbbackupException;
+    public void startDump() throws Throwable {
+        Statement stmt = conn.createStatement();
+        log.info(Msg.MSG_CONECTADO);
+        log.info(Msg.MSG_TBL_EXPORTACAO);
 
-    String formatColumn(ResultSet rs, String table, String column) throws DbbackupException;
+        ResultSet rs = stmt.executeQuery(instance.getSqlTabColumns(options));
 
-    default void startDumpProcess(Statement stmt, String owner, String owner_exp) throws DbbackupException {
-        for (String table : getTables()){
-            logger.info("-> {}.{}", owner, table);
+        while (rs.next()) {
+            setTabColumn(
+                    rs.getString("table_name"),
+                    rs.getString("column_name"),
+                    rs.getString("data_type")
+            );
         }
 
-        File outDir = new File("dump/");
+        rs.close();
+        stmt.close();
+
+        this.startDumpProcess();
+    }
+
+    public void startPump() throws Throwable {
+        startPumpProcess();
+    }
+
+    private void startDumpProcess() throws Throwable {
+        for (String table : getTables()){
+            log.info("-> {}.{}", options.getSchema(), table);
+        }
+
+        File outDir = new File(options.getWorkdir());
         if(!outDir.exists()){
             outDir.mkdir();
         }
 
+        Statement stmt = conn.createStatement();
+
         // Inicio processamento
-        logger.info("### Iniciando DUMP ###");
+        log.info("### Iniciando DUMP ###");
         for (String table : getTables()){
-            logger.info("DUMP Table: \"{}.{}\"", owner, table);
+            log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
-            try (
-                FileOutputStream fos = new FileOutputStream(String.format("dump/%s.%s.sql", owner, table));
-                ResultSet rs = stmt.executeQuery(String.format(SQL_QUERY, owner, table))
-            ){
-                OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+            FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
+            ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s", options.getSchema(), table));
 
-                while (rs.next()) {
-                    List<String> param = new ArrayList<>();
+            OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
-                    for (String column : getColumns(table)) {
-                        param.add(formatColumn(rs, table, column));
-                    }
+            while (rs.next()) {
+                List<String> param = new ArrayList<>();
 
-                    out.write(String.format(
-                            SQL_TPL,
-                            owner_exp,
-                            table,
-                            String.join(", ", getColumns(table)),
-                            String.join(", ", param)
-                    ));
-
-                    out.flush();
+                for (String column : getColumns(table)) {
+                    param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
                 }
-            } catch (IOException|SQLException e) {
-                logger.warn(Sgbd.class.getName(), e);
-                throw new DbbackupException(e.getMessage());
+
+                out.write(String.format(
+                        "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
+                        options.getSchemaNewName(),
+                        table,
+                        String.join(", ", getColumns(table)),
+                        String.join(", ", param)
+                ));
+
+                out.flush();
             }
+
+            rs.close();
         }
+
+        stmt.close();
     }
 
-    default void startPumpProcess(Connection conn) throws DbbackupException {
-        File dumpDir = new File("dump/");
+    private void startPumpProcess() throws Throwable {
+        File dumpDir = new File(options.getWorkdir());
         File[] sqlList = dumpDir.listFiles();
-        PreparedStatement pstmt = null;
-        Statement stmt = null;
 
         if(sqlList == null) {
             throw new DbbackupException("Pasta não localizada!");
@@ -82,64 +110,75 @@ public interface Sgbd extends DatabaseInterface {
         for (File sql : sqlList) {
             if(sql.isFile() && sql.getName().contains(".sql")) {
                 // abre aquivo para leitura
-                logger.info("### {}", sql.getName());
+                log.info("### {}", sql.getName());
+                FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
+                BufferedReader br = new BufferedReader(fr);
 
-                try (FileReader fr = new FileReader("dump/" + sql.getName())){
-                    BufferedReader br = new BufferedReader(fr);
-
-                    String dml;
-                    while ((dml = br.readLine()) != null) {
-                        logger.info(dml);
-
-                        // Verifica se tem lob
-                        if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
-                            Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);
-
-                            List<String> hash = new ArrayList<>();
-                            while(matcher.find()) {
-                                hash.add(matcher.group(0));
-                            }
-
-                            for(String hitem : hash){
-                                dml = dml.replace(":lob_" + hitem, "?");
-                            }
-
-                            pstmt = conn.prepareStatement(dml);
-
-                            int bindIdx = 1;
-                            for(String hitem : hash){
-                                dml = dml.replace(":lob_" + hash, "?");
-                                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("dump/lob/lob_%s.bin", hitem)));
-                                bindIdx++;
-                            }
-
-                            pstmt.execute();
-                        }else{
-                            stmt = conn.createStatement();
-                            stmt.execute(dml);
-                        }
-                    }
-                } catch (IOException | SQLException e) {
-                    logger.warn(Sgbd.class.getName(), e);
-                    throw new DbbackupException(e.getMessage());
-                } finally {
-                    if(pstmt != null){
-                        try {
-                            pstmt.close();
-                        } catch (SQLException e) {
-                            logger.warn(Sgbd.class.getName(), e);
-                        }
-                    }
-
-                    if(stmt != null){
-                        try {
-                            stmt.close();
-                        } catch (SQLException e) {
-                            logger.warn(Sgbd.class.getName(), e);
-                        }
-                    }
+                String dml;
+                while ((dml = br.readLine()) != null) {
+                    log.info(dml);
+                    pumpScript(dml);
                 }
             }
         }
+    }
+
+    protected void pumpScript(String dml) throws Throwable {
+        // remover ponto virgula
+        dml = dml.replace(";", "");
+
+        // Verifica se tem lob
+        if(dml.matches("(.*)lob_([a-f0-9]{32})(.*)")){
+            Matcher matcher = Pattern.compile("([a-f0-9]{32})").matcher(dml);
+
+            List<String> hash = new ArrayList<>();
+            while(matcher.find()) {
+                hash.add(matcher.group(0));
+            }
+
+            for(String hitem : hash){
+                dml = dml.replace(":lob_" + hitem, "?");
+            }
+
+            PreparedStatement pstmt = conn.prepareStatement(dml);
+
+            int bindIdx = 1;
+            for(String hitem : hash){
+                dml = dml.replace(":lob_" + hash, "?");
+                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), hitem)));
+                bindIdx++;
+            }
+
+            pstmt.execute();
+            pstmt.close();
+        }else{
+            Statement stmt = conn.createStatement();
+            stmt.execute(dml);
+            stmt.close();
+        }
+    }
+
+    private List<String> getColumns(String table) {
+        ArrayList<String> columns = new ArrayList<>();
+
+        columns.addAll(tabcolumns.get(table).keySet());
+
+        return columns;
+    }
+
+    private List<String> getTables() {
+        ArrayList<String> tables = new ArrayList<>();
+
+        tables.addAll(tabcolumns.keySet());
+
+        return tables;
+    }
+
+    private void setTabColumn(String table, String column, String type) {
+        if(!tabcolumns.containsKey(table)){
+            tabcolumns.put(table, new HashMap<>());
+        }
+
+        tabcolumns.get(table).put(column, type);
     }
 }

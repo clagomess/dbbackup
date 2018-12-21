@@ -1,119 +1,108 @@
 package br.dbbackup.sgbd;
 
-import br.dbbackup.core.Database;
+import br.dbbackup.constant.DataType;
 import br.dbbackup.core.DbbackupException;
-import br.dbbackup.core.Msg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.dbbackup.core.LobWriter;
+import br.dbbackup.dto.OptionsDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Map;
 
-public class Mysql extends Database implements Sgbd {
-    private Logger logger = LoggerFactory.getLogger(Mysql.class);
-    private Connection conn = null;
-    private String owner = null;
-    private Boolean lob = false;
-    private String owner_exp = null;
+@Slf4j
+public class Mysql implements SgbdImpl {
+    @Override
+    public String getSqlTabColumns(OptionsDto options) {
+        String sql = "select table_name, column_name, data_type\n" +
+                "from information_schema.columns where table_schema = '%s'\n";
 
-    private final String SQL_TAB_COLUMNS = "select table_name, column_name, data_type " +
-            "from information_schema.columns where table_schema = '%s'";
+        sql = String.format(sql, options.getSchema());
 
-    public Mysql(Connection conn, String owner, Boolean lob, String owner_exp){
-        this.conn = conn;
-        this.owner = owner;
-        this.lob = lob;
+        if(options.getTable() != null){
+            sql += String.format("and table_name in ('%s')", String.join("','", options.getTable()));
+        }
 
-        if(owner_exp != null){
-            this.owner_exp = owner_exp;
-        }else{
-            this.owner_exp = owner;
+        return sql;
+    }
+
+    @Override
+    public DataType getDataType(String dataType) {
+        switch (dataType){
+            case "int":
+            case "bigint":
+            case "decimal":
+            case "tinyint":
+                return DataType.NUMBER;
+            case "datetime":
+                return DataType.DATETIME;
+            case "date":
+                return DataType.DATE;
+            case "time":
+                return DataType.TIME;
+            case "blob":
+            case "longblob":
+                return DataType.BLOB;
+            case "longtext":
+                return DataType.CLOB;
+            case "varchar":
+            case "text":
+                return DataType.VARCHAR;
+            default:
+                return DataType.DEFAULT;
         }
     }
 
-    public void startDump() throws DbbackupException {
-        ResultSet rs = null;
-
-        try(Statement stmt = conn.createStatement()) {
-            logger.info(Msg.MSG_CONECTADO);
-            logger.info(Msg.MSG_TBL_EXPORTACAO);
-
-            rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
-
-            while (rs.next()) {
-                setTabColumn(
-                        rs.getString("table_name"),
-                        rs.getString("column_name"),
-                        rs.getString("data_type")
-                );
-            }
-
-            this.startDumpProcess(stmt, owner, owner_exp);
-        } catch (SQLException e) {
-            logger.warn(Mysql.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
-        } finally {
-            if(rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    logger.warn(Mysql.class.getName(), e);
-                }
-            }
-        }
-    }
-
-    public void startPump() throws DbbackupException {
-        startPumpProcess(conn);
-    }
-
-    public String formatColumn(ResultSet rs, String table, String column) throws DbbackupException {
+    @Override
+    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
         try {
             if(rs.getObject(column) != null){
                 SimpleDateFormat sdf;
 
-                switch (getColumnType(table, column)){
-                    case "int":
-                    case "bigint":
-                    case "decimal":
-                    case "tinyint":
+                switch (options.getSgbdFromInstance().getDataType(tabcolumns.get(table).get(column))){
+                    case NUMBER:
                         toReturn = rs.getString(column);
                         break;
-                    case "datetime":
+                    case DATETIME:
                         toReturn = "str_to_date('%s', '%%Y-%%m-%%d %%H:%%i:%%s')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "date":
+                    case DATE:
                         toReturn = "str_to_date('%s', '%%Y-%%m-%%d')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "blob":
-                    case "longblob":
-                    case "longtext":
-                        if(rs.getBytes(column).length == 0 || !lob){
-                            toReturn = "null";
-                        }else{
-                            toReturn = Database.lobWriter(rs.getBytes(column));
-                            toReturn = ":lob_" + toReturn;
+                    case TIME:
+                        toReturn = "str_to_date('%s', '%%H:%%i:%%s')";
+
+                        sdf = new SimpleDateFormat("HH:mm:ss");
+
+                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
+                        break;
+                    case CLOB:
+                        toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                        break;
+                    case BLOB:
+                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
+                            toReturn = LobWriter.write(options, rs.getBytes(column));
                         }
                         break;
-                    case "varchar":
-                    case "text":
+                    case VARCHAR:
                         toReturn = "from_base64('%s')";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                        break;
+                    case BOOL:
+                        toReturn = rs.getBoolean(column) ? "1" : "0";
                         break;
                     default:
                         toReturn = "'%s'";
@@ -121,7 +110,7 @@ public class Mysql extends Database implements Sgbd {
                 }
             }
         }catch (SQLException | UnsupportedEncodingException e){
-            logger.warn(Mysql.class.getName(), e);
+            log.warn(Mysql.class.getName(), e);
             throw new DbbackupException(e.getMessage());
         }
 

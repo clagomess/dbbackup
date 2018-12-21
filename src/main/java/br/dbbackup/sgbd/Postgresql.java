@@ -1,123 +1,116 @@
 package br.dbbackup.sgbd;
 
-import br.dbbackup.core.Database;
+import br.dbbackup.constant.DataType;
 import br.dbbackup.core.DbbackupException;
-import br.dbbackup.core.Msg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.dbbackup.core.LobWriter;
+import br.dbbackup.dto.OptionsDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Map;
 
-public class Postgresql extends Database implements Sgbd {
-    private Logger logger = LoggerFactory.getLogger(Postgresql.class);
-    private Connection conn = null;
-    private String owner = null;
-    private Boolean lob = false;
-    private String owner_exp = null;
+@Slf4j
+public class Postgresql implements SgbdImpl {
+    @Override
+    public String getSqlTabColumns(OptionsDto options) {
+        String sql = "select c.table_name, c.column_name, c.udt_name as data_type\n" +
+                "from information_schema.columns c\n" +
+                "JOIN information_schema.tables t\n" +
+                "  on t.table_catalog = c.table_catalog\n" +
+                "  AND t.table_schema = c.table_schema\n" +
+                "  AND t.table_name = c.table_name\n" +
+                "where c.table_schema = '%s' AND t.table_type <> 'VIEW'\n";
 
-    private final String SQL_TAB_COLUMNS = "select c.table_name, c.column_name, c.udt_name\n" +
-            "from information_schema.columns c\n" +
-            "JOIN information_schema.tables t\n" +
-            "  on t.table_catalog = c.table_catalog\n" +
-            "  AND t.table_schema = c.table_schema\n" +
-            "  AND t.table_name = c.table_name\n" +
-            "where c.table_schema = '%s' AND t.table_type <> 'VIEW'";
+        sql = String.format(sql, options.getSchema());
 
-    public Postgresql(Connection conn, String owner, Boolean lob, String owner_exp){
-        this.conn = conn;
-        this.owner = owner;
-        this.lob = lob;
+        if(options.getTable() != null){
+            sql += String.format("and c.table_name in ('%s')", String.join("','", options.getTable()));
+        }
 
-        if(owner_exp != null){
-            this.owner_exp = owner_exp;
-        }else{
-            this.owner_exp = owner;
+        return sql;
+    }
+
+    @Override
+    public DataType getDataType(String dataType) {
+        switch (dataType){
+            case "float8":
+            case "numeric":
+            case "int4":
+            case "int8":
+            case "int2":
+                return DataType.NUMBER;
+            case "timestamptz":
+            case "timestamp":
+                return DataType.DATETIME;
+            case "time":
+                return DataType.TIME;
+            case "date":
+                return DataType.DATE;
+            case "bytea":
+                return DataType.BLOB;
+            case "text":
+                return DataType.CLOB;
+            case "varchar":
+                return DataType.VARCHAR;
+            case "bool":
+                return DataType.BOOL;
+            default:
+                return DataType.DEFAULT;
         }
     }
 
-    public void startDump() throws DbbackupException {
-        ResultSet rs = null;
-
-        try(Statement stmt = conn.createStatement()) {
-            logger.info(Msg.MSG_CONECTADO);
-            logger.info(Msg.MSG_TBL_EXPORTACAO);
-
-            rs = stmt.executeQuery(String.format(SQL_TAB_COLUMNS, owner));
-
-            while (rs.next()) {
-                setTabColumn(
-                        rs.getString("table_name"),
-                        rs.getString("column_name"),
-                        rs.getString("udt_name")
-                );
-            }
-
-            this.startDumpProcess(stmt, owner, owner_exp);
-        } catch (SQLException e) {
-            logger.warn(Postgresql.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
-        } finally {
-            if(rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    logger.warn(Postgresql.class.getName(), e);
-                }
-            }
-        }
-    }
-
-    public void startPump() throws DbbackupException {
-        startPumpProcess(conn);
-    }
-
-    public String formatColumn(ResultSet rs, String table, String column) throws DbbackupException {
+    @Override
+    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
         try {
             if(rs.getObject(column) != null){
                 SimpleDateFormat sdf;
 
-                switch (getColumnType(table, column)){
-                    case "float8":
-                    case "numeric":
-                    case "int4":
-                    case "int8":
-                    case "int2":
+                switch (options.getSgbdFromInstance().getDataType(tabcolumns.get(table).get(column))){
+                    case NUMBER:
                         toReturn = rs.getString(column);
                         break;
-                    case "timestamptz":
-                    case "timestamp":
-                        toReturn = "to_date('%s', 'YYYY-MM-DD HH24:MI:SS')";
+                    case DATETIME:
+                        toReturn = "to_timestamp('%s', 'YYYY-MM-DD HH24:MI:SS')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "date":
+                    case DATE:
                         toReturn = "to_date('%s', 'YYYY-MM-DD')";
 
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
                         break;
-                    case "text":
-                        if(rs.getBytes(column).length == 0 || !lob){
-                            toReturn = "null";
-                        }else{
-                            toReturn = Database.lobWriter(rs.getBytes(column));
-                            toReturn = ":lob_" + toReturn;
+                    case TIME:
+                        toReturn = "to_timestamp('%s', 'HH24:MI:SS')";
+
+                        sdf = new SimpleDateFormat("HH:mm:ss");
+
+                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
+                        break;
+                    case BLOB:
+                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
+                            toReturn = LobWriter.write(options, rs.getBytes(column));
                         }
                         break;
-                    case "varchar":
+                    case CLOB:
+                        toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                        toReturn = String.format("encode(%s, 'escape')", toReturn);
+                        break;
+                    case VARCHAR:
                         toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                        break;
+                    case BOOL:
+                        toReturn = rs.getBoolean(column) ? "true" : "false";
                         break;
                     default:
                         toReturn = "'%s'";
@@ -125,7 +118,7 @@ public class Postgresql extends Database implements Sgbd {
                 }
             }
         }catch (SQLException | UnsupportedEncodingException e){
-            logger.warn(Postgresql.class.getName(), e);
+            log.warn(Postgresql.class.getName(), e);
             throw new DbbackupException(e.getMessage());
         }
 
