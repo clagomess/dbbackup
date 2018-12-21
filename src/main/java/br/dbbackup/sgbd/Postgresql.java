@@ -48,6 +48,8 @@ public class Postgresql implements SgbdImpl {
                 return DataType.DATETIME;
             case "date":
                 return DataType.DATE;
+            case "bytea":
+                return DataType.BLOB;
             case "text":
                 return DataType.CLOB;
             case "varchar":

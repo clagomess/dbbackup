@@ -35,5 +35,6 @@ create table tbl_dbbackup_postgresql (
   field_timestamp datetime,
   field_date date,
   field_text longtext,
-  field_varchar varchar(200)
+  field_varchar varchar(200),
+  field_bytea longblob
 );

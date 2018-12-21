@@ -9,7 +9,8 @@ create table tbl_dbbackup (
   field_timestamp timestamp,
   field_date date,
   field_text text,
-  field_varchar varchar(200)
+  field_varchar varchar(200),
+  field_bytea bytea
 );
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
