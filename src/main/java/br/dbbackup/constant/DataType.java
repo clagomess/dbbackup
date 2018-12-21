@@ -10,6 +10,7 @@ public enum DataType {
     BLOB("BLOB"), // lob file
     CLOB("CLOB"), // lob file
     VARCHAR("VARCHAR"), // Base64
+    BOOL("BOOL"),
     DEFAULT("DEFAULT");
 
     @Getter

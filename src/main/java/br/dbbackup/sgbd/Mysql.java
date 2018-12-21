@@ -101,6 +101,9 @@ public class Mysql implements SgbdImpl {
                         toReturn = "from_base64('%s')";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
+                    case BOOL:
+                        toReturn = rs.getBoolean(column) ? "1" : "0";
+                        break;
                     default:
                         toReturn = "'%s'";
                         toReturn = String.format(toReturn, rs.getString(column));

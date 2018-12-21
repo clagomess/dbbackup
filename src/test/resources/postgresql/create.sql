@@ -11,7 +11,8 @@ create table tbl_dbbackup (
   field_text text,
   field_varchar varchar(200),
   field_bytea bytea,
-  field_time time
+  field_time time,
+  field_boolean boolean
 );
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO

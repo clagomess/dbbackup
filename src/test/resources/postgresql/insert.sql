@@ -11,7 +11,8 @@ field_date,
 field_text,
 field_varchar,
 field_bytea,
-field_time
+field_time,
+field_boolean
 ) values (
 null,
 123.45,
@@ -25,5 +26,6 @@ now(),
 'TEXT',
 'VARCHAR',
 'BLOB',
-now()
+now(),
+true
 );

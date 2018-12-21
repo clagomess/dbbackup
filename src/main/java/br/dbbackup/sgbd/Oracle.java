@@ -82,6 +82,9 @@ public class Oracle implements SgbdImpl {
                         toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
                         break;
+                    case BOOL:
+                        toReturn = rs.getBoolean(column) ? "1" : "0";
+                        break;
                     default:
                         toReturn = String.format("'%s'", rs.getString(column));
                 }

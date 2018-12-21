@@ -56,6 +56,8 @@ public class Postgresql implements SgbdImpl {
                 return DataType.CLOB;
             case "varchar":
                 return DataType.VARCHAR;
+            case "bool":
+                return DataType.BOOL;
             default:
                 return DataType.DEFAULT;
         }
@@ -106,6 +108,9 @@ public class Postgresql implements SgbdImpl {
                     case VARCHAR:
                         toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
                         toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                        break;
+                    case BOOL:
+                        toReturn = rs.getBoolean(column) ? "true" : "false";
                         break;
                     default:
                         toReturn = "'%s'";
