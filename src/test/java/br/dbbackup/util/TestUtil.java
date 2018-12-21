@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -32,15 +30,11 @@ public class TestUtil {
     public static final String SCHEMA_POSTGRESQL = "public";
     public static final String SCHEMA_H2 = "PUBLIC";
 
-    public static List<File> workdirs = new ArrayList<>();
-
     public static String getNewWorkDir(){
         String dir = "target";
         dir += File.separator;
         dir += "dbbackup_";
         dir += UUID.randomUUID().toString();
-
-        workdirs.add(new File(dir));
 
         log.info("workdir: {}", dir);
 
