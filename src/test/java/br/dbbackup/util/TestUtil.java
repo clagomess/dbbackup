@@ -16,6 +16,7 @@ public class TestUtil {
     public static final String USER_MYSQL = "root";
     public static final String USER_ORACLE = "DBBACKUP";
     public static final String USER_POSTGRESQL = "postgres";
+    public static final String USER_H2 = "";
 
     public static final String PASS_MYSQL = "010203";
     public static final String PASS_ORACLE = "010203";
@@ -24,6 +25,7 @@ public class TestUtil {
     public static final String SCHEMA_MYSQL = "dbbackup";
     public static final String SCHEMA_ORACLE = "DBBACKUP";
     public static final String SCHEMA_POSTGRESQL = "public";
+    public static final String SCHEMA_H2 = "PUBLIC";
 
     public static List<File> workdirs = new ArrayList<>();
 

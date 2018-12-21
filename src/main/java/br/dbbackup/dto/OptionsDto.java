@@ -2,10 +2,7 @@ package br.dbbackup.dto;
 
 import br.dbbackup.constant.Database;
 import br.dbbackup.constant.Operation;
-import br.dbbackup.sgbd.Mysql;
-import br.dbbackup.sgbd.Oracle;
-import br.dbbackup.sgbd.Postgresql;
-import br.dbbackup.sgbd.SgbdImpl;
+import br.dbbackup.sgbd.*;
 import lombok.Data;
 import org.apache.commons.cli.CommandLine;
 
@@ -68,6 +65,8 @@ public class OptionsDto {
                 return new Mysql();
             case POSTGRESQL:
                 return new Postgresql();
+            case H2:
+                return new H2();
             default:
                 return null;
         }
