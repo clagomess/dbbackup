@@ -16,7 +16,10 @@ public class MainOptions {
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - jdbc:mysql://localhost/database - jdbc:postgresql://localhost:5432/postgres");
+        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - " +
+                "jdbc:mysql://localhost/database - " +
+                "jdbc:postgresql://localhost:5432/postgres - " +
+                "jdbc:h2:./home/h2/dbbackup");
         option.setRequired(true);
         options.addOption(option);
 
