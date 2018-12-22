@@ -41,3 +41,24 @@ create table tbl_dbbackup_mysql (
   field_text varchar(200),
   field_time time
 );
+
+create table tbl_dbbackup_h2 (
+  field_null date,
+  field_bigint bigint,
+  field_numeric numeric,
+  field_decimal decimal,
+  field_integer integer,
+  field_float float,
+  field_real real,
+  field_double decimal,
+  field_smallint smallint,
+  field_tinyint int,
+  field_timestamp timestamp,
+  field_time time,
+  field_date date,
+  field_blob bytea,
+  field_clob text,
+  field_varchar varchar(200),
+  field_varchar_ignorecase varchar(200),
+  field_boolean boolean
+);

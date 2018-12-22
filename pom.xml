@@ -7,7 +7,7 @@
     <name>dbbackup</name>
     <modelVersion>4.0.0</modelVersion>
     <groupId>main</groupId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <dependencies>
         <dependency>
@@ -64,6 +64,13 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.196</version>
         </dependency>
     </dependencies>
 

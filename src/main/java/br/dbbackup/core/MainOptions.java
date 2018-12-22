@@ -12,11 +12,14 @@ public class MainOptions {
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("db", true, "{ORACLE, MYSQL, POSTGRESQL}");
+        option = new Option("db", true, "{ORACLE, MYSQL, POSTGRESQL, H2}");
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - jdbc:mysql://localhost/database - jdbc:postgresql://localhost:5432/postgres");
+        option = new Option("url", true, "jdbc:oracle:thin:@localhost:1521/XE - " +
+                "jdbc:mysql://localhost/database - " +
+                "jdbc:postgresql://localhost:5432/postgres - " +
+                "jdbc:h2:./home/h2/dbbackup");
         option.setRequired(true);
         options.addOption(option);
 
@@ -38,7 +41,7 @@ public class MainOptions {
         option = new Option("schema_exp", true, "Nome do schema para exportação");
         options.addOption(option);
 
-        option = new Option("dump_format", true, "Formato de saída do dump. Ideal para migração. Ex.: {ORACLE, MYSQL, POSTGRESQL}");
+        option = new Option("dump_format", true, "Formato de saída do dump. Ideal para migração. Ex.: {ORACLE, MYSQL, POSTGRESQL, H2}");
         option.setRequired(false);
         options.addOption(option);
 

@@ -3,10 +3,7 @@ package br.dbbackup.main;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.MainOptions;
 import br.dbbackup.dto.OptionsDto;
-import br.dbbackup.sgbd.Mysql;
-import br.dbbackup.sgbd.Oracle;
-import br.dbbackup.sgbd.Postgresql;
-import br.dbbackup.sgbd.Sgbd;
+import br.dbbackup.sgbd.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 
@@ -53,6 +50,9 @@ public class Main {
                     break;
                 case POSTGRESQL:
                     sgbd = new Sgbd<>(new Postgresql(), conexao, options);
+                    break;
+                case H2:
+                    sgbd = new Sgbd<>(new H2(), conexao, options);
                     break;
                 default:
                     throw new DbbackupException(String.format("\"%s\" não implementado!", options.getDatabase()));
