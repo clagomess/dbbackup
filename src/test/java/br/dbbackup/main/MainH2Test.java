@@ -103,7 +103,7 @@ public class MainH2Test {
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "PUT",
                 "-url", TestUtil.URL_POSTGRESQL,

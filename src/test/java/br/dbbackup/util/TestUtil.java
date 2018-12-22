@@ -13,7 +13,7 @@ public class TestUtil {
     public static final String URL_MYSQL = "jdbc:mysql://localhost:3306/dbbackup";
     public static final String URL_ORACLE = "jdbc:oracle:thin:@localhost:1521:ORCLCDB";
     public static final String URL_POSTGRESQL = "jdbc:postgresql://localhost:5432/postgres";
-    public static final String URL_H2 = "jdbc:h2:./src/test/resources/h2/dbbackup";
+    public static final String URL_H2 = "jdbc:h2:./target/test-classes/h2/dbbackup";
 
     public static final String USER_MYSQL = "root";
     public static final String USER_ORACLE = "DBBACKUP";

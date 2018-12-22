@@ -103,13 +103,49 @@ public class MainOracleTest {
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
-                "-db", "ORACLE",
+                "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "PUT",
                 "-url", TestUtil.URL_POSTGRESQL,
                 "-user", TestUtil.USER_POSTGRESQL,
                 "-pass", TestUtil.PASS_POSTGRESQL,
                 "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-workdir", workdir
+        });
+    }
+
+    @Test
+    public void pumpH2() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "ORACLE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.URL_ORACLE,
+                "-user", TestUtil.USER_ORACLE,
+                "-pass", TestUtil.PASS_ORACLE,
+                "-schema", TestUtil.SCHEMA_ORACLE,
+                "-workdir", workdir,
+                "-table", "TBL_DBBACKUP",
+                "-dump_format", "H2",
+                "-schema_exp", TestUtil.SCHEMA_H2
+        });
+
+        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.SCHEMA_ORACLE));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_oracle");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "H2",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.URL_H2,
+                "-user", TestUtil.USER_H2,
+                "-pass", TestUtil.PASS_H2,
+                "-schema", TestUtil.SCHEMA_H2,
                 "-workdir", workdir
         });
     }

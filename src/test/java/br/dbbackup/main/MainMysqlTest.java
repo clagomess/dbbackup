@@ -103,13 +103,49 @@ public class MainMysqlTest {
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
-                "-db", "ORACLE",
+                "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "PUT",
                 "-url", TestUtil.URL_POSTGRESQL,
                 "-user", TestUtil.USER_POSTGRESQL,
                 "-pass", TestUtil.PASS_POSTGRESQL,
                 "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-workdir", workdir
+        });
+    }
+
+    @Test
+    public void pumpH2() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "MYSQL",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.URL_MYSQL,
+                "-user", TestUtil.USER_MYSQL,
+                "-pass", TestUtil.PASS_MYSQL,
+                "-schema", TestUtil.SCHEMA_MYSQL,
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "H2",
+                "-schema_exp", TestUtil.SCHEMA_H2
+        });
+
+        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_MYSQL));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "H2",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.URL_H2,
+                "-user", TestUtil.USER_H2,
+                "-pass", TestUtil.PASS_H2,
+                "-schema", TestUtil.SCHEMA_H2,
                 "-workdir", workdir
         });
     }
