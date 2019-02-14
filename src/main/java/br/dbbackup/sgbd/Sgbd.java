@@ -73,13 +73,17 @@ public class Sgbd<T extends SgbdImpl> {
         for (String table : tabcolumns.getTables()){
             log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
-            FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
-            ResultSet rs = stmt.executeQuery(String.format(
+            String query = String.format(
                     "SELECT %s FROM %s.%s",
                     String.join(", ", tabcolumns.getColumns(table)),
                     options.getSchema(),
                     table
-            ));
+            );
+
+            log.info("QUERY: {}", query);
+
+            FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
+            ResultSet rs = stmt.executeQuery(query);
 
             OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
