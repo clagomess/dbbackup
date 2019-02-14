@@ -19,7 +19,7 @@ public class TabColumnsDto {
         for(String column : tabcolumns.get(table).keySet()){
             DataType dataType = options.getSgbdFromInstance().getDataType(tabcolumns.get(table).get(column));
 
-            if((dataType == DataType.BLOB || dataType == DataType.CLOB) && options.getExportLob()){
+            if((dataType == DataType.BLOB || dataType == DataType.CLOB) && !options.getExportLob()){
                 continue;
             }
 
