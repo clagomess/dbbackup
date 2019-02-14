@@ -4,21 +4,25 @@ package br.dbbackup.sgbd;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.Msg;
 import br.dbbackup.dto.OptionsDto;
+import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
 
 import java.io.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class Sgbd<T extends SgbdImpl> {
     private T instance;
-    private Map<String, Map<String, String>> tabcolumns = new HashMap<>();
+    private TabColumnsDto tabcolumns;
     private Connection conn;
     private OptionsDto options;
 
@@ -26,6 +30,7 @@ public class Sgbd<T extends SgbdImpl> {
         this.instance = instance;
         this.conn = conn;
         this.options = options;
+        this.tabcolumns = new TabColumnsDto(options);
     }
 
     public void startDump() throws Throwable {
@@ -36,7 +41,7 @@ public class Sgbd<T extends SgbdImpl> {
         ResultSet rs = stmt.executeQuery(instance.getSqlTabColumns(options));
 
         while (rs.next()) {
-            setTabColumn(
+            tabcolumns.setTabColumn(
                     rs.getString("table_name"),
                     rs.getString("column_name"),
                     rs.getString("data_type")
@@ -54,7 +59,7 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     private void startDumpProcess() throws Throwable {
-        for (String table : getTables()){
+        for (String table : tabcolumns.getTables()){
             log.info("-> {}.{}", options.getSchema(), table);
         }
 
@@ -67,18 +72,43 @@ public class Sgbd<T extends SgbdImpl> {
 
         // Inicio processamento
         log.info("### Iniciando DUMP ###");
-        for (String table : getTables()){
-            log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
+        List<String> tables = tabcolumns.getTables();
+        int tableNum = 1;
+
+        for (String table : tables){
+            // Informando quantidade de registro
+            ResultSet rsCount = stmt.executeQuery(String.format("SELECT count(*) \"cnt\" FROM %s.%s", options.getSchema(), table));
+            rsCount.next();
+            int count = rsCount.getInt("cnt");
+            rsCount.close();
+            log.info("# DUMP Table: \"{}.{}\" ({}/{})", options.getSchema(), table, tableNum, tables.size());
+            log.info("QTD Registro: {}", count);
+
+            if(count == 0){
+                continue;
+            }
+
+            // Montando query
+            String query = String.format(
+                    "SELECT %s FROM %s.%s",
+                    String.join(", ", tabcolumns.getColumns(table)),
+                    options.getSchema(),
+                    table
+            );
+
+            log.info("QUERY: {}", query);
 
             FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
-            ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s", options.getSchema(), table));
-
+            ResultSet rs = stmt.executeQuery(query);
             OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+
+            // Inicio Dump
+            ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);
 
             while (rs.next()) {
                 List<String> param = new ArrayList<>();
 
-                for (String column : getColumns(table)) {
+                for (String column : tabcolumns.getColumns(table)) {
                     param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
                 }
 
@@ -86,14 +116,17 @@ public class Sgbd<T extends SgbdImpl> {
                         "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
                         options.getSchemaNewName(),
                         table,
-                        String.join(", ", getColumns(table)),
+                        String.join(", ", tabcolumns.getColumns(table)),
                         String.join(", ", param)
                 ));
 
                 out.flush();
+                pb.step();
             }
 
             rs.close();
+            pb.close();
+            tableNum++;
         }
 
         stmt.close();
@@ -163,29 +196,5 @@ public class Sgbd<T extends SgbdImpl> {
         }
 
         return hash;
-    }
-
-    private List<String> getColumns(String table) {
-        ArrayList<String> columns = new ArrayList<>();
-
-        columns.addAll(tabcolumns.get(table).keySet());
-
-        return columns;
-    }
-
-    private List<String> getTables() {
-        ArrayList<String> tables = new ArrayList<>();
-
-        tables.addAll(tabcolumns.keySet());
-
-        return tables;
-    }
-
-    private void setTabColumn(String table, String column, String type) {
-        if(!tabcolumns.containsKey(table)){
-            tabcolumns.put(table, new HashMap<>());
-        }
-
-        tabcolumns.get(table).put(column, type);
     }
 }

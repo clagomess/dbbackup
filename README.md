@@ -5,7 +5,7 @@ Bash Ex.:
 ```
 java -jar dbbackup.jar -db MYSQL \
     -ope GET \
-    -url jdbc:mysql://localhost/database \
+    -url jdbc:mysql://localhost/dbbackup \
     -user root \
     -pass 010203 \
     -schema dbbackup
