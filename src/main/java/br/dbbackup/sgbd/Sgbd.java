@@ -73,13 +73,12 @@ public class Sgbd<T extends SgbdImpl> {
         // Inicio processamento
         log.info("### Iniciando DUMP ###");
         for (String table : tabcolumns.getTables()){
-            log.info("# DUMP Table: \"{}.{}\"", options.getSchema(), table);
-
             // Informando quantidade de registro
             ResultSet rsCount = stmt.executeQuery(String.format("SELECT count(*) \"cnt\" FROM %s.%s", options.getSchema(), table));
             rsCount.next();
             int count = rsCount.getInt("cnt");
             rsCount.close();
+            log.info("# DUMP Table: \"{}.{}\"", options.getSchema(), table);
             log.info("QTD Registro: {}", count);
 
             if(count == 0){
