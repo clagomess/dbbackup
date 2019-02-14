@@ -4,6 +4,7 @@ import br.dbbackup.constant.DataType;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.LobWriter;
 import br.dbbackup.dto.OptionsDto;
+import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
@@ -11,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
-import java.util.Map;
 
 @Slf4j
 public class Mysql implements SgbdImpl {
@@ -57,14 +57,14 @@ public class Mysql implements SgbdImpl {
     }
 
     @Override
-    public String formatColumn(OptionsDto options, Map<String, Map<String, String>> tabcolumns, ResultSet rs, String table, String column) throws Throwable {
+    public String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
         try {
             if(rs.getObject(column) != null){
                 SimpleDateFormat sdf;
 
-                switch (options.getSgbdFromInstance().getDataType(tabcolumns.get(table).get(column))){
+                switch (options.getSgbdFromInstance().getDataType(tabcolumns.getDataType(table, column))){
                     case NUMBER:
                         toReturn = rs.getString(column);
                         break;
