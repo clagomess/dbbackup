@@ -5,6 +5,7 @@ import lombok.Getter;
 public enum Database {
     ORACLE("ORACLE"),
     MYSQL("MYSQL"),
+    MARIADB("MARIADB"),
     POSTGRESQL("POSTGRESQL"),
     H2("H2");
 

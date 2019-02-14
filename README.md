@@ -14,7 +14,7 @@ java -jar dbbackup.jar -db MYSQL \
 CLI DOC:
 ```
 usage: dbbackup
- -db <arg>            {ORACLE, MYSQL, POSTGRESQL, H2}
+ -db <arg>            {ORACLE, MYSQL, MARIADB, POSTGRESQL, H2}
  -dump_format <arg>   Formato de saída do dump. Ideal para migração. Ex.:
                       {ORACLE, MYSQL, POSTGRESQL, H2}
  -lob <arg>           {1} - Importar/Exportar LOB
@@ -26,6 +26,7 @@ usage: dbbackup
                       bar ...
  -url <arg>           jdbc:oracle:thin:@localhost:1521/XE -
                       jdbc:mysql://localhost/database -
+                      jdbc:mariadb://localhost/database -
                       jdbc:postgresql://localhost:5432/postgres -
                       jdbc:h2:./home/h2/dbbackup
  -user <arg>          user
@@ -33,7 +34,7 @@ usage: dbbackup
 ```
 
 ### Conversão
-| generic | Mysql | Postgresql | Oracle | H2 |
+| generic | Mysql/MariaDB | Postgresql | Oracle | H2 |
 | --- | --- | --- | --- | --- |
 | `NUMBER` | <ul><li>int</li><li>bigint</li><li>decimal</li><li>tinyint</li></ul> | <ul><li>float8</li><li>numeric</li><li>int4</li><li>int8</li><li>int2</li></ul> | <ul><li>NUMBER</li></li> | <ul><li>BIGINT</li><li>NUMERIC</li><li>DECIMAL</li><li>INTEGER</li><li>FLOAT</li><li>REAL</li><li>DOUBLE</li><li>SMALLINT</li></ul> |
 | `DATETIME` | <ul><li>datetime</li></li> | <ul><li>timestamptz</li><li>timestamp</li></ul>  | <ul><li>DATE</li></li> | <ul><li>TIMESTAMP</li></li> |
