@@ -46,6 +46,7 @@ public class Main {
                     sgbd = new Sgbd<>(new Oracle(), conexao, options);
                     break;
                 case MYSQL:
+                case MARIADB:
                     sgbd = new Sgbd<>(new Mysql(), conexao, options);
                     break;
                 case POSTGRESQL:

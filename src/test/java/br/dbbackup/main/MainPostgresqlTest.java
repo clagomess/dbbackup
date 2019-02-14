@@ -19,15 +19,15 @@ public class MainPostgresqlTest {
                 "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.URL_POSTGRESQL,
-                "-user", TestUtil.USER_POSTGRESQL,
-                "-pass", TestUtil.PASS_POSTGRESQL,
-                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup"
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL));
+        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
         Assert.assertTrue(backupFile.isFile());
 
         // PUMP
@@ -35,10 +35,10 @@ public class MainPostgresqlTest {
                 "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "PUT",
-                "-url", TestUtil.URL_POSTGRESQL,
-                "-user", TestUtil.USER_POSTGRESQL,
-                "-pass", TestUtil.PASS_POSTGRESQL,
-                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
                 "-workdir", workdir
         });
     }
@@ -51,17 +51,17 @@ public class MainPostgresqlTest {
                 "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.URL_POSTGRESQL,
-                "-user", TestUtil.USER_POSTGRESQL,
-                "-pass", TestUtil.PASS_POSTGRESQL,
-                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
                 "-dump_format", "ORACLE",
-                "-schema_exp", TestUtil.SCHEMA_ORACLE
+                "-schema_exp", TestUtil.paramOracle.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL));
+        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
@@ -71,10 +71,10 @@ public class MainPostgresqlTest {
                 "-db", "ORACLE",
                 "-lob", "1",
                 "-ope", "PUT",
-                "-url", TestUtil.URL_ORACLE,
-                "-user", TestUtil.USER_ORACLE,
-                "-pass", TestUtil.PASS_ORACLE,
-                "-schema", TestUtil.SCHEMA_ORACLE,
+                "-url", TestUtil.paramOracle.getUrl(),
+                "-user", TestUtil.paramOracle.getUser(),
+                "-pass", TestUtil.paramOracle.getPass(),
+                "-schema", TestUtil.paramOracle.getSchema(),
                 "-workdir", workdir
         });
     }
@@ -87,17 +87,17 @@ public class MainPostgresqlTest {
                 "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.URL_POSTGRESQL,
-                "-user", TestUtil.USER_POSTGRESQL,
-                "-pass", TestUtil.PASS_POSTGRESQL,
-                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
                 "-dump_format", "MYSQL",
-                "-schema_exp", TestUtil.SCHEMA_MYSQL
+                "-schema_exp", TestUtil.paramMysql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL));
+        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
@@ -107,10 +107,10 @@ public class MainPostgresqlTest {
                 "-db", "MYSQL",
                 "-lob", "1",
                 "-ope", "PUT",
-                "-url", TestUtil.URL_MYSQL,
-                "-user", TestUtil.USER_MYSQL,
-                "-pass", TestUtil.PASS_MYSQL,
-                "-schema", TestUtil.SCHEMA_MYSQL,
+                "-url", TestUtil.paramMysql.getUrl(),
+                "-user", TestUtil.paramMysql.getUser(),
+                "-pass", TestUtil.paramMysql.getPass(),
+                "-schema", TestUtil.paramMysql.getSchema(),
                 "-workdir", workdir
         });
     }
@@ -123,17 +123,17 @@ public class MainPostgresqlTest {
                 "-db", "POSTGRESQL",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.URL_POSTGRESQL,
-                "-user", TestUtil.USER_POSTGRESQL,
-                "-pass", TestUtil.PASS_POSTGRESQL,
-                "-schema", TestUtil.SCHEMA_POSTGRESQL,
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
                 "-workdir", workdir,
                 "-table", "tbl_dbbackup",
                 "-dump_format", "H2",
-                "-schema_exp", TestUtil.SCHEMA_H2
+                "-schema_exp", TestUtil.paramH2.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.SCHEMA_POSTGRESQL));
+        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
@@ -143,10 +143,10 @@ public class MainPostgresqlTest {
                 "-db", "H2",
                 "-lob", "1",
                 "-ope", "PUT",
-                "-url", TestUtil.URL_H2,
-                "-user", TestUtil.USER_H2,
-                "-pass", TestUtil.PASS_H2,
-                "-schema", TestUtil.SCHEMA_H2,
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema(),
                 "-workdir", workdir
         });
     }

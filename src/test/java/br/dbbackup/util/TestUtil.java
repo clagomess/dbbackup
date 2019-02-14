@@ -10,25 +10,11 @@ import java.util.UUID;
 
 @Slf4j
 public class TestUtil {
-    public static final String URL_MYSQL = "jdbc:mysql://localhost:3306/dbbackup";
-    public static final String URL_ORACLE = "jdbc:oracle:thin:@localhost:1521:ORCLCDB";
-    public static final String URL_POSTGRESQL = "jdbc:postgresql://localhost:5432/postgres";
-    public static final String URL_H2 = "jdbc:h2:./target/test-classes/h2/dbbackup";
-
-    public static final String USER_MYSQL = "root";
-    public static final String USER_ORACLE = "DBBACKUP";
-    public static final String USER_POSTGRESQL = "postgres";
-    public static final String USER_H2 = "";
-
-    public static final String PASS_MYSQL = "010203";
-    public static final String PASS_ORACLE = "010203";
-    public static final String PASS_POSTGRESQL = "";
-    public static final String PASS_H2 = "";
-
-    public static final String SCHEMA_MYSQL = "dbbackup";
-    public static final String SCHEMA_ORACLE = "DBBACKUP";
-    public static final String SCHEMA_POSTGRESQL = "public";
-    public static final String SCHEMA_H2 = "PUBLIC";
+    public static final DbParamDto paramMysql = new DbParamDto("jdbc:mysql://localhost:3306/dbbackup", "dbbackup", "root", "010203");
+    public static final DbParamDto paramMariadb = new DbParamDto("jdbc:mariadb://localhost:3306/dbbackup", "dbbackup", "root", "010203");
+    public static final DbParamDto paramOracle = new DbParamDto("jdbc:oracle:thin:@localhost:1521:ORCLCDB", "DBBACKUP", "DBBACKUP", "010203");
+    public static final DbParamDto paramPostgresql = new DbParamDto("jdbc:postgresql://localhost:5432/postgres", "public", "postgres");
+    public static final DbParamDto paramH2 = new DbParamDto("jdbc:h2:./target/test-classes/h2/dbbackup", "PUBLIC");
 
     public static String getNewWorkDir(){
         String dir = "target";

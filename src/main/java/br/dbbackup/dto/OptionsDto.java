@@ -62,6 +62,7 @@ public class OptionsDto {
             case ORACLE:
                 return new Oracle();
             case MYSQL:
+            case MARIADB:
                 return new Mysql();
             case POSTGRESQL:
                 return new Postgresql();
