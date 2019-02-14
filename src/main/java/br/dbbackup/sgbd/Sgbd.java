@@ -6,6 +6,7 @@ import br.dbbackup.core.Msg;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
+import me.tongfei.progressbar.ProgressBar;
 
 import java.io.*;
 import java.sql.Connection;
@@ -73,6 +74,14 @@ public class Sgbd<T extends SgbdImpl> {
         for (String table : tabcolumns.getTables()){
             log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
+            // Informando quantidade de registro
+            ResultSet rsCount = stmt.executeQuery(String.format("SELECT count(*) \"cnt\" FROM %s.%s", options.getSchema(), table));
+            rsCount.next();
+            Integer count = rsCount.getInt("cnt");
+            rsCount.close();
+            log.info("QTD Registro: {}", count);
+
+            // Montando query
             String query = String.format(
                     "SELECT %s FROM %s.%s",
                     String.join(", ", tabcolumns.getColumns(table)),
@@ -87,6 +96,8 @@ public class Sgbd<T extends SgbdImpl> {
 
             OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
+            // Inicio Dump
+            ProgressBar pb = new ProgressBar("Dump", count);
             while (rs.next()) {
                 List<String> param = new ArrayList<>();
 
@@ -103,9 +114,11 @@ public class Sgbd<T extends SgbdImpl> {
                 ));
 
                 out.flush();
+                pb.step();
             }
 
             rs.close();
+            pb.close();
         }
 
         stmt.close();
