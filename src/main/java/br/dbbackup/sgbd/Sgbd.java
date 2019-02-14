@@ -10,6 +10,7 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Slf4j
 public class Sgbd<T extends SgbdImpl> {
@@ -140,18 +142,31 @@ public class Sgbd<T extends SgbdImpl> {
             throw new DbbackupException("Pasta não localizada!");
         }
 
+        log.info("### Iniciando PUMP ###");
+
         for (File sql : sqlList) {
             if(sql.isFile() && sql.getName().contains(".sql")) {
                 // abre aquivo para leitura
-                log.info("### {}", sql.getName());
+                log.info("# PUMP Script: {}", sql.getName());
+
+                // Contar quantidade de linhas
+                Stream<String> fls = Files.lines(sql.toPath());
+                long rows = fls.count();
+                fls.close();
+                log.info("ROWS: {}", rows);
+
                 FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
                 BufferedReader br = new BufferedReader(fr);
 
+                ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
+
                 String dml;
                 while ((dml = br.readLine()) != null) {
-                    log.info(dml);
                     pumpScript(dml);
+                    pb.step();
                 }
+
+                pb.close();
             }
         }
     }
