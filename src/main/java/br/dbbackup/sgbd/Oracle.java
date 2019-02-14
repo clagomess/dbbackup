@@ -1,16 +1,13 @@
 package br.dbbackup.sgbd;
 
 import br.dbbackup.constant.DataType;
-import br.dbbackup.core.DbbackupException;
+import br.dbbackup.core.Format;
 import br.dbbackup.core.LobWriter;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 @Slf4j
@@ -53,45 +50,35 @@ public class Oracle implements SgbdImpl {
     public String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "NULL";
 
-        try {
-            if(rs.getObject(column) != null){
-                switch (options.getSgbdFromInstance().getDataType(tabcolumns.getDataType(table, column))){
-                    case NUMBER:
-                        toReturn = rs.getString(column);
-                        break;
-                    case DATETIME:
-                    case DATE:
-                    case TIME:
-                        toReturn = "TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS')";
+        if(rs.getObject(column) == null){
+            return toReturn;
+        }
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
-                        break;
-                    case BLOB:
-                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
-                            toReturn = LobWriter.write(options, rs.getBytes(column));
-                        }
-                        break;
-                    case CLOB:
-                        if(rs.getString(column).length() >= 0 && options.getExportLob()){
-                            toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
-                        }
-                        break;
-                    case VARCHAR:
-                        toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
-                        toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
-                        break;
-                    case BOOL:
-                        toReturn = rs.getBoolean(column) ? "1" : "0";
-                        break;
-                    default:
-                        toReturn = String.format("'%s'", rs.getString(column));
-                }
-            }
-        } catch (SQLException | UnsupportedEncodingException e){
-            log.warn(Sgbd.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
+        switch (options.getSgbdFromInstance().getDataType(tabcolumns.getDataType(table, column))){
+            case NUMBER:
+                toReturn = rs.getString(column);
+                break;
+            case DATETIME:
+            case DATE:
+            case TIME:
+                toReturn = "TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS')";
+                toReturn = String.format(toReturn, Format.dateTime(rs.getTimestamp(column)));
+                break;
+            case BLOB:
+                toReturn = LobWriter.write(options, rs.getBytes(column));
+                break;
+            case CLOB:
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                break;
+            case VARCHAR:
+                toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
+                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                break;
+            case BOOL:
+                toReturn = rs.getBoolean(column) ? "1" : "0";
+                break;
+            default:
+                toReturn = String.format("'%s'", rs.getString(column));
         }
 
         return toReturn;

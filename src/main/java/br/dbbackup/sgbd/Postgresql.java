@@ -1,16 +1,13 @@
 package br.dbbackup.sgbd;
 
 import br.dbbackup.constant.DataType;
-import br.dbbackup.core.DbbackupException;
+import br.dbbackup.core.Format;
 import br.dbbackup.core.LobWriter;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 @Slf4j
@@ -67,59 +64,43 @@ public class Postgresql implements SgbdImpl {
     public String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 
-        try {
-            if(rs.getObject(column) != null){
-                SimpleDateFormat sdf;
+        if(rs.getObject(column) == null){
+            return toReturn;
+        }
 
-                switch (options.getSgbdFromInstance().getDataType(tabcolumns.getDataType(table, column))){
-                    case NUMBER:
-                        toReturn = rs.getString(column);
-                        break;
-                    case DATETIME:
-                        toReturn = "to_timestamp('%s', 'YYYY-MM-DD HH24:MI:SS')";
-
-                        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
-                        break;
-                    case DATE:
-                        toReturn = "to_date('%s', 'YYYY-MM-DD')";
-
-                        sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
-                        break;
-                    case TIME:
-                        toReturn = "to_timestamp('%s', 'HH24:MI:SS')";
-
-                        sdf = new SimpleDateFormat("HH:mm:ss");
-
-                        toReturn = String.format(toReturn, sdf.format(rs.getTimestamp(column)));
-                        break;
-                    case BLOB:
-                        if(rs.getBytes(column).length >= 0 && options.getExportLob()){
-                            toReturn = LobWriter.write(options, rs.getBytes(column));
-                        }
-                        break;
-                    case CLOB:
-                        toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
-                        toReturn = String.format("encode(%s, 'escape')", toReturn);
-                        break;
-                    case VARCHAR:
-                        toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
-                        toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
-                        break;
-                    case BOOL:
-                        toReturn = rs.getBoolean(column) ? "true" : "false";
-                        break;
-                    default:
-                        toReturn = "'%s'";
-                        toReturn = String.format(toReturn, rs.getString(column));
-                }
-            }
-        }catch (SQLException | UnsupportedEncodingException e){
-            log.warn(Postgresql.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
+        switch (options.getSgbdFromInstance().getDataType(tabcolumns.getDataType(table, column))){
+            case NUMBER:
+                toReturn = rs.getString(column);
+                break;
+            case DATETIME:
+                toReturn = "to_timestamp('%s', 'YYYY-MM-DD HH24:MI:SS')";
+                toReturn = String.format(toReturn, Format.dateTime(rs.getTimestamp(column)));
+                break;
+            case DATE:
+                toReturn = "to_date('%s', 'YYYY-MM-DD')";
+                toReturn = String.format(toReturn, Format.date(rs.getTimestamp(column)));
+                break;
+            case TIME:
+                toReturn = "to_timestamp('%s', 'HH24:MI:SS')";
+                toReturn = String.format(toReturn, Format.time(rs.getTimestamp(column)));
+                break;
+            case BLOB:
+                toReturn = LobWriter.write(options, rs.getBytes(column));
+                break;
+            case CLOB:
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = String.format("encode(%s, 'escape')", toReturn);
+                break;
+            case VARCHAR:
+                toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
+                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                break;
+            case BOOL:
+                toReturn = rs.getBoolean(column) ? "true" : "false";
+                break;
+            default:
+                toReturn = "'%s'";
+                toReturn = String.format(toReturn, rs.getString(column));
         }
 
         return toReturn;
