@@ -17,7 +17,8 @@ public class Oracle implements SgbdImpl {
         String sql = "SELECT SATC.TABLE_NAME as \"table_name\", SATC.COLUMN_NAME as \"column_name\", SATC.DATA_TYPE as \"data_type\"\n" +
                 "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
                 "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
-                "WHERE SATC.OWNER = '%s'\n";
+                "LEFT JOIN SYS.ALL_MVIEWS SAM ON SAM.OWNER = SATC.OWNER AND SAM.MVIEW_NAME = SATC.TABLE_NAME\n" +
+                "WHERE SAM.MVIEW_NAME IS NULL AND SATC.OWNER = '%s'";
 
         sql = String.format(sql, options.getSchema());
 
