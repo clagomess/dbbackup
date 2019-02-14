@@ -7,6 +7,7 @@ import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
 
 import java.io.*;
 import java.sql.Connection;
@@ -72,14 +73,18 @@ public class Sgbd<T extends SgbdImpl> {
         // Inicio processamento
         log.info("### Iniciando DUMP ###");
         for (String table : tabcolumns.getTables()){
-            log.info("DUMP Table: \"{}.{}\"", options.getSchema(), table);
+            log.info("# DUMP Table: \"{}.{}\"", options.getSchema(), table);
 
             // Informando quantidade de registro
             ResultSet rsCount = stmt.executeQuery(String.format("SELECT count(*) \"cnt\" FROM %s.%s", options.getSchema(), table));
             rsCount.next();
-            Integer count = rsCount.getInt("cnt");
+            int count = rsCount.getInt("cnt");
             rsCount.close();
             log.info("QTD Registro: {}", count);
+
+            if(count == 0){
+                continue;
+            }
 
             // Montando query
             String query = String.format(
@@ -93,11 +98,11 @@ public class Sgbd<T extends SgbdImpl> {
 
             FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
             ResultSet rs = stmt.executeQuery(query);
-
             OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
             // Inicio Dump
-            ProgressBar pb = new ProgressBar("Dump", count);
+            ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);
+
             while (rs.next()) {
                 List<String> param = new ArrayList<>();
 
