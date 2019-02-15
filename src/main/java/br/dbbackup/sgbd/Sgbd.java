@@ -146,6 +146,8 @@ public class Sgbd<T extends SgbdImpl> {
 
         for (File sql : sqlList) {
             if(sql.isFile() && sql.getName().contains(".sql")) {
+                Statement stmt = conn.createStatement();
+
                 // abre aquivo para leitura
                 log.info("# PUMP Script: {}", sql.getName());
 
@@ -161,17 +163,33 @@ public class Sgbd<T extends SgbdImpl> {
                 ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
 
                 String dml;
+                final int batchSize = 1000;
+                int countBatch = 0;
                 while ((dml = br.readLine()) != null) {
-                    pumpScript(dml);
+                    countBatch += pumpScript(stmt, dml);
+
+                    if(++countBatch % batchSize == 0) {
+                        stmt.executeBatch();
+                    }
+
                     pb.step();
                 }
 
+                stmt.executeBatch();
+                stmt.close();
                 pb.close();
             }
         }
     }
 
-    protected void pumpScript(String dml) throws Throwable {
+    /**
+     * Add batch ou executa se houver log
+     * @param stmt aberto
+     * @param dml query
+     * @return 1 para batch e 0 para pstmt
+     * @throws Throwable pau
+     */
+    private int pumpScript(Statement stmt, String dml) throws Throwable {
         // remover ponto virgula
         dml = dml.replace(";", "");
 
@@ -192,10 +210,10 @@ public class Sgbd<T extends SgbdImpl> {
 
             pstmt.execute();
             pstmt.close();
+            return 0;
         }else{
-            Statement stmt = conn.createStatement();
-            stmt.execute(dml);
-            stmt.close();
+            stmt.addBatch(dml);
+            return 1;
         }
     }
 
