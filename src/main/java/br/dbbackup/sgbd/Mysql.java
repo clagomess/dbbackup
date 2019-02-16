@@ -81,7 +81,7 @@ public class Mysql implements SgbdImpl {
                 toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
                 break;
             case BLOB:
-                toReturn = LobWriter.write(options, rs.getBytes(column));
+                toReturn = rs.getBytes(column).length == 0 ? "''" : LobWriter.write(options, rs.getBytes(column));
                 break;
             case VARCHAR:
                 toReturn = "from_base64('%s')";

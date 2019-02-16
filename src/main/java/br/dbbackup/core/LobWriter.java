@@ -21,6 +21,7 @@ public class LobWriter {
         FileOutputStream out = new FileOutputStream(String.format("%s/lob/lob_%s.bin", options.getWorkdir(), bindName));
         out.write(rs);
         out.flush();
+        out.close();
 
         return ":lob_" + bindName;
     }

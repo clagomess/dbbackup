@@ -66,7 +66,7 @@ public class Oracle implements SgbdImpl {
                 toReturn = String.format(toReturn, Format.dateTime(rs.getTimestamp(column)));
                 break;
             case BLOB:
-                toReturn = LobWriter.write(options, rs.getBytes(column));
+                toReturn = rs.getBytes(column).length == 0 ? "EMPTY_BLOB()" : LobWriter.write(options, rs.getBytes(column));
                 break;
             case CLOB:
                 toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
