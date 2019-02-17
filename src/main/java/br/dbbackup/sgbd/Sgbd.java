@@ -184,14 +184,21 @@ public class Sgbd<T extends SgbdImpl> {
 
             PreparedStatement pstmt = conn.prepareStatement(dml);
 
+            List<FileInputStream> fisList = new ArrayList<>();
             int bindIdx = 1;
             for(String lob : lobs){
-                pstmt.setBinaryStream(bindIdx, new FileInputStream(String.format("%s/lob/%s.bin", options.getWorkdir(), lob.replace(":", ""))));
+                FileInputStream fis = new FileInputStream(String.format("%s/lob/%s.bin", options.getWorkdir(), lob.replace(":", "")));
+                fisList.add(fis);
+                pstmt.setBinaryStream(bindIdx, fis);
                 bindIdx++;
             }
 
             pstmt.execute();
             pstmt.close();
+
+            for(FileInputStream fis : fisList){
+                fis.close();
+            }
         }else{
             Statement stmt = conn.createStatement();
             stmt.execute(dml);
