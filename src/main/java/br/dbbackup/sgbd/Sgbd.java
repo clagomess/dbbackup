@@ -91,12 +91,15 @@ public class Sgbd<T extends SgbdImpl> {
             }
 
             // Montando query
-            String query = String.format(
-                    "SELECT %s FROM %s.%s",
-                    String.join(", ", tabcolumns.getColumns(table)),
-                    options.getSchema(),
-                    table
-            );
+            String query = options.getTableQuery(table);
+            if(query == null) {
+                query = String.format(
+                        "SELECT %s FROM %s.%s",
+                        String.join(", ", tabcolumns.getColumns(table)),
+                        options.getSchema(),
+                        table
+                );
+            }
 
             log.info("QUERY: {}", query);
 
