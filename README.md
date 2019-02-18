@@ -22,8 +22,12 @@ usage: dbbackup
  -pass <arg>          pass
  -schema <arg>        schema
  -schema_exp <arg>    Nome do schema para exportação
- -table <arg>         Tabela(s) a ser exportadas. Ex.: -table foo -table
+ -table <arg>         Tabela(s) a ser exportada(s). Ex.: -table foo -table
                       bar ...
+ -table_query <arg>   Query de consulta da(s) tabela(s) a ser
+                      exportada(s). Ex.: -table_query "tbl_foo;select *
+                      from tbl_foo" -table_query "tbl_bar;select * from
+                      tbl_bar" ...
  -url <arg>           jdbc:oracle:thin:@localhost:1521/XE -
                       jdbc:mysql://localhost/database -
                       jdbc:mariadb://localhost/database -

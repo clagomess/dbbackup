@@ -49,7 +49,12 @@ public class MainOptions {
         option = new Option("workdir", true, "Pasta de localização do dump. default: ./dump");
         options.addOption(option);
 
-        option = new Option("table", true, "Tabela(s) a ser exportadas. Ex.: -table foo -table bar ...");
+        option = new Option("table", true, "Tabela(s) a ser exportada(s). Ex.: -table foo -table bar ...");
+        options.addOption(option);
+
+        option = new Option("table_query", true, "Query de consulta da(s) tabela(s) a ser exportada(s). Ex.: " +
+                "-table_query \"tbl_foo;select * from tbl_foo\" " +
+                "-table_query \"tbl_bar;select * from tbl_bar\" ...");
         options.addOption(option);
 
         return options;
