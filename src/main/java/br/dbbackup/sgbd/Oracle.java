@@ -18,13 +18,15 @@ public class Oracle implements SgbdImpl {
                 "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
                 "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
                 "LEFT JOIN SYS.ALL_MVIEWS SAM ON SAM.OWNER = SATC.OWNER AND SAM.MVIEW_NAME = SATC.TABLE_NAME\n" +
-                "WHERE SAM.MVIEW_NAME IS NULL AND SATC.OWNER = '%s'";
+                "WHERE SAM.MVIEW_NAME IS NULL AND SATC.OWNER = '%s'\n";
 
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("AND SATC.TABLE_NAME IN ('%s')", String.join("','", options.getTable()));
+            sql += String.format("AND SATC.TABLE_NAME IN ('%s')\n", String.join("','", options.getTable()));
         }
+
+        sql += "ORDER BY SATC.TABLE_NAME, SATC.COLUMN_ID";
 
         return sql;
     }
