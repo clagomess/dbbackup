@@ -25,8 +25,10 @@ public class Postgresql implements SgbdImpl {
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("and c.table_name in ('%s')", String.join("','", options.getTable()));
+            sql += String.format("and c.table_name in ('%s')\n", String.join("','", options.getTable()));
         }
+
+        sql += "order by c.table_name, c.ordinal_position";
 
         return sql;
     }
