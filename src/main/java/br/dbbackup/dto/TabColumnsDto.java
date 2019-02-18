@@ -6,7 +6,7 @@ import java.util.*;
 
 public class TabColumnsDto {
     // table_name -> column_name -> type
-    private Map<String, Map<String, String>> tabcolumns = new HashMap<>();
+    private Map<String, Map<String, String>> tabcolumns = new TreeMap<>();
     private OptionsDto options;
 
     public TabColumnsDto(OptionsDto options){
@@ -31,7 +31,7 @@ public class TabColumnsDto {
 
     public void setTabColumn(String table, String column, String type) {
         if(!tabcolumns.containsKey(table)){
-            tabcolumns.put(table, new HashMap<>());
+            tabcolumns.put(table, new TreeMap<>());
         }
 
         tabcolumns.get(table).put(column, type);
