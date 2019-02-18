@@ -20,8 +20,10 @@ public class H2 implements SgbdImpl {
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("AND TABLE_NAME IN ('%s')", String.join("','", options.getTable()));
+            sql += String.format("AND TABLE_NAME IN ('%s')\n", String.join("','", options.getTable()));
         }
+
+        sql += "ORDER BY TABLE_NAME, ORDINAL_POSITION";
 
         return sql;
     }
