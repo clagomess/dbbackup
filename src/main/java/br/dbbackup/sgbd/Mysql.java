@@ -20,8 +20,10 @@ public class Mysql implements SgbdImpl {
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("and table_name in ('%s')", String.join("','", options.getTable()));
+            sql += String.format("and table_name in ('%s')\n", String.join("','", options.getTable()));
         }
+
+        sql += "order by table_name, ordinal_position";
 
         return sql;
     }
