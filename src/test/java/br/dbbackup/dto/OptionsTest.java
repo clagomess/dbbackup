@@ -30,6 +30,9 @@ public class OptionsTest {
                 "-dump_format", "ORACLE",
                 "-table", "foo",
                 "-table", "bar",
+                "-table_query", "tbl_foo;select * from tbl_foo",
+                "-table_query", "tbl_bar",
+                "-table_query", "tbl_aaa;select * from tbl_aaa",
         });
 
         OptionsDto dto = new OptionsDto(cmd);
@@ -39,5 +42,12 @@ public class OptionsTest {
         Assert.assertTrue(dto.getSgbdFromInstance() instanceof Mysql);
         Assert.assertTrue(dto.getSgbdToInstance() instanceof Oracle);
         Assert.assertEquals(2, dto.getTable().size());
+
+        // table query
+        Assert.assertEquals(2, dto.getTableQuery().size());
+        Assert.assertEquals("select * from tbl_foo", dto.getTableQuery("tbl_foo"));
+        Assert.assertEquals("select * from tbl_aaa", dto.getTableQuery("tbl_aaa"));
+        Assert.assertNull(dto.getTableQuery("tbl_bbb"));
+        Assert.assertNull(dto.getTableQuery("tbl_bar"));
     }
 }

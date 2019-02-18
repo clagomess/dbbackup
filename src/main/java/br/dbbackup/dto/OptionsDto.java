@@ -7,7 +7,9 @@ import lombok.Data;
 import org.apache.commons.cli.CommandLine;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class OptionsDto {
@@ -21,11 +23,9 @@ public class OptionsDto {
     private String schemaNewName;
     private String workdir;
     private List<String> table;
+    private Map<String, String> tableQuery; // table => query
 
-    /*
-    @TODO: implementar limit de linhas
-    @TODO: implementar CHARSET
-    */
+    // @TODO: implementar CHARSET
 
     // dump format
     private Database dumpFormat;
@@ -55,6 +55,28 @@ public class OptionsDto {
         }else{
             this.sgbdToInstance = getInstance(this.dumpFormat);
         }
+
+        if(cmd.getOptionValues("table_query") != null){
+            if(this.tableQuery == null){
+                this.tableQuery = new HashMap<>();
+            }
+
+            for (String arg : cmd.getOptionValues("table_query")){
+                String[] list = arg.split(";");
+
+                if(list.length == 2) {
+                    this.tableQuery.put(list[0], list[1]);
+                }
+            }
+        }
+    }
+
+    public String getTableQuery(String table){
+        if(this.tableQuery == null){
+            return null;
+        }
+
+        return this.tableQuery.get(table);
     }
 
     private SgbdImpl getInstance(Database database){
