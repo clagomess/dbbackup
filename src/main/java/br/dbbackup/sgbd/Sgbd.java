@@ -169,6 +169,8 @@ public class Sgbd<T extends SgbdImpl> {
                     pb.step();
                 }
 
+                br.close();
+                fr.close();
                 pb.close();
             }
         }
