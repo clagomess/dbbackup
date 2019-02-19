@@ -11,6 +11,18 @@ import java.nio.file.Files;
 @Slf4j
 public class MainOracleTest {
     @Test
+    public void info() throws Throwable {
+        Main.main(new String[]{
+                "-db", "ORACLE",
+                "-ope", "INFO",
+                "-url", TestUtil.paramOracle.getUrl(),
+                "-user", TestUtil.paramOracle.getUser(),
+                "-pass", TestUtil.paramOracle.getPass(),
+                "-schema", TestUtil.paramOracle.getSchema()
+        });
+    }
+
+    @Test
     public void dump() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
 

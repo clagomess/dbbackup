@@ -11,6 +11,18 @@ import java.nio.file.Files;
 @Slf4j
 public class MainMysqlTest {
     @Test
+    public void info() throws Throwable {
+        Main.main(new String[]{
+                "-db", "MYSQL",
+                "-ope", "INFO",
+                "-url", TestUtil.paramMysql.getUrl(),
+                "-user", TestUtil.paramMysql.getUser(),
+                "-pass", TestUtil.paramMysql.getPass(),
+                "-schema", TestUtil.paramMysql.getSchema()
+        });
+    }
+
+    @Test
     public void dump() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
 

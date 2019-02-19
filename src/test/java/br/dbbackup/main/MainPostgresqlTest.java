@@ -11,6 +11,18 @@ import java.nio.file.Files;
 @Slf4j
 public class MainPostgresqlTest {
     @Test
+    public void info() throws Throwable {
+        Main.main(new String[]{
+                "-db", "POSTGRESQL",
+                "-ope", "INFO",
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema()
+        });
+    }
+
+    @Test
     public void dump() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
 
