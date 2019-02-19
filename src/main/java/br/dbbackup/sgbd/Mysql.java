@@ -30,7 +30,17 @@ public class Mysql implements SgbdImpl {
 
     @Override
     public String getSqlInfo(OptionsDto options){
-        return null;
+        String sql = "select\n" +
+                "c.table_name \"table_name\",\n" +
+                "count(*) \"qtd_columns\",\n" +
+                "max(case when c.column_key = 'PRI' then c.column_name else null end) \"pk_column\",\n" +
+                "max(case when c.data_type in ('blob', 'longblob', 'longtext') then 1 else 0 end) \"lob\"\n" +
+                "from information_schema.columns c\n" +
+                "where c.table_schema = '%s'\n" +
+                "group by c.table_name\n" +
+                "order by c.table_name";
+
+        return String.format(sql, options.getSchema());
     }
 
     @Override
