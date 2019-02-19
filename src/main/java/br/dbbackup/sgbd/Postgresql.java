@@ -35,7 +35,33 @@ public class Postgresql implements SgbdImpl {
 
     @Override
     public String getSqlInfo(OptionsDto options){
-        return null;
+        String sql = "select\n" +
+                "  t.table_name \"table_name\",\n" +
+                "  count(*) \"qtd_columns\",\n" +
+                "  max(pk.column_name) \"pk_column\",\n" +
+                "  MAX(CASE WHEN c.udt_name IN ('bytea', 'text') THEN 1 ELSE 0 END) \"lob\"\n" +
+                "from information_schema.columns c\n" +
+                "join information_schema.tables t\n" +
+                "  on t.table_catalog = c.table_catalog\n" +
+                "  and t.table_schema = c.table_schema\n" +
+                "  and t.table_name = c.table_name\n" +
+                "left join (\n" +
+                "  select tc.table_name, ccu.column_name\n" +
+                "  from information_schema.table_constraints tc\n" +
+                "  join information_schema.constraint_column_usage ccu\n" +
+                "    on ccu.table_schema = tc.table_schema\n" +
+                "    and ccu.table_name = tc.table_name\n" +
+                "    and ccu.constraint_name = tc.constraint_name\n" +
+                "  where tc.table_schema = 'public'\n" +
+                "  and tc.constraint_type = 'PRIMARY KEY'\n" +
+                ") pk\n" +
+                "  on pk.table_name = t.table_name\n" +
+                "  and pk.column_name = c.column_name\n" +
+                "where c.table_schema = 'public' and t.table_type <> 'VIEW'\n" +
+                "group by t.table_name\n" +
+                "order by t.table_name";
+
+        return String.format(sql, options.getSchema(), options.getSchema());
     }
 
     @Override
