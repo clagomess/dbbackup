@@ -314,8 +314,10 @@ public class Sgbd<T extends SgbdImpl> {
     private String getAsciiTable(List<TabInfoDto> dtoList){
         List<Map<String, String>> result = new LinkedList<>();
 
+        int tableNum = 1;
         for(TabInfoDto dto : dtoList){
             Map<String, String> item = new LinkedHashMap<>();
+            item.put("#", String.valueOf(tableNum));
             item.put("Table", dto.getTable());
             item.put("QTD. Rows", String.valueOf(dto.getQtdRows()));
             item.put("PK Name", dto.getPkName());
@@ -324,6 +326,7 @@ public class Sgbd<T extends SgbdImpl> {
             item.put("LOB?", dto.getLob() == 1 ? "SIM" : "NAO");
 
             result.add(item);
+            tableNum++;
         }
 
         return AsciiTable.build(result);
