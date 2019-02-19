@@ -74,7 +74,7 @@ public class Main {
             }
         } catch (Throwable e) {
             log.warn(Sgbd.class.getName(), e);
-            throw new DbbackupException(e.getMessage());
+            throw e;
         } finally {
             if(conexao != null) {
                 try {
