@@ -22,6 +22,11 @@ public class TestUtil {
         dir += "dbbackup_";
         dir += UUID.randomUUID().toString();
 
+        File outDir = new File(dir);
+        if (!outDir.exists()) {
+            outDir.mkdir();
+        }
+
         log.info("workdir: {}", dir);
 
         return dir;

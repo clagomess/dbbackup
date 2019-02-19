@@ -30,11 +30,6 @@ public class SgbdTest {
     public void getSqlList() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
 
-        File outDir = new File(workdir);
-        if(!outDir.exists()){
-            outDir.mkdir();
-        }
-
         OptionsDto dto = new OptionsDto();
         dto.setWorkdir(workdir);
 

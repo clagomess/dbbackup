@@ -118,30 +118,34 @@ public class Sgbd<T extends SgbdImpl> {
             // Inicio Dump
             ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);
 
-            while (rs.next()) {
-                List<String> param = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    List<String> param = new ArrayList<>();
 
-                for (String column : tabcolumns.getColumns(table)) {
-                    param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
+                    for (String column : tabcolumns.getColumns(table)) {
+                        param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
+                    }
+
+                    out.write(String.format(
+                            "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
+                            options.getSchemaNewName(),
+                            table,
+                            String.join(", ", tabcolumns.getColumns(table)),
+                            String.join(", ", param)
+                    ));
+
+                    out.flush();
+                    pb.step();
                 }
-
-                out.write(String.format(
-                        "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
-                        options.getSchemaNewName(),
-                        table,
-                        String.join(", ", tabcolumns.getColumns(table)),
-                        String.join(", ", param)
-                ));
-
-                out.flush();
-                pb.step();
+            } catch (Throwable e){
+                throw e;
+            } finally {
+                out.close();
+                fos.close();
+                rs.close();
+                pb.close();
+                tableNum++;
             }
-
-            out.close();
-            fos.close();
-            rs.close();
-            pb.close();
-            tableNum++;
         }
 
         stmt.close();
@@ -184,15 +188,19 @@ public class Sgbd<T extends SgbdImpl> {
 
             ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
 
-            String dml;
-            while ((dml = br.readLine()) != null) {
-                pumpScript(dml);
-                pb.step();
+            try {
+                String dml;
+                while ((dml = br.readLine()) != null) {
+                    pumpScript(dml);
+                    pb.step();
+                }
+            }catch (Throwable e){
+                throw e;
+            } finally {
+                br.close();
+                fr.close();
+                pb.close();
             }
-
-            br.close();
-            fr.close();
-            pb.close();
         }
     }
 
