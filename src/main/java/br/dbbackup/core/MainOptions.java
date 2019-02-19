@@ -8,7 +8,7 @@ public class MainOptions {
         Options options = new Options();
         Option option;
 
-        option = new Option("ope", true, "{GET, PUT}");
+        option = new Option("ope", true, "{GET, PUT, INFO}");
         option.setRequired(true);
         options.addOption(option);
 
