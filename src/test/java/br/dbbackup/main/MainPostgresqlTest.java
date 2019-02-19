@@ -39,7 +39,7 @@ public class MainPostgresqlTest {
                 "-table", "tbl_dbbackup"
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
         Assert.assertTrue(backupFile.isFile());
 
         // PUMP
@@ -73,7 +73,7 @@ public class MainPostgresqlTest {
                 "-schema_exp", TestUtil.paramOracle.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
@@ -109,7 +109,7 @@ public class MainPostgresqlTest {
                 "-schema_exp", TestUtil.paramMysql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
@@ -145,7 +145,7 @@ public class MainPostgresqlTest {
                 "-schema_exp", TestUtil.paramH2.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");

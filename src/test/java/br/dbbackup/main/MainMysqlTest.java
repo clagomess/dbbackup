@@ -39,7 +39,7 @@ public class MainMysqlTest {
                 "-table", "tbl_dbbackup"
         });
 
-        Assert.assertTrue((new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()))).isFile());
+        Assert.assertTrue((new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()))).isFile());
 
         // PUMP
         Main.main(new String[]{
@@ -72,7 +72,7 @@ public class MainMysqlTest {
                 "-schema_exp", TestUtil.paramOracle.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
@@ -108,7 +108,7 @@ public class MainMysqlTest {
                 "-schema_exp", TestUtil.paramPostgresql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
@@ -144,7 +144,7 @@ public class MainMysqlTest {
                 "-schema_exp", TestUtil.paramH2.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");

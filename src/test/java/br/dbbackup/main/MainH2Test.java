@@ -72,7 +72,7 @@ public class MainH2Test {
                 "-schema_exp", TestUtil.paramMysql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
@@ -108,7 +108,7 @@ public class MainH2Test {
                 "-schema_exp", TestUtil.paramPostgresql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
@@ -144,7 +144,7 @@ public class MainH2Test {
                 "-schema_exp", TestUtil.paramOracle.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
