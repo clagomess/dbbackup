@@ -103,16 +103,17 @@ public class Sgbd<T extends SgbdImpl> {
             }
 
             log.info("QUERY: {}", query);
+            ResultSet rs = stmt.executeQuery(query);
 
-            FileOutputStream fos = new FileOutputStream(String.format(
+            String sqlFile = String.format(
                     "%s/%s_%s.%s.sql",
                     options.getWorkdir(),
                     String.format("%03d", tableNum),
                     options.getSchema(),
                     table
-            ));
-
-            ResultSet rs = stmt.executeQuery(query);
+            );
+            log.info("FILE: {}", sqlFile);
+            FileOutputStream fos = new FileOutputStream(sqlFile);
             OutputStreamWriter out = new OutputStreamWriter(fos, options.getCharset());
 
             // Inicio Dump

@@ -27,7 +27,7 @@ public class MainH2Test {
                 "-table", "TBL_DBBACKUP"
         });
 
-        Assert.assertTrue((new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()))).isFile());
+        Assert.assertTrue((new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()))).isFile());
 
         // PUMP
         Main.main(new String[]{
