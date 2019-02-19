@@ -6,6 +6,7 @@ import br.dbbackup.core.Msg;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import br.dbbackup.dto.TabInfoDto;
+import com.github.clagomess.asciitable.AsciiTable;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
@@ -16,9 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -256,9 +255,10 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     public void buildInfo() throws Throwable{
-        List<TabInfoDto> toReturn = new LinkedList<>();
+        List<TabInfoDto> dtoList = new LinkedList<>();
         Statement stmt = conn.createStatement();
         ResultSet rsAllTab = stmt.executeQuery(options.getSgbdFromInstance().getSqlInfo(options));
+        log.info("### Coletando Informações ###");
 
         while (rsAllTab.next()) {
             TabInfoDto dto = new TabInfoDto();
@@ -267,12 +267,14 @@ public class Sgbd<T extends SgbdImpl> {
             dto.setPkName(rsAllTab.getString("pk_column"));
             dto.setLob(rsAllTab.getLong("lob"));
 
-            toReturn.add(dto);
+            dtoList.add(dto);
         }
 
         rsAllTab.close();
 
-        for(TabInfoDto dto : toReturn){
+        ProgressBar pb = new ProgressBar("Tables", dtoList.size(), ProgressBarStyle.ASCII);
+
+        for(TabInfoDto dto : dtoList){
             // get table count
             ResultSet rsCount = stmt.executeQuery(String.format(
                     "SELECT count(*) \"cnt\" FROM %s.%s",
@@ -295,15 +297,35 @@ public class Sgbd<T extends SgbdImpl> {
                 dto.setLastPkValue(rsPk.getString("last_pk_value"));
                 rsPk.close();
             }
+
+            pb.step();
         }
 
+        pb.close();
         stmt.close();
 
-        if(toReturn.size() > 0){
-            // @TODO: print info
-            log.info("{}", toReturn);
+        if(dtoList.size() > 0){
+            System.out.println(getAsciiTable(dtoList));
         }else{
             log.warn("Nenhuma tabela encontrada");
         }
+    }
+
+    private String getAsciiTable(List<TabInfoDto> dtoList){
+        List<Map<String, String>> result = new LinkedList<>();
+
+        for(TabInfoDto dto : dtoList){
+            Map<String, String> item = new LinkedHashMap<>();
+            item.put("Table", dto.getTable());
+            item.put("QTD. Rows", String.valueOf(dto.getQtdRows()));
+            item.put("PK Name", dto.getPkName());
+            item.put("Last PK Value", dto.getLastPkValue());
+            item.put("QTD. Column(s)", String.valueOf(dto.getQtdColumn()));
+            item.put("LOB?", dto.getLob() == 1 ? "SIM" : "NAO");
+
+            result.add(item);
+        }
+
+        return AsciiTable.build(result);
     }
 }
