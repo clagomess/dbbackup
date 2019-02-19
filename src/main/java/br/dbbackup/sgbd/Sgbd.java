@@ -5,6 +5,7 @@ import br.dbbackup.core.DbbackupException;
 import br.dbbackup.core.Msg;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
+import br.dbbackup.dto.TabInfoDto;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
@@ -252,5 +253,49 @@ public class Sgbd<T extends SgbdImpl> {
         }
 
         return hash;
+    }
+
+    public List<TabInfoDto> buildInfo() throws Throwable{
+        List<TabInfoDto> toReturn = new LinkedList<>();
+        Statement stmt = conn.createStatement();
+        ResultSet rsAllTab = stmt.executeQuery(options.getSgbdFromInstance().getSqlInfo(options));
+
+        while (rsAllTab.next()) {
+            TabInfoDto dto = new TabInfoDto();
+            dto.setTable(rsAllTab.getString("table_name"));
+            dto.setQtdRows(rsAllTab.getLong("qtd_columns"));
+            dto.setPkName(rsAllTab.getString("pk_column"));
+            dto.setLob(rsAllTab.getLong("lob"));
+
+            // get table count
+            ResultSet rsCount = stmt.executeQuery(String.format(
+                    "SELECT count(*) \"cnt\" FROM %s.%s",
+                    options.getSchema(),
+                    dto.getTable()
+            ));
+            rsCount.next();
+            dto.setQtdRows(rsCount.getLong("cnt"));
+            rsCount.close();
+
+            // get last pk value
+            if(dto.getQtdRows() > 0 && dto.getPkName() != null){
+                ResultSet rsPk = stmt.executeQuery(String.format(
+                        "SELECT MAX(%s) \"last_pk_value\" FROM %s.%s",
+                        dto.getPkName(),
+                        options.getSchema(),
+                        dto.getTable()
+                ));
+                rsCount.next();
+                dto.setLastPkValue(rsPk.getString("last_pk_value"));
+                rsCount.close();
+            }
+
+
+            toReturn.add(dto);
+        }
+
+        rsAllTab.close();
+        stmt.close();
+        return toReturn;
     }
 }

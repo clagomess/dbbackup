@@ -32,6 +32,11 @@ public class Oracle implements SgbdImpl {
     }
 
     @Override
+    public String getSqlInfo(OptionsDto options){
+        return null;
+    }
+
+    @Override
     public DataType getDataType(String dataType) {
         switch (dataType){
             case "NUMBER":

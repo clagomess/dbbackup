@@ -29,6 +29,23 @@ public class H2 implements SgbdImpl {
     }
 
     @Override
+    public String getSqlInfo(OptionsDto options){
+        String sql = "SELECT\n" +
+                "COL.TABLE_NAME \"table_name\",\n" +
+                "COUNT(*) \"qtd_columns\",\n" +
+                "CON.COLUMN_LIST \"pk_column\",\n" +
+                "MAX(CASE WHEN COL.TYPE_NAME IN ('BLOB', 'CLOB') THEN 1 ELSE 0 END) \"lob\"\n" +
+                "FROM INFORMATION_SCHEMA.COLUMNS COL\n" +
+                "LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS CON\n" +
+                "  ON CON.TABLE_NAME = COL.TABLE_NAME\n" +
+                "  AND CON.CONSTRAINT_TYPE = 'PRIMARY KEY'\n" +
+                "WHERE COL.TABLE_SCHEMA = '%s'\n" +
+                "GROUP BY COL.TABLE_NAME, CON.COLUMN_LIST";
+
+        return String.format(sql, options.getSchema());
+    }
+
+    @Override
     public DataType getDataType(String dataType) {
         switch (dataType){
             case "BIGINT":
