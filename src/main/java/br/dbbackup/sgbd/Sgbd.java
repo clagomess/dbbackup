@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,7 +104,14 @@ public class Sgbd<T extends SgbdImpl> {
 
             log.info("QUERY: {}", query);
 
-            FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
+            FileOutputStream fos = new FileOutputStream(String.format(
+                    "%s/%s_%s.%s.sql",
+                    options.getWorkdir(),
+                    String.format("%03d", tableNum),
+                    options.getSchema(),
+                    table
+            ));
+
             ResultSet rs = stmt.executeQuery(query);
             OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
 
@@ -129,6 +137,8 @@ public class Sgbd<T extends SgbdImpl> {
                 pb.step();
             }
 
+            out.close();
+            fos.close();
             rs.close();
             pb.close();
             tableNum++;
@@ -137,46 +147,56 @@ public class Sgbd<T extends SgbdImpl> {
         stmt.close();
     }
 
-    private void startPumpProcess() throws Throwable {
+    List<File> getSqlList() throws DbbackupException{
+        List<File> result = new LinkedList<>();
+
         File dumpDir = new File(options.getWorkdir());
         File[] sqlList = dumpDir.listFiles();
 
         if(sqlList == null) {
-            throw new DbbackupException("Pasta não localizada!");
+            throw new DbbackupException("Pasta não localizada ou não possui scripts a ser importado!");
         }
 
+        for (File sql : sqlList) {
+            if (sql.isFile() && sql.getName().contains(".sql")) {
+                result.add(sql);
+            }
+        }
+
+        return result;
+    }
+
+    private void startPumpProcess() throws Throwable {
         log.info("### Iniciando PUMP ###");
 
-        for (File sql : sqlList) {
-            if(sql.isFile() && sql.getName().contains(".sql")) {
-                // abre aquivo para leitura
-                log.info("# PUMP Script: {}", sql.getName());
+        for (File sql : getSqlList()) {
+            // abre aquivo para leitura
+            log.info("# PUMP Script: {}", sql.getName());
 
-                // Contar quantidade de linhas
-                Stream<String> fls = Files.lines(sql.toPath());
-                long rows = fls.count();
-                fls.close();
-                log.info("ROWS: {}", rows);
+            // Contar quantidade de linhas
+            Stream<String> fls = Files.lines(sql.toPath());
+            long rows = fls.count();
+            fls.close();
+            log.info("ROWS: {}", rows);
 
-                FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
-                BufferedReader br = new BufferedReader(fr);
+            FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
+            BufferedReader br = new BufferedReader(fr);
 
-                ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
+            ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
 
-                String dml;
-                while ((dml = br.readLine()) != null) {
-                    pumpScript(dml);
-                    pb.step();
-                }
-
-                br.close();
-                fr.close();
-                pb.close();
+            String dml;
+            while ((dml = br.readLine()) != null) {
+                pumpScript(dml);
+                pb.step();
             }
+
+            br.close();
+            fr.close();
+            pb.close();
         }
     }
 
-    protected void pumpScript(String dml) throws Throwable {
+    private void pumpScript(String dml) throws Throwable {
         // remover ponto virgula
         dml = dml.replace(";", "");
 

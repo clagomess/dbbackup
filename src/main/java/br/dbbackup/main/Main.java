@@ -80,8 +80,6 @@ public class Main {
                     log.warn(Sgbd.class.getName(), e);
                 }
             }
-
-            System.exit(0);
         }
     }
 }

@@ -3,7 +3,7 @@ package br.dbbackup.util;
 import br.dbbackup.core.DbbackupException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.UUID;
@@ -35,5 +35,16 @@ public class TestUtil {
         }
 
         return Files.readAllBytes(new File(url.getPath()).toPath());
+    }
+
+    public static void createFile(String filename, String content) throws IOException {
+        FileOutputStream fos = new FileOutputStream(filename);
+
+        OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+        out.write(content);
+
+        out.flush();
+        out.close();
+        fos.close();
     }
 }

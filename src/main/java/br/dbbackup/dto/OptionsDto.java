@@ -4,6 +4,7 @@ import br.dbbackup.constant.Database;
 import br.dbbackup.constant.Operation;
 import br.dbbackup.sgbd.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.cli.CommandLine;
 
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor
 @Data
 public class OptionsDto {
     private Operation operation;
