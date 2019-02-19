@@ -113,7 +113,7 @@ public class Sgbd<T extends SgbdImpl> {
             ));
 
             ResultSet rs = stmt.executeQuery(query);
-            OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+            OutputStreamWriter out = new OutputStreamWriter(fos, options.getCharset());
 
             // Inicio Dump
             ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);

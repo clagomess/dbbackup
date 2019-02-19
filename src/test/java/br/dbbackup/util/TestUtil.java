@@ -3,8 +3,12 @@ package br.dbbackup.util;
 import br.dbbackup.core.DbbackupException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.UUID;
 
@@ -45,7 +49,7 @@ public class TestUtil {
     public static void createFile(String filename, String content) throws IOException {
         FileOutputStream fos = new FileOutputStream(filename);
 
-        OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+        OutputStreamWriter out = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
         out.write(content);
 
         out.flush();

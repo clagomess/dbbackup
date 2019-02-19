@@ -71,11 +71,11 @@ public class Oracle implements SgbdImpl {
                 toReturn = rs.getBytes(column).length == 0 ? "EMPTY_BLOB()" : LobWriter.write(options, rs.getBytes(column));
                 break;
             case CLOB:
-                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 break;
             case VARCHAR:
                 toReturn = "UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW('%s')))";
-                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes(options.getCharset())));
                 break;
             case BOOL:
                 toReturn = rs.getBoolean(column) ? "1" : "0";

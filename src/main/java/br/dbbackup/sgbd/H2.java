@@ -85,7 +85,7 @@ public class H2 implements SgbdImpl {
                 toReturn = String.format(toReturn, Format.time(rs.getTimestamp(column)));
                 break;
             case CLOB:
-                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 break;
             case BLOB:
                 toReturn = LobWriter.write(options, rs.getBytes(column));

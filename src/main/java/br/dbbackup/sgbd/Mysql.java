@@ -80,14 +80,14 @@ public class Mysql implements SgbdImpl {
                 toReturn = String.format(toReturn, Format.time(rs.getTimestamp(column)));
                 break;
             case CLOB:
-                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 break;
             case BLOB:
                 toReturn = rs.getBytes(column).length == 0 ? "''" : LobWriter.write(options, rs.getBytes(column));
                 break;
             case VARCHAR:
                 toReturn = "from_base64('%s')";
-                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes(options.getCharset())));
                 break;
             case BOOL:
                 toReturn = rs.getBoolean(column) ? "1" : "0";

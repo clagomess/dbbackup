@@ -57,6 +57,9 @@ public class MainOptions {
                 "-table_query \"tbl_bar;select * from tbl_bar\" ...");
         options.addOption(option);
 
+        option = new Option("charset", true, "Default: UTF-8. Ex.: UTF-8, ISO-8859-1 e US-ASCII");
+        options.addOption(option);
+
         return options;
     }
 }
