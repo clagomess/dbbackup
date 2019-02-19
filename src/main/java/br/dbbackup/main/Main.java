@@ -66,6 +66,9 @@ public class Main {
                 case PUT:
                     sgbd.startPump();
                     break;
+                case INFO:
+                    sgbd.buildInfo();
+                    break;
                 default:
                     throw new DbbackupException(String.format("\"%s\" não implementado!", options.getOperation()));
             }

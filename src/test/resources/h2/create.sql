@@ -1,3 +1,9 @@
+create table tbl_dbbackup_pk (
+  field_pk numeric not null,
+  field_numeric numeric,
+  PRIMARY KEY (field_pk)
+);
+
 create table tbl_dbbackup (
   field_null date,
   field_bigint bigint,

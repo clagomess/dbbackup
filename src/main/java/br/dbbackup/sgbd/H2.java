@@ -40,7 +40,8 @@ public class H2 implements SgbdImpl {
                 "  ON CON.TABLE_NAME = COL.TABLE_NAME\n" +
                 "  AND CON.CONSTRAINT_TYPE = 'PRIMARY KEY'\n" +
                 "WHERE COL.TABLE_SCHEMA = '%s'\n" +
-                "GROUP BY COL.TABLE_NAME, CON.COLUMN_LIST";
+                "GROUP BY COL.TABLE_NAME, CON.COLUMN_LIST\n" +
+                "ORDER BY COL.TABLE_NAME";
 
         return String.format(sql, options.getSchema());
     }

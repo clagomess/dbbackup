@@ -11,6 +11,18 @@ import java.nio.file.Files;
 @Slf4j
 public class MainH2Test {
     @Test
+    public void info() throws Throwable {
+        Main.main(new String[]{
+                "-db", "H2",
+                "-ope", "INFO",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema()
+        });
+    }
+
+    @Test
     public void dump() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
 

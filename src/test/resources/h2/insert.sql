@@ -1,3 +1,5 @@
+insert into tbl_dbbackup_pk values (1, 2);
+
 insert into tbl_dbbackup (
 field_null,
 field_bigint,

@@ -255,7 +255,7 @@ public class Sgbd<T extends SgbdImpl> {
         return hash;
     }
 
-    public List<TabInfoDto> buildInfo() throws Throwable{
+    public void buildInfo() throws Throwable{
         List<TabInfoDto> toReturn = new LinkedList<>();
         Statement stmt = conn.createStatement();
         ResultSet rsAllTab = stmt.executeQuery(options.getSgbdFromInstance().getSqlInfo(options));
@@ -263,10 +263,14 @@ public class Sgbd<T extends SgbdImpl> {
         while (rsAllTab.next()) {
             TabInfoDto dto = new TabInfoDto();
             dto.setTable(rsAllTab.getString("table_name"));
-            dto.setQtdRows(rsAllTab.getLong("qtd_columns"));
+            dto.setQtdColumn(rsAllTab.getLong("qtd_columns"));
             dto.setPkName(rsAllTab.getString("pk_column"));
             dto.setLob(rsAllTab.getLong("lob"));
 
+            toReturn.add(dto);
+        }
+
+        for(TabInfoDto dto : toReturn){
             // get table count
             ResultSet rsCount = stmt.executeQuery(String.format(
                     "SELECT count(*) \"cnt\" FROM %s.%s",
@@ -285,17 +289,16 @@ public class Sgbd<T extends SgbdImpl> {
                         options.getSchema(),
                         dto.getTable()
                 ));
-                rsCount.next();
+                rsPk.next();
                 dto.setLastPkValue(rsPk.getString("last_pk_value"));
-                rsCount.close();
+                rsPk.close();
             }
-
-
-            toReturn.add(dto);
         }
 
         rsAllTab.close();
         stmt.close();
-        return toReturn;
+
+        // @TODO: print info
+        log.info("{}", toReturn);
     }
 }
