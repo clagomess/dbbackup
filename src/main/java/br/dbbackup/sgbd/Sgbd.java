@@ -2,7 +2,6 @@ package br.dbbackup.sgbd;
 
 
 import br.dbbackup.core.DbbackupException;
-import br.dbbackup.core.Msg;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import br.dbbackup.dto.TabInfoDto;
@@ -38,8 +37,8 @@ public class Sgbd<T extends SgbdImpl> {
 
     public void startDump() throws Throwable {
         Statement stmt = conn.createStatement();
-        log.info(Msg.MSG_CONECTADO);
-        log.info(Msg.MSG_TBL_EXPORTACAO);
+        log.info("### Conectado! ###");
+        log.info("Tabelas para exportação:");
 
         ResultSet rs = stmt.executeQuery(instance.getSqlTabColumns(options));
 
