@@ -4,13 +4,17 @@ import br.dbbackup.constant.Database;
 import br.dbbackup.constant.Operation;
 import br.dbbackup.sgbd.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.cli.CommandLine;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor
 @Data
 public class OptionsDto {
     private Operation operation;
@@ -24,8 +28,7 @@ public class OptionsDto {
     private String workdir;
     private List<String> table;
     private Map<String, String> tableQuery; // table => query
-
-    // @TODO: implementar CHARSET
+    private Charset charset;
 
     // dump format
     private Database dumpFormat;
@@ -45,6 +48,7 @@ public class OptionsDto {
         this.workdir = cmd.getOptionValue("workdir") != null ? cmd.getOptionValue("workdir") : "dump";
         this.table = cmd.getOptionValues("table") != null ? Arrays.asList(cmd.getOptionValues("table")) : null;
         this.sgbdFromInstance = getInstance(this.database);
+        this.charset = cmd.getOptionValue("charset") != null ? Charset.forName(cmd.getOptionValue("charset")) : StandardCharsets.UTF_8;
 
         if(this.schemaNewName == null){
             this.schemaNewName = this.schema;

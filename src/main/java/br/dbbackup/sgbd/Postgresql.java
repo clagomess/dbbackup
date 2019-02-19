@@ -25,10 +25,43 @@ public class Postgresql implements SgbdImpl {
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("and c.table_name in ('%s')", String.join("','", options.getTable()));
+            sql += String.format("and c.table_name in ('%s')\n", String.join("','", options.getTable()));
         }
 
+        sql += "order by c.table_name, c.ordinal_position";
+
         return sql;
+    }
+
+    @Override
+    public String getSqlInfo(OptionsDto options){
+        String sql = "select\n" +
+                "  t.table_name \"table_name\",\n" +
+                "  count(*) \"qtd_columns\",\n" +
+                "  max(pk.column_name) \"pk_column\",\n" +
+                "  MAX(CASE WHEN c.udt_name IN ('bytea', 'text') THEN 1 ELSE 0 END) \"lob\"\n" +
+                "from information_schema.columns c\n" +
+                "join information_schema.tables t\n" +
+                "  on t.table_catalog = c.table_catalog\n" +
+                "  and t.table_schema = c.table_schema\n" +
+                "  and t.table_name = c.table_name\n" +
+                "left join (\n" +
+                "  select tc.table_name, ccu.column_name\n" +
+                "  from information_schema.table_constraints tc\n" +
+                "  join information_schema.constraint_column_usage ccu\n" +
+                "    on ccu.table_schema = tc.table_schema\n" +
+                "    and ccu.table_name = tc.table_name\n" +
+                "    and ccu.constraint_name = tc.constraint_name\n" +
+                "  where tc.table_schema = '%s'\n" +
+                "  and tc.constraint_type = 'PRIMARY KEY'\n" +
+                ") pk\n" +
+                "  on pk.table_name = t.table_name\n" +
+                "  and pk.column_name = c.column_name\n" +
+                "where c.table_schema = '%s' and t.table_type <> 'VIEW'\n" +
+                "group by t.table_name\n" +
+                "order by t.table_name";
+
+        return String.format(sql, options.getSchema(), options.getSchema());
     }
 
     @Override
@@ -88,12 +121,12 @@ public class Postgresql implements SgbdImpl {
                 toReturn = rs.getBytes(column).length == 0 ? "''" : LobWriter.write(options, rs.getBytes(column));
                 break;
             case CLOB:
-                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 toReturn = String.format("encode(%s, 'escape')", toReturn);
                 break;
             case VARCHAR:
                 toReturn = "CONVERT_FROM(DECODE('%s', 'BASE64'), 'UTF-8')";
-                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes(options.getCharset())));
                 break;
             case BOOL:
                 toReturn = rs.getBoolean(column) ? "true" : "false";

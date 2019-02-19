@@ -11,6 +11,18 @@ import java.nio.file.Files;
 @Slf4j
 public class MainH2Test {
     @Test
+    public void info() throws Throwable {
+        Main.main(new String[]{
+                "-db", "H2",
+                "-ope", "INFO",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema()
+        });
+    }
+
+    @Test
     public void dump() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
 
@@ -27,7 +39,7 @@ public class MainH2Test {
                 "-table", "TBL_DBBACKUP"
         });
 
-        Assert.assertTrue((new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()))).isFile());
+        Assert.assertTrue((new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()))).isFile());
 
         // PUMP
         Main.main(new String[]{
@@ -60,7 +72,7 @@ public class MainH2Test {
                 "-schema_exp", TestUtil.paramMysql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
@@ -96,7 +108,7 @@ public class MainH2Test {
                 "-schema_exp", TestUtil.paramPostgresql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
@@ -132,7 +144,7 @@ public class MainH2Test {
                 "-schema_exp", TestUtil.paramOracle.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
         dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");

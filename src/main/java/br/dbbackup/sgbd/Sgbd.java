@@ -2,9 +2,10 @@ package br.dbbackup.sgbd;
 
 
 import br.dbbackup.core.DbbackupException;
-import br.dbbackup.core.Msg;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
+import br.dbbackup.dto.TabInfoDto;
+import com.github.clagomess.asciitable.AsciiTable;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
@@ -15,8 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -37,8 +37,8 @@ public class Sgbd<T extends SgbdImpl> {
 
     public void startDump() throws Throwable {
         Statement stmt = conn.createStatement();
-        log.info(Msg.MSG_CONECTADO);
-        log.info(Msg.MSG_TBL_EXPORTACAO);
+        log.info("### Conectado! ###");
+        log.info("Tabelas para exportação:");
 
         ResultSet rs = stmt.executeQuery(instance.getSqlTabColumns(options));
 
@@ -102,79 +102,109 @@ public class Sgbd<T extends SgbdImpl> {
             }
 
             log.info("QUERY: {}", query);
-
-            FileOutputStream fos = new FileOutputStream(String.format("%s/%s.%s.sql", options.getWorkdir(), options.getSchema(), table));
             ResultSet rs = stmt.executeQuery(query);
-            OutputStreamWriter out = new OutputStreamWriter(fos, "UTF-8");
+
+            String sqlFile = String.format(
+                    "%s/%s_%s.%s.sql",
+                    options.getWorkdir(),
+                    String.format("%03d", tableNum),
+                    options.getSchema(),
+                    table
+            );
+            log.info("FILE: {}", sqlFile);
+            FileOutputStream fos = new FileOutputStream(sqlFile);
+            OutputStreamWriter out = new OutputStreamWriter(fos, options.getCharset());
 
             // Inicio Dump
             ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);
 
-            while (rs.next()) {
-                List<String> param = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    List<String> param = new ArrayList<>();
 
-                for (String column : tabcolumns.getColumns(table)) {
-                    param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
+                    for (String column : tabcolumns.getColumns(table)) {
+                        param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
+                    }
+
+                    out.write(String.format(
+                            "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
+                            options.getSchemaNewName(),
+                            table,
+                            String.join(", ", tabcolumns.getColumns(table)),
+                            String.join(", ", param)
+                    ));
+
+                    out.flush();
+                    pb.step();
                 }
-
-                out.write(String.format(
-                        "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
-                        options.getSchemaNewName(),
-                        table,
-                        String.join(", ", tabcolumns.getColumns(table)),
-                        String.join(", ", param)
-                ));
-
-                out.flush();
-                pb.step();
+            } catch (Throwable e){
+                throw e;
+            } finally {
+                out.close();
+                fos.close();
+                rs.close();
+                pb.close();
+                tableNum++;
             }
-
-            rs.close();
-            pb.close();
-            tableNum++;
         }
 
         stmt.close();
     }
 
-    private void startPumpProcess() throws Throwable {
+    List<File> getSqlList() throws DbbackupException{
+        List<File> result = new LinkedList<>();
+
         File dumpDir = new File(options.getWorkdir());
         File[] sqlList = dumpDir.listFiles();
 
         if(sqlList == null) {
-            throw new DbbackupException("Pasta não localizada!");
+            throw new DbbackupException("Pasta não localizada ou não possui scripts a ser importado!");
         }
 
+        for (File sql : sqlList) {
+            if (sql.isFile() && sql.getName().contains(".sql")) {
+                result.add(sql);
+            }
+        }
+
+        return result;
+    }
+
+    private void startPumpProcess() throws Throwable {
         log.info("### Iniciando PUMP ###");
 
-        for (File sql : sqlList) {
-            if(sql.isFile() && sql.getName().contains(".sql")) {
-                // abre aquivo para leitura
-                log.info("# PUMP Script: {}", sql.getName());
+        for (File sql : getSqlList()) {
+            // abre aquivo para leitura
+            log.info("# PUMP Script: {}", sql.getName());
 
-                // Contar quantidade de linhas
-                Stream<String> fls = Files.lines(sql.toPath());
-                long rows = fls.count();
-                fls.close();
-                log.info("ROWS: {}", rows);
+            // Contar quantidade de linhas
+            Stream<String> fls = Files.lines(sql.toPath());
+            long rows = fls.count();
+            fls.close();
+            log.info("ROWS: {}", rows);
 
-                FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
-                BufferedReader br = new BufferedReader(fr);
+            FileReader fr = new FileReader(options.getWorkdir() + "/" + sql.getName());
+            BufferedReader br = new BufferedReader(fr);
 
-                ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
+            ProgressBar pb = new ProgressBar("Pump", rows, ProgressBarStyle.ASCII);
 
+            try {
                 String dml;
                 while ((dml = br.readLine()) != null) {
                     pumpScript(dml);
                     pb.step();
                 }
-
+            }catch (Throwable e){
+                throw e;
+            } finally {
+                br.close();
+                fr.close();
                 pb.close();
             }
         }
     }
 
-    protected void pumpScript(String dml) throws Throwable {
+    private void pumpScript(String dml) throws Throwable {
         // remover ponto virgula
         dml = dml.replace(";", "");
 
@@ -221,5 +251,83 @@ public class Sgbd<T extends SgbdImpl> {
         }
 
         return hash;
+    }
+
+    public void buildInfo() throws Throwable{
+        List<TabInfoDto> dtoList = new LinkedList<>();
+        Statement stmt = conn.createStatement();
+        ResultSet rsAllTab = stmt.executeQuery(options.getSgbdFromInstance().getSqlInfo(options));
+        log.info("### Coletando Informações ###");
+
+        while (rsAllTab.next()) {
+            TabInfoDto dto = new TabInfoDto();
+            dto.setTable(rsAllTab.getString("table_name"));
+            dto.setQtdColumn(rsAllTab.getLong("qtd_columns"));
+            dto.setPkName(rsAllTab.getString("pk_column"));
+            dto.setLob(rsAllTab.getLong("lob"));
+
+            dtoList.add(dto);
+        }
+
+        rsAllTab.close();
+
+        ProgressBar pb = new ProgressBar("Tables", dtoList.size(), ProgressBarStyle.ASCII);
+
+        for(TabInfoDto dto : dtoList){
+            // get table count
+            ResultSet rsCount = stmt.executeQuery(String.format(
+                    "SELECT count(*) \"cnt\" FROM %s.%s",
+                    options.getSchema(),
+                    dto.getTable()
+            ));
+            rsCount.next();
+            dto.setQtdRows(rsCount.getLong("cnt"));
+            rsCount.close();
+
+            // get last pk value
+            if(dto.getQtdRows() > 0 && dto.getPkName() != null){
+                ResultSet rsPk = stmt.executeQuery(String.format(
+                        "SELECT MAX(%s) \"last_pk_value\" FROM %s.%s",
+                        dto.getPkName(),
+                        options.getSchema(),
+                        dto.getTable()
+                ));
+                rsPk.next();
+                dto.setLastPkValue(rsPk.getString("last_pk_value"));
+                rsPk.close();
+            }
+
+            pb.step();
+        }
+
+        pb.close();
+        stmt.close();
+
+        if(dtoList.size() > 0){
+            System.out.println(getAsciiTable(dtoList));
+        }else{
+            log.warn("Nenhuma tabela encontrada");
+        }
+    }
+
+    private String getAsciiTable(List<TabInfoDto> dtoList){
+        List<Map<String, String>> result = new LinkedList<>();
+
+        int tableNum = 1;
+        for(TabInfoDto dto : dtoList){
+            Map<String, String> item = new LinkedHashMap<>();
+            item.put("#", String.valueOf(tableNum));
+            item.put("Table", dto.getTable());
+            item.put("QTD. Rows", String.valueOf(dto.getQtdRows()));
+            item.put("PK Name", dto.getPkName());
+            item.put("Last PK Value", dto.getLastPkValue());
+            item.put("QTD. Column(s)", String.valueOf(dto.getQtdColumn()));
+            item.put("LOB?", dto.getLob() == 1 ? "SIM" : "NAO");
+
+            result.add(item);
+            tableNum++;
+        }
+
+        return AsciiTable.build(result);
     }
 }

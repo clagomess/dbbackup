@@ -14,11 +14,12 @@ java -jar dbbackup.jar -db MYSQL \
 CLI DOC:
 ```
 usage: dbbackup
+ -charset <arg>       Default: UTF-8. Ex.: UTF-8, ISO-8859-1 e US-ASCII
  -db <arg>            {ORACLE, MYSQL, MARIADB, POSTGRESQL, H2}
  -dump_format <arg>   Formato de saída do dump. Ideal para migração. Ex.:
                       {ORACLE, MYSQL, POSTGRESQL, H2}
  -lob <arg>           {1} - Importar/Exportar LOB
- -ope <arg>           {GET, PUT}
+ -ope <arg>           {GET, PUT, INFO}
  -pass <arg>          pass
  -schema <arg>        schema
  -schema_exp <arg>    Nome do schema para exportação

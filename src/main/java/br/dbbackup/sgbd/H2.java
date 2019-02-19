@@ -20,10 +20,30 @@ public class H2 implements SgbdImpl {
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("AND TABLE_NAME IN ('%s')", String.join("','", options.getTable()));
+            sql += String.format("AND TABLE_NAME IN ('%s')\n", String.join("','", options.getTable()));
         }
 
+        sql += "ORDER BY TABLE_NAME, ORDINAL_POSITION";
+
         return sql;
+    }
+
+    @Override
+    public String getSqlInfo(OptionsDto options){
+        String sql = "SELECT\n" +
+                "COL.TABLE_NAME \"table_name\",\n" +
+                "COUNT(*) \"qtd_columns\",\n" +
+                "MAX(CON.COLUMN_LIST) \"pk_column\",\n" +
+                "MAX(CASE WHEN COL.TYPE_NAME IN ('BLOB', 'CLOB') THEN 1 ELSE 0 END) \"lob\"\n" +
+                "FROM INFORMATION_SCHEMA.COLUMNS COL\n" +
+                "LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS CON\n" +
+                "  ON CON.TABLE_NAME = COL.TABLE_NAME\n" +
+                "  AND CON.CONSTRAINT_TYPE = 'PRIMARY KEY'\n" +
+                "WHERE COL.TABLE_SCHEMA = '%s'\n" +
+                "GROUP BY COL.TABLE_NAME\n" +
+                "ORDER BY COL.TABLE_NAME";
+
+        return String.format(sql, options.getSchema());
     }
 
     @Override
@@ -83,7 +103,7 @@ public class H2 implements SgbdImpl {
                 toReturn = String.format(toReturn, Format.time(rs.getTimestamp(column)));
                 break;
             case CLOB:
-                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 break;
             case BLOB:
                 toReturn = LobWriter.write(options, rs.getBytes(column));

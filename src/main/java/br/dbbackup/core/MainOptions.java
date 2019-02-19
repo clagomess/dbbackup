@@ -8,7 +8,7 @@ public class MainOptions {
         Options options = new Options();
         Option option;
 
-        option = new Option("ope", true, "{GET, PUT}");
+        option = new Option("ope", true, "{GET, PUT, INFO}");
         option.setRequired(true);
         options.addOption(option);
 
@@ -55,6 +55,9 @@ public class MainOptions {
         option = new Option("table_query", true, "Query de consulta da(s) tabela(s) a ser exportada(s). Ex.: " +
                 "-table_query \"tbl_foo;select * from tbl_foo\" " +
                 "-table_query \"tbl_bar;select * from tbl_bar\" ...");
+        options.addOption(option);
+
+        option = new Option("charset", true, "Default: UTF-8. Ex.: UTF-8, ISO-8859-1 e US-ASCII");
         options.addOption(option);
 
         return options;

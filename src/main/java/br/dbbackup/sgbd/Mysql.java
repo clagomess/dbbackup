@@ -20,10 +20,27 @@ public class Mysql implements SgbdImpl {
         sql = String.format(sql, options.getSchema());
 
         if(options.getTable() != null){
-            sql += String.format("and table_name in ('%s')", String.join("','", options.getTable()));
+            sql += String.format("and table_name in ('%s')\n", String.join("','", options.getTable()));
         }
 
+        sql += "order by table_name, ordinal_position";
+
         return sql;
+    }
+
+    @Override
+    public String getSqlInfo(OptionsDto options){
+        String sql = "select\n" +
+                "c.table_name \"table_name\",\n" +
+                "count(*) \"qtd_columns\",\n" +
+                "max(case when c.column_key = 'PRI' then c.column_name else null end) \"pk_column\",\n" +
+                "max(case when c.data_type in ('blob', 'longblob', 'longtext') then 1 else 0 end) \"lob\"\n" +
+                "from information_schema.columns c\n" +
+                "where c.table_schema = '%s'\n" +
+                "group by c.table_name\n" +
+                "order by c.table_name";
+
+        return String.format(sql, options.getSchema());
     }
 
     @Override
@@ -78,14 +95,14 @@ public class Mysql implements SgbdImpl {
                 toReturn = String.format(toReturn, Format.time(rs.getTimestamp(column)));
                 break;
             case CLOB:
-                toReturn = LobWriter.write(options, rs.getString(column).getBytes("UTF-8"));
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 break;
             case BLOB:
                 toReturn = rs.getBytes(column).length == 0 ? "''" : LobWriter.write(options, rs.getBytes(column));
                 break;
             case VARCHAR:
                 toReturn = "from_base64('%s')";
-                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes("UTF-8")));
+                toReturn = String.format(toReturn, Base64.getEncoder().encodeToString(rs.getString(column).getBytes(options.getCharset())));
                 break;
             case BOOL:
                 toReturn = rs.getBoolean(column) ? "1" : "0";

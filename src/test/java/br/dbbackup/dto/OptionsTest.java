@@ -12,6 +12,8 @@ import org.apache.commons.cli.Options;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+
 @Slf4j
 public class OptionsTest {
 
@@ -33,6 +35,7 @@ public class OptionsTest {
                 "-table_query", "tbl_foo;select * from tbl_foo",
                 "-table_query", "tbl_bar",
                 "-table_query", "tbl_aaa;select * from tbl_aaa",
+                "-charset", "US-ASCII"
         });
 
         OptionsDto dto = new OptionsDto(cmd);
@@ -42,6 +45,7 @@ public class OptionsTest {
         Assert.assertTrue(dto.getSgbdFromInstance() instanceof Mysql);
         Assert.assertTrue(dto.getSgbdToInstance() instanceof Oracle);
         Assert.assertEquals(2, dto.getTable().size());
+        Assert.assertEquals(StandardCharsets.US_ASCII, dto.getCharset());
 
         // table query
         Assert.assertEquals(2, dto.getTableQuery().size());
