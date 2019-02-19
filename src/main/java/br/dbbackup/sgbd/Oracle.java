@@ -33,7 +33,31 @@ public class Oracle implements SgbdImpl {
 
     @Override
     public String getSqlInfo(OptionsDto options){
-        return null;
+        String sql = "SELECT\n" +
+                "   SATC.TABLE_NAME as \"table_name\",\n" +
+                "   count(*) \"qtd_columns\",\n" +
+                "   MAX(PK.COLUMN_NAME) \"pk_column\",\n" +
+                "   MAX(CASE WHEN SATC.DATA_TYPE IN ('BLOB', 'CLOB') THEN 1 ELSE 0 END) \"lob\"\n" +
+                "FROM SYS.ALL_TAB_COLUMNS SATC\n" +
+                "JOIN SYS.ALL_TABLES SAT ON SAT.OWNER = SATC.OWNER AND SAT.TABLE_NAME = SATC.TABLE_NAME\n" +
+                "LEFT JOIN SYS.ALL_MVIEWS SAM ON SAM.OWNER = SATC.OWNER AND SAM.MVIEW_NAME = SATC.TABLE_NAME\n" +
+                "LEFT JOIN (\n" +
+                "  SELECT SACC.TABLE_NAME, LISTAGG(SACC.COLUMN_NAME, ', ') WITHIN GROUP (ORDER BY SACC.COLUMN_NAME) COLUMN_NAME\n" +
+                "  FROM ALL_CONS_COLUMNS SACC\n" +
+                "  JOIN ALL_CONSTRAINTS SAC\n" +
+                "  ON SAC.CONSTRAINT_NAME = SACC.CONSTRAINT_NAME\n" +
+                "  AND SAC.OWNER = SACC.OWNER\n" +
+                "  AND SAC.TABLE_NAME = SACC.TABLE_NAME\n" +
+                "  WHERE SACC.OWNER = '%s'\n" +
+                "    AND SAC.CONSTRAINT_TYPE = 'P'\n" +
+                "  GROUP BY SACC.TABLE_NAME\n" +
+                ") PK ON PK.TABLE_NAME = SATC.TABLE_NAME AND PK.COLUMN_NAME = SATC.COLUMN_NAME\n" +
+                "WHERE SAM.MVIEW_NAME IS NULL\n" +
+                "AND SATC.OWNER = '%s'\n" +
+                "GROUP BY SATC.TABLE_NAME\n" +
+                "ORDER BY SATC.TABLE_NAME";
+
+        return String.format(sql, options.getSchema(), options.getSchema());
     }
 
     @Override
