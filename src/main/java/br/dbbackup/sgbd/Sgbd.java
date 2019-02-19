@@ -270,6 +270,8 @@ public class Sgbd<T extends SgbdImpl> {
             toReturn.add(dto);
         }
 
+        rsAllTab.close();
+
         for(TabInfoDto dto : toReturn){
             // get table count
             ResultSet rsCount = stmt.executeQuery(String.format(
@@ -295,10 +297,13 @@ public class Sgbd<T extends SgbdImpl> {
             }
         }
 
-        rsAllTab.close();
         stmt.close();
 
-        // @TODO: print info
-        log.info("{}", toReturn);
+        if(toReturn.size() > 0){
+            // @TODO: print info
+            log.info("{}", toReturn);
+        }else{
+            log.warn("Nenhuma tabela encontrada");
+        }
     }
 }
