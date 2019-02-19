@@ -52,12 +52,12 @@ public class Postgresql implements SgbdImpl {
                 "    on ccu.table_schema = tc.table_schema\n" +
                 "    and ccu.table_name = tc.table_name\n" +
                 "    and ccu.constraint_name = tc.constraint_name\n" +
-                "  where tc.table_schema = 'public'\n" +
+                "  where tc.table_schema = '%s'\n" +
                 "  and tc.constraint_type = 'PRIMARY KEY'\n" +
                 ") pk\n" +
                 "  on pk.table_name = t.table_name\n" +
                 "  and pk.column_name = c.column_name\n" +
-                "where c.table_schema = 'public' and t.table_type <> 'VIEW'\n" +
+                "where c.table_schema = '%s' and t.table_type <> 'VIEW'\n" +
                 "group by t.table_name\n" +
                 "order by t.table_name";
 
