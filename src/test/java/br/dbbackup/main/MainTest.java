@@ -1,8 +1,8 @@
 package br.dbbackup.main;
 
-import br.dbbackup.core.DbbackupException;
 import br.dbbackup.util.TestUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.h2.jdbc.JdbcSQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
@@ -21,7 +21,7 @@ public class MainTest {
         Main.main(new String[]{});
     }
 
-    @Test(expected = DbbackupException.class)
+    @Test(expected = JdbcSQLException.class)
     public void exit() throws Throwable {
         // Create sample
         String sample002 = new String(TestUtil.getResource("samples/sample_002.sql"));
