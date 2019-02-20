@@ -1,5 +1,6 @@
 package br.dbbackup.sgbd;
 
+import br.dbbackup.core.Resource;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.util.TestUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,7 @@ import java.util.UUID;
 public class SgbdTest {
     @Test
     public void getLobBindList() throws Throwable {
-        String sample001 = new String(TestUtil.getResource("samples/sample_001.sql"));
+        String sample001 = Resource.getString("samples/sample_001.sql");
         Sgbd sgbd = new Sgbd<>(new H2(), null, null);
 
         List bind = sgbd.getLobBindList(sample001.trim());

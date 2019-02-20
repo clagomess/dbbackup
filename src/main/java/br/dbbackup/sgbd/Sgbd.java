@@ -12,10 +12,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,11 +33,15 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     public void startDump() throws Throwable {
-        Statement stmt = conn.createStatement();
-        log.info("### Conectado! ###");
         log.info("Tabelas para exportação:");
+        Statement stmt = conn.createStatement();
 
-        ResultSet rs = stmt.executeQuery(instance.getSqlTabColumns(options));
+        String sql = instance.getSqlTabColumns();
+        sql = sql.replaceAll(":TABLE_SCHEMA", String.format("'%s'", options.getSchema()));
+        sql = sql.replaceAll(":TABLE_NAME_AR", options.getTable() == null ? "NULL" : String.format("'%s'", String.join("','", options.getTable())));
+        sql = sql.replaceAll(":TABLE_NAME", options.getTable() == null ? "NULL" : "'OK'");
+
+        ResultSet rs = stmt.executeQuery(sql);
 
         while (rs.next()) {
             tabcolumns.setTabColumn(
@@ -256,7 +257,11 @@ public class Sgbd<T extends SgbdImpl> {
     public void buildInfo() throws Throwable{
         List<TabInfoDto> dtoList = new LinkedList<>();
         Statement stmt = conn.createStatement();
-        ResultSet rsAllTab = stmt.executeQuery(options.getSgbdFromInstance().getSqlInfo(options));
+
+        String sql = options.getSgbdFromInstance().getSqlInfo();
+        sql = sql.replaceAll(":TABLE_SCHEMA", String.format("'%s'", options.getSchema()));
+        ResultSet rsAllTab = stmt.executeQuery(sql);
+
         log.info("### Coletando Informações ###");
 
         while (rsAllTab.next()) {

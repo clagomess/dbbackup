@@ -8,8 +8,8 @@ import java.sql.ResultSet;
 
 public interface SgbdImpl {
     // CRIAR SELECT COM OS CAMPOS: table_name, column_name, data_type
-    String getSqlTabColumns(OptionsDto options);
+    String getSqlTabColumns() throws Throwable;
+    String getSqlInfo() throws Throwable;
     String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable;
     DataType getDataType(String dataType);
-    String getSqlInfo(OptionsDto options);
 }

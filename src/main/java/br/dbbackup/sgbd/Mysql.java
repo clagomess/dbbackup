@@ -3,6 +3,7 @@ package br.dbbackup.sgbd;
 import br.dbbackup.constant.DataType;
 import br.dbbackup.core.Format;
 import br.dbbackup.core.LobWriter;
+import br.dbbackup.core.Resource;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
@@ -13,34 +14,13 @@ import java.util.Base64;
 @Slf4j
 public class Mysql implements SgbdImpl {
     @Override
-    public String getSqlTabColumns(OptionsDto options) {
-        String sql = "select table_name, column_name, data_type\n" +
-                "from information_schema.columns where table_schema = '%s'\n";
-
-        sql = String.format(sql, options.getSchema());
-
-        if(options.getTable() != null){
-            sql += String.format("and table_name in ('%s')\n", String.join("','", options.getTable()));
-        }
-
-        sql += "order by table_name, ordinal_position";
-
-        return sql;
+    public String getSqlTabColumns() throws Throwable {
+        return Resource.getString("sql/mysql_tabcolumns.sql");
     }
 
     @Override
-    public String getSqlInfo(OptionsDto options){
-        String sql = "select\n" +
-                "c.table_name \"table_name\",\n" +
-                "count(*) \"qtd_columns\",\n" +
-                "max(case when c.column_key = 'PRI' then c.column_name else null end) \"pk_column\",\n" +
-                "max(case when c.data_type in ('blob', 'longblob', 'longtext') then 1 else 0 end) \"lob\"\n" +
-                "from information_schema.columns c\n" +
-                "where c.table_schema = '%s'\n" +
-                "group by c.table_name\n" +
-                "order by c.table_name";
-
-        return String.format(sql, options.getSchema());
+    public String getSqlInfo() throws Throwable {
+        return Resource.getString("sql/mysql_info.sql");
     }
 
     @Override

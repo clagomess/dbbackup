@@ -1,15 +1,12 @@
 package br.dbbackup.util;
 
-import br.dbbackup.core.DbbackupException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.UUID;
 
 @Slf4j
@@ -34,16 +31,6 @@ public class TestUtil {
         log.info("workdir: {}", dir);
 
         return dir;
-    }
-
-    public static byte[] getResource(String path) throws Throwable {
-        URL url = Thread.currentThread().getContextClassLoader().getResource(path);
-
-        if(url == null){
-            throw new DbbackupException("não encontrado");
-        }
-
-        return Files.readAllBytes(new File(url.getPath()).toPath());
     }
 
     public static void createFile(String filename, String content) throws IOException {

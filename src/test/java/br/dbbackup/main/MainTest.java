@@ -1,5 +1,6 @@
 package br.dbbackup.main;
 
+import br.dbbackup.core.Resource;
 import br.dbbackup.util.TestUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbc.JdbcSQLException;
@@ -24,7 +25,7 @@ public class MainTest {
     @Test(expected = JdbcSQLException.class)
     public void exit() throws Throwable {
         // Create sample
-        String sample002 = new String(TestUtil.getResource("samples/sample_002.sql"));
+        String sample002 = Resource.getString("samples/sample_002.sql");
         String workdir = TestUtil.getNewWorkDir();
         TestUtil.createFile(String.format("%s/002_%s.sql", workdir, UUID.randomUUID().toString()), sample002);
 

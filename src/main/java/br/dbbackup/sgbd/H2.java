@@ -3,6 +3,7 @@ package br.dbbackup.sgbd;
 import br.dbbackup.constant.DataType;
 import br.dbbackup.core.Format;
 import br.dbbackup.core.LobWriter;
+import br.dbbackup.core.Resource;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
 import lombok.extern.slf4j.Slf4j;
@@ -12,38 +13,13 @@ import java.sql.ResultSet;
 @Slf4j
 public class H2 implements SgbdImpl {
     @Override
-    public String getSqlTabColumns(OptionsDto options) {
-        String sql = "SELECT TABLE_NAME AS \"table_name\", COLUMN_NAME AS \"column_name\", TYPE_NAME AS \"data_type\"\n" +
-                "FROM INFORMATION_SCHEMA.COLUMNS\n" +
-                "WHERE TABLE_SCHEMA = '%s'\n";
-
-        sql = String.format(sql, options.getSchema());
-
-        if(options.getTable() != null){
-            sql += String.format("AND TABLE_NAME IN ('%s')\n", String.join("','", options.getTable()));
-        }
-
-        sql += "ORDER BY TABLE_NAME, ORDINAL_POSITION";
-
-        return sql;
+    public String getSqlTabColumns() throws Throwable {
+        return Resource.getString("sql/h2_tabcolumns.sql");
     }
 
     @Override
-    public String getSqlInfo(OptionsDto options){
-        String sql = "SELECT\n" +
-                "COL.TABLE_NAME \"table_name\",\n" +
-                "COUNT(*) \"qtd_columns\",\n" +
-                "MAX(CON.COLUMN_LIST) \"pk_column\",\n" +
-                "MAX(CASE WHEN COL.TYPE_NAME IN ('BLOB', 'CLOB') THEN 1 ELSE 0 END) \"lob\"\n" +
-                "FROM INFORMATION_SCHEMA.COLUMNS COL\n" +
-                "LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS CON\n" +
-                "  ON CON.TABLE_NAME = COL.TABLE_NAME\n" +
-                "  AND CON.CONSTRAINT_TYPE = 'PRIMARY KEY'\n" +
-                "WHERE COL.TABLE_SCHEMA = '%s'\n" +
-                "GROUP BY COL.TABLE_NAME\n" +
-                "ORDER BY COL.TABLE_NAME";
-
-        return String.format(sql, options.getSchema());
+    public String getSqlInfo() throws Throwable {
+        return Resource.getString("sql/h2_info.sql");
     }
 
     @Override
