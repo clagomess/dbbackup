@@ -161,4 +161,6 @@ public class MainMysqlTest {
                 "-workdir", workdir
         });
     }
+
+    //@TODO: pumpSqlite
 }

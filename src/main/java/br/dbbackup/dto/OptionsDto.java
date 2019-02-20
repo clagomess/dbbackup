@@ -94,6 +94,8 @@ public class OptionsDto {
                 return new Postgresql();
             case H2:
                 return new H2();
+            case SQLITE:
+                return new Sqlite();
             default:
                 return null;
         }

@@ -15,9 +15,9 @@ CLI DOC:
 ```
 usage: dbbackup
  -charset <arg>       Default: UTF-8. Ex.: UTF-8, ISO-8859-1 e US-ASCII
- -db <arg>            {ORACLE, MYSQL, MARIADB, POSTGRESQL, H2}
+ -db <arg>            {ORACLE, MYSQL, MARIADB, POSTGRESQL, H2, SQLITE}
  -dump_format <arg>   Formato de saída do dump. Ideal para migração. Ex.:
-                      {ORACLE, MYSQL, POSTGRESQL, H2}
+                      {ORACLE, MYSQL, POSTGRESQL, H2, SQLITE}
  -lob <arg>           {1} - Importar/Exportar LOB
  -ope <arg>           {GET, PUT, INFO}
  -pass <arg>          pass
@@ -33,22 +33,22 @@ usage: dbbackup
                       jdbc:mysql://localhost/database -
                       jdbc:mariadb://localhost/database -
                       jdbc:postgresql://localhost:5432/postgres -
-                      jdbc:h2:./home/h2/dbbackup
+                      jdbc:h2:./home/h2/dbbackup - jdbc:sqlite:dbbackup.db
  -user <arg>          user
  -workdir <arg>       Pasta de localização do dump. default: ./dump
 ```
 
 ### Conversão
-| generic | Mysql/MariaDB | Postgresql | Oracle | H2 |
-| --- | --- | --- | --- | --- |
-| `NUMBER` | <ul><li>int</li><li>bigint</li><li>decimal</li><li>tinyint</li></ul> | <ul><li>float8</li><li>numeric</li><li>int4</li><li>int8</li><li>int2</li></ul> | <ul><li>NUMBER</li></li> | <ul><li>BIGINT</li><li>NUMERIC</li><li>DECIMAL</li><li>INTEGER</li><li>FLOAT</li><li>REAL</li><li>DOUBLE</li><li>SMALLINT</li></ul> |
-| `DATETIME` | <ul><li>datetime</li></li> | <ul><li>timestamptz</li><li>timestamp</li></ul>  | <ul><li>DATE</li></li> | <ul><li>TIMESTAMP</li></li> |
-| `DATE` | <ul><li>date</li></li> | <ul><li>date</li></li> | <ul><li>DATE</li></li> | <ul><li>DATE</li></li> |
-| `TIME` | <ul><li>time</li></li> | <ul><li>time</li></li> | <ul><li>DATE</li></li> | <ul><li>TIME</li></li> |
-| `BLOB` | <ul><li>blob</li><li>longblob</li></ul> | <ul><li>bytea</li></li> | <ul><li>BLOB</li></li> | <ul><li>BLOB</li></li> |
-| `CLOB` | <ul><li>longtext</li></li> |  <ul><li>text</li></li> | <ul><li>CLOB</li></li> | <ul><li>CLOB</li></li> |
-| `VARCHAR` | <ul><li>varchar</li><li>text</li></ul> | <ul><li>varchar</li></li> | <ul><li>VARCHAR2</li></li> | <ul><li>VARCHAR</li><li>VARCHAR_IGNORECASE</li></ul> |
-| `BOOL` | <ul><li>tinyint</li></ul> | <ul><li>bool</li></li> | <ul><li>NUMBER</li></li> | <ul><li>BOOLEAN</li></li> |
+| generic | Mysql/MariaDB | Postgresql | Oracle | H2 | SQLite |
+| --- | --- | --- | --- | --- | --- |
+| `NUMBER` | <ul><li>int</li><li>bigint</li><li>decimal</li><li>tinyint</li></ul> | <ul><li>float8</li><li>numeric</li><li>int4</li><li>int8</li><li>int2</li></ul> | <ul><li>NUMBER</li></li> | <ul><li>BIGINT</li><li>NUMERIC</li><li>DECIMAL</li><li>INTEGER</li><li>FLOAT</li><li>REAL</li><li>DOUBLE</li><li>SMALLINT</li></ul> | <ul><li>integer</li><li>numeric</li><li>real</li></ul> |
+| `DATETIME` | <ul><li>datetime</li></li> | <ul><li>timestamptz</li><li>timestamp</li></ul>  | <ul><li>DATE</li></li> | <ul><li>TIMESTAMP</li></li> | - |
+| `DATE` | <ul><li>date</li></li> | <ul><li>date</li></li> | <ul><li>DATE</li></li> | <ul><li>DATE</li></li> | - |
+| `TIME` | <ul><li>time</li></li> | <ul><li>time</li></li> | <ul><li>DATE</li></li> | <ul><li>TIME</li></li> | - |
+| `BLOB` | <ul><li>blob</li><li>longblob</li></ul> | <ul><li>bytea</li></li> | <ul><li>BLOB</li></li> | <ul><li>BLOB</li></li> | <ul><li>blob</li></li> |
+| `CLOB` | <ul><li>longtext</li></li> |  <ul><li>text</li></li> | <ul><li>CLOB</li></li> | <ul><li>CLOB</li></li> | - |
+| `VARCHAR` | <ul><li>varchar</li><li>text</li></ul> | <ul><li>varchar</li></li> | <ul><li>VARCHAR2</li></li> | <ul><li>VARCHAR</li><li>VARCHAR_IGNORECASE</li></ul> | <ul><li>text</li></li> |
+| `BOOL` | <ul><li>tinyint</li></ul> | <ul><li>bool</li></li> | <ul><li>NUMBER</li></li> | <ul><li>BOOLEAN</li></li> | - |
 
 ### Docker Mount:
 1. Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`

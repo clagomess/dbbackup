@@ -162,4 +162,6 @@ public class MainPostgresqlTest {
                 "-workdir", workdir
         });
     }
+
+    //@TODO: pumpSqlite
 }

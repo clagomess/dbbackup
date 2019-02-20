@@ -161,4 +161,6 @@ public class MainOracleTest {
                 "-workdir", workdir
         });
     }
+
+    //@TODO: pumpSqlite
 }

@@ -161,4 +161,6 @@ public class MainH2Test {
                 "-workdir", workdir
         });
     }
+
+    //@TODO: pumpSqlite
 }

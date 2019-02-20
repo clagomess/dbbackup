@@ -16,6 +16,7 @@ public class TestUtil {
     public static final DbParamDto paramOracle = new DbParamDto("jdbc:oracle:thin:@localhost:1521:ORCLCDB", "DBBACKUP", "DBBACKUP", "010203");
     public static final DbParamDto paramPostgresql = new DbParamDto("jdbc:postgresql://localhost:5432/postgres", "public", "postgres");
     public static final DbParamDto paramH2 = new DbParamDto("jdbc:h2:./target/test-classes/h2/dbbackup", "PUBLIC");
+    public static final DbParamDto paramSqlite = new DbParamDto("jdbc:sqlite:./target/test-classes/sqlite/dbbackup.db", "main");
 
     public static String getNewWorkDir(){
         String dir = "target";
