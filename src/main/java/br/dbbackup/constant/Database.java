@@ -7,7 +7,8 @@ public enum Database {
     MYSQL("MYSQL"),
     MARIADB("MARIADB"),
     POSTGRESQL("POSTGRESQL"),
-    H2("H2");
+    H2("H2"),
+    SQLITE("SQLITE");
 
     @Getter
     private final String value;
