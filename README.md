@@ -42,13 +42,13 @@ usage: dbbackup
 | generic | Mysql/MariaDB | Postgresql | Oracle | H2 | SQLite |
 | --- | --- | --- | --- | --- | --- |
 | `NUMBER` | <ul><li>int</li><li>bigint</li><li>decimal</li><li>tinyint</li></ul> | <ul><li>float8</li><li>numeric</li><li>int4</li><li>int8</li><li>int2</li></ul> | <ul><li>NUMBER</li></li> | <ul><li>BIGINT</li><li>NUMERIC</li><li>DECIMAL</li><li>INTEGER</li><li>FLOAT</li><li>REAL</li><li>DOUBLE</li><li>SMALLINT</li></ul> | <ul><li>integer</li><li>numeric</li><li>real</li></ul> |
-| `DATETIME` | <ul><li>datetime</li></li> | <ul><li>timestamptz</li><li>timestamp</li></ul>  | <ul><li>DATE</li></li> | <ul><li>TIMESTAMP</li></li> | - |
-| `DATE` | <ul><li>date</li></li> | <ul><li>date</li></li> | <ul><li>DATE</li></li> | <ul><li>DATE</li></li> | - |
-| `TIME` | <ul><li>time</li></li> | <ul><li>time</li></li> | <ul><li>DATE</li></li> | <ul><li>TIME</li></li> | - |
+| `DATETIME` | <ul><li>datetime</li></li> | <ul><li>timestamptz</li><li>timestamp</li></ul>  | <ul><li>DATE</li></li> | <ul><li>TIMESTAMP</li></li> | text |
+| `DATE` | <ul><li>date</li></li> | <ul><li>date</li></li> | <ul><li>DATE</li></li> | <ul><li>DATE</li></li> | text |
+| `TIME` | <ul><li>time</li></li> | <ul><li>time</li></li> | <ul><li>DATE</li></li> | <ul><li>TIME</li></li> | text |
 | `BLOB` | <ul><li>blob</li><li>longblob</li></ul> | <ul><li>bytea</li></li> | <ul><li>BLOB</li></li> | <ul><li>BLOB</li></li> | <ul><li>blob</li></li> |
-| `CLOB` | <ul><li>longtext</li></li> |  <ul><li>text</li></li> | <ul><li>CLOB</li></li> | <ul><li>CLOB</li></li> | - |
+| `CLOB` | <ul><li>longtext</li></li> |  <ul><li>text</li></li> | <ul><li>CLOB</li></li> | <ul><li>CLOB</li></li> | text |
 | `VARCHAR` | <ul><li>varchar</li><li>text</li></ul> | <ul><li>varchar</li></li> | <ul><li>VARCHAR2</li></li> | <ul><li>VARCHAR</li><li>VARCHAR_IGNORECASE</li></ul> | <ul><li>text</li></li> |
-| `BOOL` | <ul><li>tinyint</li></ul> | <ul><li>bool</li></li> | <ul><li>NUMBER</li></li> | <ul><li>BOOLEAN</li></li> | - |
+| `BOOL` | <ul><li>tinyint</li></ul> | <ul><li>bool</li></li> | <ul><li>NUMBER</li></li> | <ul><li>BOOLEAN</li></li> | integer |
 
 ### Docker Mount:
 1. Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`
