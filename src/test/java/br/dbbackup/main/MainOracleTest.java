@@ -161,4 +161,40 @@ public class MainOracleTest {
                 "-workdir", workdir
         });
     }
+
+    @Test
+    public void pumpSqlite() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "ORACLE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramOracle.getUrl(),
+                "-user", TestUtil.paramOracle.getUser(),
+                "-pass", TestUtil.paramOracle.getPass(),
+                "-schema", TestUtil.paramOracle.getSchema(),
+                "-workdir", workdir,
+                "-table", "TBL_DBBACKUP",
+                "-dump_format", "SQLITE",
+                "-schema_exp", TestUtil.paramSqlite.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramOracle.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_oracle");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir
+        });
+    }
 }

@@ -12,7 +12,7 @@ public class MainOptions {
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option("db", true, "{ORACLE, MYSQL, MARIADB, POSTGRESQL, H2}");
+        option = new Option("db", true, "{ORACLE, MYSQL, MARIADB, POSTGRESQL, H2, SQLITE}");
         option.setRequired(true);
         options.addOption(option);
 
@@ -20,7 +20,8 @@ public class MainOptions {
                 "jdbc:mysql://localhost/database - " +
                 "jdbc:mariadb://localhost/database - " +
                 "jdbc:postgresql://localhost:5432/postgres - " +
-                "jdbc:h2:./home/h2/dbbackup");
+                "jdbc:h2:./home/h2/dbbackup - " +
+                "jdbc:sqlite:dbbackup.db");
         option.setRequired(true);
         options.addOption(option);
 
@@ -42,7 +43,7 @@ public class MainOptions {
         option = new Option("schema_exp", true, "Nome do schema para exportação");
         options.addOption(option);
 
-        option = new Option("dump_format", true, "Formato de saída do dump. Ideal para migração. Ex.: {ORACLE, MYSQL, POSTGRESQL, H2}");
+        option = new Option("dump_format", true, "Formato de saída do dump. Ideal para migração. Ex.: {ORACLE, MYSQL, POSTGRESQL, H2, SQLITE}");
         option.setRequired(false);
         options.addOption(option);
 

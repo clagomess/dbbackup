@@ -161,4 +161,40 @@ public class MainMysqlTest {
                 "-workdir", workdir
         });
     }
+
+    @Test
+    public void pumpSqlite() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "MYSQL",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramMysql.getUrl(),
+                "-user", TestUtil.paramMysql.getUser(),
+                "-pass", TestUtil.paramMysql.getPass(),
+                "-schema", TestUtil.paramMysql.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "SQLITE",
+                "-schema_exp", TestUtil.paramSqlite.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir
+        });
+    }
 }

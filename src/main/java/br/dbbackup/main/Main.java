@@ -55,6 +55,9 @@ public class Main {
                 case H2:
                     sgbd = new Sgbd<>(new H2(), conexao, options);
                     break;
+                case SQLITE:
+                    sgbd = new Sgbd<>(new Sqlite(), conexao, options);
+                    break;
                 default:
                     throw new DbbackupException(String.format("\"%s\" não implementado!", options.getDatabase()));
             }

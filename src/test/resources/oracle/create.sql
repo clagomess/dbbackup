@@ -62,3 +62,12 @@ create table tbl_dbbackup_h2 (
   field_varchar_ignorecase varchar2(200),
   field_boolean number(1)
 );
+
+create table tbl_dbbackup_sqlite (
+  field_null varchar2(200),
+  field_text varchar2(200),
+  field_integer number,
+  field_numeric number(10,2),
+  field_real number(10,2),
+  field_blob blob
+);

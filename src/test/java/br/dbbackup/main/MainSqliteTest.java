@@ -9,16 +9,16 @@ import java.io.File;
 import java.nio.file.Files;
 
 @Slf4j
-public class MainH2Test {
+public class MainSqliteTest {
     @Test
     public void info() throws Throwable {
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "SQLITE",
                 "-ope", "INFO",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema()
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema()
         });
     }
 
@@ -28,28 +28,28 @@ public class MainH2Test {
 
         // DUMP
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "SQLITE",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema(),
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir,
-                "-table", "TBL_DBBACKUP"
+                "-table", "tbl_dbbackup"
         });
 
-        Assert.assertTrue((new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()))).isFile());
+        Assert.assertTrue((new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()))).isFile());
 
         // PUMP
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "SQLITE",
                 "-lob", "1",
                 "-ope", "PUT",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema(),
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir
         });
     }
@@ -59,23 +59,23 @@ public class MainH2Test {
         String workdir = TestUtil.getNewWorkDir();
 
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "SQLITE",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema(),
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir,
-                "-table", "TBL_DBBACKUP",
+                "-table", "tbl_dbbackup",
                 "-dump_format", "MYSQL",
                 "-schema_exp", TestUtil.paramMysql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -95,23 +95,23 @@ public class MainH2Test {
         String workdir = TestUtil.getNewWorkDir();
 
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "SQLITE",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema(),
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir,
-                "-table", "TBL_DBBACKUP",
+                "-table", "tbl_dbbackup",
                 "-dump_format", "POSTGRESQL",
                 "-schema_exp", TestUtil.paramPostgresql.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -131,23 +131,23 @@ public class MainH2Test {
         String workdir = TestUtil.getNewWorkDir();
 
         Main.main(new String[]{
-                "-db", "H2",
+                "-db", "SQLITE",
                 "-lob", "1",
                 "-ope", "GET",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema(),
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir,
-                "-table", "TBL_DBBACKUP",
+                "-table", "tbl_dbbackup",
                 "-dump_format", "ORACLE",
                 "-schema_exp", TestUtil.paramOracle.getSchema()
         });
 
-        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -163,37 +163,37 @@ public class MainH2Test {
     }
 
     @Test
-    public void pumpSqlite() throws Throwable {
+    public void pumpH2() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
-
-        Main.main(new String[]{
-                "-db", "H2",
-                "-lob", "1",
-                "-ope", "GET",
-                "-url", TestUtil.paramH2.getUrl(),
-                "-user", TestUtil.paramH2.getUser(),
-                "-pass", TestUtil.paramH2.getPass(),
-                "-schema", TestUtil.paramH2.getSchema(),
-                "-workdir", workdir,
-                "-table", "TBL_DBBACKUP",
-                "-dump_format", "SQLITE",
-                "-schema_exp", TestUtil.paramSqlite.getSchema()
-        });
-
-        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
-
-        String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
-        Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
                 "-db", "SQLITE",
                 "-lob", "1",
-                "-ope", "PUT",
+                "-ope", "GET",
                 "-url", TestUtil.paramSqlite.getUrl(),
                 "-user", TestUtil.paramSqlite.getUser(),
                 "-pass", TestUtil.paramSqlite.getPass(),
                 "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "H2",
+                "-schema_exp", TestUtil.paramH2.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "H2",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema(),
                 "-workdir", workdir
         });
     }

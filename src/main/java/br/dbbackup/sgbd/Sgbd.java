@@ -1,6 +1,7 @@
 package br.dbbackup.sgbd;
 
 
+import br.dbbackup.constant.Database;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
@@ -12,7 +13,10 @@ import me.tongfei.progressbar.ProgressBarStyle;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -221,9 +225,16 @@ public class Sgbd<T extends SgbdImpl> {
             List<FileInputStream> fisList = new ArrayList<>();
             int bindIdx = 1;
             for(String lob : lobs){
-                FileInputStream fis = new FileInputStream(String.format("%s/lob/%s.bin", options.getWorkdir(), lob.replace(":", "")));
-                fisList.add(fis);
-                pstmt.setBinaryStream(bindIdx, fis);
+                String binFile = String.format("%s/lob/%s.bin", options.getWorkdir(), lob.replace(":", ""));
+
+                if(options.getDatabase() == Database.SQLITE){
+                    pstmt.setBytes(bindIdx, Files.readAllBytes((new File(binFile)).toPath()));
+                }else {
+                    FileInputStream fis = new FileInputStream(binFile);
+                    fisList.add(fis);
+                    pstmt.setBinaryStream(bindIdx, fis);
+                }
+
                 bindIdx++;
             }
 

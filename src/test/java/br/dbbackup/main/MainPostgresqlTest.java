@@ -162,4 +162,40 @@ public class MainPostgresqlTest {
                 "-workdir", workdir
         });
     }
+
+    @Test
+    public void pumpSqlite() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "POSTGRESQL",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "SQLITE",
+                "-schema_exp", TestUtil.paramSqlite.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir
+        });
+    }
 }
