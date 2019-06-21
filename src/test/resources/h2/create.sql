@@ -64,7 +64,16 @@ create table tbl_dbbackup_postgresql (
   field_date date,
   field_text text,
   field_varchar varchar(200),
-  field_bytea bytea,
+  field_bytea blob,
   field_time time,
   field_boolean boolean
+);
+
+create table tbl_dbbackup_sqlite (
+  field_null text,
+  field_text text,
+  field_integer bigint,
+  field_numeric numeric,
+  field_real numeric,
+  field_blob blob
 );
