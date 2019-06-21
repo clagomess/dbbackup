@@ -1,6 +1,7 @@
 package br.dbbackup.sgbd;
 
 import br.dbbackup.constant.DataType;
+import br.dbbackup.core.LobWriter;
 import br.dbbackup.core.Resource;
 import br.dbbackup.dto.OptionsDto;
 import br.dbbackup.dto.TabColumnsDto;
@@ -45,6 +46,12 @@ public class Sqlite implements SgbdImpl {
         switch (options.getSgbdFromInstance().getDataType(tabcolumns.getDataType(table, column))){
             case NUMBER:
                 toReturn = rs.getString(column);
+                break;
+            case BLOB:
+                toReturn = rs.getBytes(column).length == 0 ? "''" : LobWriter.write(options, rs.getBytes(column));
+                break;
+            case CLOB:
+                toReturn = LobWriter.write(options, rs.getString(column).getBytes(options.getCharset()));
                 break;
             default:
                 toReturn = "'%s'";

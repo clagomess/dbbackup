@@ -162,5 +162,39 @@ public class MainH2Test {
         });
     }
 
-    //@TODO: pumpSqlite
+    @Test
+    public void pumpSqlite() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "H2",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema(),
+                "-workdir", workdir,
+                "-table", "TBL_DBBACKUP",
+                "-dump_format", "SQLITE",
+                "-schema_exp", TestUtil.paramSqlite.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.TBL_DBBACKUP.sql", workdir, TestUtil.paramH2.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("TBL_DBBACKUP", "tbl_dbbackup_h2");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir
+        });
+    }
 }
