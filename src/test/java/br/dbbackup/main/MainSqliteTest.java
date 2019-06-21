@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Files;
 
 @Slf4j
 public class MainSqliteTest {
@@ -53,8 +54,147 @@ public class MainSqliteTest {
         });
     }
 
-    //@TODO: pumpMysql
-    //@TODO: pumpPostgresql
-    //@TODO: pumpOracle
-    //@TODO: pumpH2
+    @Test
+    public void pumpMysql() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "MYSQL",
+                "-schema_exp", TestUtil.paramMysql.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "MYSQL",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramMysql.getUrl(),
+                "-user", TestUtil.paramMysql.getUser(),
+                "-pass", TestUtil.paramMysql.getPass(),
+                "-schema", TestUtil.paramMysql.getSchema(),
+                "-workdir", workdir
+        });
+    }
+
+    @Test
+    public void pumpPostgresql() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "POSTGRESQL",
+                "-schema_exp", TestUtil.paramPostgresql.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "POSTGRESQL",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramPostgresql.getUrl(),
+                "-user", TestUtil.paramPostgresql.getUser(),
+                "-pass", TestUtil.paramPostgresql.getPass(),
+                "-schema", TestUtil.paramPostgresql.getSchema(),
+                "-workdir", workdir
+        });
+    }
+
+    @Test
+    public void pumpOracle() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "ORACLE",
+                "-schema_exp", TestUtil.paramOracle.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "ORACLE",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramOracle.getUrl(),
+                "-user", TestUtil.paramOracle.getUser(),
+                "-pass", TestUtil.paramOracle.getPass(),
+                "-schema", TestUtil.paramOracle.getSchema(),
+                "-workdir", workdir
+        });
+    }
+
+    @Test
+    public void pumpH2() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "SQLITE",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramSqlite.getUrl(),
+                "-user", TestUtil.paramSqlite.getUser(),
+                "-pass", TestUtil.paramSqlite.getPass(),
+                "-schema", TestUtil.paramSqlite.getSchema(),
+                "-workdir", workdir,
+                "-table", "tbl_dbbackup",
+                "-dump_format", "H2",
+                "-schema_exp", TestUtil.paramH2.getSchema()
+        });
+
+        File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramSqlite.getSchema()));
+
+        String dml = new String(Files.readAllBytes(backupFile.toPath()));
+        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_sqlite");
+        Files.write(backupFile.toPath(), dml.getBytes());
+
+        Main.main(new String[]{
+                "-db", "H2",
+                "-lob", "1",
+                "-ope", "PUT",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema(),
+                "-workdir", workdir
+        });
+    }
 }
