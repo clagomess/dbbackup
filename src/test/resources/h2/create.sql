@@ -1,3 +1,10 @@
+drop table if exists tbl_dbbackup_pk;
+drop table if exists tbl_dbbackup;
+drop table if exists tbl_dbbackup_mysql;
+drop table if exists tbl_dbbackup_oracle;
+drop table if exists tbl_dbbackup_postgresql;
+drop table if exists tbl_dbbackup_sqlite;
+
 create table tbl_dbbackup_pk (
   field_pk numeric not null,
   field_numeric numeric,

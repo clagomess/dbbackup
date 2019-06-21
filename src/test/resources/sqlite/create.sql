@@ -1,3 +1,9 @@
+DROP TABLE if exists tbl_dbbackup;
+DROP TABLE if exists tbl_dbbackup_mysql;
+DROP TABLE if exists tbl_dbbackup_oracle;
+DROP TABLE if exists tbl_dbbackup_postgresql;
+DROP TABLE if exists tbl_dbbackup_h2;
+
 create table tbl_dbbackup (
   field_null text,
   field_text text,
