@@ -163,7 +163,6 @@ public class MainPostgresqlTest {
         });
     }
 
-    //@TODO: fix blob
     @Test
     public void pumpSqlite() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();

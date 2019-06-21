@@ -162,7 +162,6 @@ public class MainOracleTest {
         });
     }
 
-    //@TODO: fix lob problem
     @Test
     public void pumpSqlite() throws Throwable {
         String workdir = TestUtil.getNewWorkDir();
