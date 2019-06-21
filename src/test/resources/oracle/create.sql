@@ -64,7 +64,7 @@ create table tbl_dbbackup_h2 (
 );
 
 create table tbl_dbbackup_sqlite (
-  field_null text,
+  field_null varchar2(200),
   field_text varchar2(200),
   field_integer number,
   field_numeric number(10,2),

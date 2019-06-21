@@ -1,4 +1,4 @@
 FROM mariadb:latest
 
-WORKDIR /root/dbbackup
-ADD . /root/dbbackup
+WORKDIR /tmp/dbbackup
+ADD . /tmp/dbbackup

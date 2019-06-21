@@ -54,7 +54,7 @@ usage: dbbackup
 1. Logar no DockerHub com permissão ao contêiner "Oracle Database Enterprise Edition" : `docker login`
 2. Baixar imagem Oracle: `docker pull store/oracle/database-enterprise:12.2.0.1-slim`
 3. Iniciar contêiners: `start_docker.sh`
-4. Rodar `run_script.sh` de cada contêiner
+4. Rodar `config_docker.sh` após os contêiners terem startado
 5. Rodar testes
 6. Encerrar contêiners: `stop_docker.sh`
 
