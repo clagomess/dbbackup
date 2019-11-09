@@ -1,0 +1,21 @@
+version: '3'
+services:
+  oracle:
+    container_name: dbbackup_oracle
+    build: src/test/resources/oracle
+    ports:
+      - 1521:1521
+
+  postgresql:
+    container_name: dbbackup_postgresql
+    build: src/test/resources/postgresql
+    ports:
+      - 5432:5432
+
+  mariadb:
+    container_name: dbbackup_mariadb
+    build: src/test/resources/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=010203

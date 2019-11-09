@@ -10,12 +10,11 @@ commit;
 exit
 EOL"
 
-
 echo "POSTGRESQL DOCKER"
 docker exec dbbackup_postgresql sh -c "psql -U postgres -a -f /tmp/dbbackup/create.sql"
 docker exec dbbackup_postgresql sh -c "psql -U postgres -a -f /tmp/dbbackup/insert.sql"
 
 echo "MARIADB DOCKER"
-docker exec dbbackup_mysql sh -c "mysql -u root -p010203 < /tmp/dbbackup/config.sql"
-docker exec dbbackup_mysql sh -c "mysql -u root -p010203 dbbackup < /tmp/dbbackup/create.sql"
-docker exec dbbackup_mysql sh -c "mysql -u root -p010203 dbbackup < /tmp/dbbackup/insert.sql"
+docker exec dbbackup_mariadb sh -c "mysql -u root -p010203 < /tmp/dbbackup/config.sql"
+docker exec dbbackup_mariadb sh -c "mysql -u root -p010203 dbbackup < /tmp/dbbackup/create.sql"
+docker exec dbbackup_mariadb sh -c "mysql -u root -p010203 dbbackup < /tmp/dbbackup/insert.sql"
