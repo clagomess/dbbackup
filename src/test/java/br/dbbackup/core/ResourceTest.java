@@ -18,10 +18,4 @@ public class ResourceTest {
         String result = Resource.getString("samples/sample_002.sql");
         Assert.assertThat(result, CoreMatchers.containsString("tbl_dbbackup"));
     }
-
-    @Test
-    public void getFromJar() throws Throwable {
-        String result = Resource.getString("dbbackup.jar!/sql/foo.txt");
-        Assert.assertEquals(result, "FOO");
-    }
 }

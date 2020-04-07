@@ -1,8 +1,8 @@
 package br.dbbackup.core;
 
-import java.io.File;
+import org.apache.commons.io.IOUtils;
+
 import java.net.URL;
-import java.nio.file.Files;
 
 public class Resource {
     public static byte[] getByteArray(String path) throws Throwable {
@@ -12,7 +12,7 @@ public class Resource {
             throw new DbbackupException(String.format("%s não encontrado", path));
         }
 
-        return Files.readAllBytes(new File(url.getPath()).toPath());
+        return IOUtils.toByteArray(url);
     }
 
     public static String getString(String path) throws Throwable {
