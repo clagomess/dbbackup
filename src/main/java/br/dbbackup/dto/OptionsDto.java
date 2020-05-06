@@ -35,6 +35,9 @@ public class OptionsDto {
     private SgbdImpl sgbdFromInstance;
     private SgbdImpl sgbdToInstance;
 
+    // DDL
+    private String ddlAddTablePrefix;
+
     public OptionsDto(CommandLine cmd){
         this.operation = Operation.valueOf(cmd.getOptionValue("ope"));
         this.database = Database.valueOf(cmd.getOptionValue("db"));
@@ -49,6 +52,7 @@ public class OptionsDto {
         this.table = cmd.getOptionValues("table") != null ? Arrays.asList(cmd.getOptionValues("table")) : null;
         this.sgbdFromInstance = getInstance(this.database);
         this.charset = cmd.getOptionValue("charset") != null ? Charset.forName(cmd.getOptionValue("charset")) : StandardCharsets.UTF_8;
+        this.ddlAddTablePrefix = cmd.getOptionValue("ddl_add_table_prefix");
 
         if(this.schemaNewName == null){
             this.schemaNewName = this.schema;

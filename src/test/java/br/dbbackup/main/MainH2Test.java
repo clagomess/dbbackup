@@ -10,7 +10,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -232,5 +236,36 @@ public class MainH2Test {
                 "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir
         });
+    }
+
+    @Test
+    public void ddl() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        Main.main(new String[]{
+                "-db", "H2",
+                "-ope", "DDL",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema(),
+                "-workdir", workdir,
+                "-ddl_add_table_prefix", UUID.randomUUID().toString().substring(0, 4) + "_"
+        });
+
+        // TEST DDL
+        File file = new File(String.format("%s/%s.sql", workdir, TestUtil.paramH2.getSchema()));
+        String ddl = new String(Files.readAllBytes(file.toPath()));
+
+        Connection conn = DriverManager.getConnection(
+                TestUtil.paramH2.getUrl(),
+                TestUtil.paramH2.getUser(),
+                TestUtil.paramH2.getPass()
+        );
+
+        Statement stmt = conn.createStatement();
+        stmt.addBatch(ddl);
+        stmt.executeBatch();
+        stmt.close();
     }
 }

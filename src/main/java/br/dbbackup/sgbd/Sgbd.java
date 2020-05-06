@@ -48,7 +48,7 @@ public class Sgbd<T extends SgbdImpl> {
         return mU.find() && mL.find() ? String.format("%s%s%s", quote, object, quote) : object;
     }
 
-    public void startDump() throws Throwable {
+    public void fillDBInfo() throws Throwable {
         log.info("Tabelas para exportação:");
         Statement stmt = conn.createStatement();
 
@@ -70,6 +70,13 @@ public class Sgbd<T extends SgbdImpl> {
         rs.close();
         stmt.close();
 
+        for (String table : tabcolumns.getTables()){
+            log.info("-> {}.{}", options.getSchema(), table);
+        }
+    }
+
+    public void startDump() throws Throwable {
+        this.fillDBInfo();
         this.startDumpProcess();
     }
 
@@ -78,10 +85,6 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     private void startDumpProcess() throws Throwable {
-        for (String table : tabcolumns.getTables()){
-            log.info("-> {}.{}", options.getSchema(), table);
-        }
-
         File outDir = new File(options.getWorkdir());
         if(!outDir.exists()){
             outDir.mkdir();
@@ -373,6 +376,49 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     public void buildDDL() throws Throwable {
-        //@TODO: implements
+        this.fillDBInfo();
+
+        String sqlFile = String.format("%s/%s.sql", options.getWorkdir(), options.getSchema());
+        log.info("FILE: {}", sqlFile);
+        FileOutputStream fos = new FileOutputStream(sqlFile);
+        OutputStreamWriter out = new OutputStreamWriter(fos, options.getCharset());
+
+        ProgressBar pb = new ProgressBar("Dump", tabcolumns.getTables().size(), ProgressBarStyle.ASCII);
+
+        String createTBTemplate = "CREATE TABLE %s (\n%s\n);\n\n";
+        String fieldTemplate = "    %s %s";
+
+        try {
+            for (String table : tabcolumns.getTables()) {
+                List<String> fields = new ArrayList<>();
+
+                tabcolumns.getColumns(table).forEach(item -> {
+                    String field = String.format(
+                            fieldTemplate,
+                            quote(false, item),
+                            tabcolumns.getDataType(table, item)
+                    );
+
+                    fields.add(field);
+                });
+
+                String prefix = options.getDdlAddTablePrefix() == null ? "" : options.getDdlAddTablePrefix();
+
+                out.write(String.format(
+                        createTBTemplate,
+                        quote(false, prefix + table),
+                        String.join(",\n", fields)
+                ));
+
+                out.flush();
+                pb.step();
+            }
+        }catch (Throwable e){
+            throw e;
+        } finally {
+            out.close();
+            fos.close();
+            pb.close();
+        }
     }
 }
