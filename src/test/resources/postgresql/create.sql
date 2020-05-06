@@ -12,7 +12,8 @@ create table tbl_dbbackup (
   field_varchar varchar(200),
   field_bytea bytea,
   field_time time,
-  field_boolean boolean
+  field_boolean boolean,
+  "Field_Case" varchar(200)
 );
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
@@ -23,7 +24,8 @@ create table tbl_dbbackup_oracle (
   field_date timestamp,
   field_blob bytea,
   field_clob text,
-  field_varchar2 varchar(200)
+  field_varchar2 varchar(200),
+  "Field_Case" varchar(200)
 );
 
 create table tbl_dbbackup_mysql (
@@ -39,7 +41,8 @@ create table tbl_dbbackup_mysql (
   field_longtext text,
   field_varchar varchar(200),
   field_text varchar(200),
-  field_time time
+  field_time time,
+  "Field_Case" varchar(200)
 );
 
 create table tbl_dbbackup_h2 (
@@ -60,7 +63,8 @@ create table tbl_dbbackup_h2 (
   field_clob text,
   field_varchar varchar(200),
   field_varchar_ignorecase varchar(200),
-  field_boolean boolean
+  field_boolean boolean,
+  "Field_Case" varchar(200)
 );
 
 create table tbl_dbbackup_sqlite (
@@ -69,5 +73,11 @@ create table tbl_dbbackup_sqlite (
   field_integer bigint,
   field_numeric numeric,
   field_real numeric,
-  field_blob bytea
+  field_blob bytea,
+  "Field_Case" varchar(200)
+);
+
+create table "Tbl_DBBackup_Case" (
+    "Field_Text" text,
+    "Field_Integer" bigint
 );

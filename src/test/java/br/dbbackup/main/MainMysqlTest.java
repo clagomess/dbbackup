@@ -75,7 +75,7 @@ public class MainMysqlTest {
         File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramMysql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_mysql");
+        dml = dml.replace("tbl_dbbackup", "TBL_DBBACKUP_MYSQL");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{

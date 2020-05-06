@@ -11,7 +11,8 @@ field_longblob,
 field_longtext,
 field_varchar,
 field_text,
-field_time
+field_time,
+`Field_Case`
 ) values (
 null,
 123,
@@ -25,5 +26,8 @@ now(),
 'LONGTEXT',
 'VARCHAR',
 'TEXT',
-now()
+now(),
+'Field_Case'
 );
+
+insert into `Tbl_DBBackup_Case` (`Field_Text`, `Field_Integer`) values ('TEXT', 123);

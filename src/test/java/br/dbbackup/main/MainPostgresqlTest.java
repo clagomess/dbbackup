@@ -76,7 +76,7 @@ public class MainPostgresqlTest {
         File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
+        dml = dml.replace("tbl_dbbackup", "TBL_DBBACKUP_POSTGRESQL");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{
@@ -148,7 +148,7 @@ public class MainPostgresqlTest {
         File backupFile = new File(String.format("%s/001_%s.tbl_dbbackup.sql", workdir, TestUtil.paramPostgresql.getSchema()));
 
         String dml = new String(Files.readAllBytes(backupFile.toPath()));
-        dml = dml.replace("tbl_dbbackup", "tbl_dbbackup_postgresql");
+        dml = dml.replace("tbl_dbbackup", "TBL_DBBACKUP_POSTGRESQL");
         Files.write(backupFile.toPath(), dml.getBytes());
 
         Main.main(new String[]{

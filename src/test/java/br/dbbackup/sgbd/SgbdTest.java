@@ -16,9 +16,9 @@ public class SgbdTest {
     @Test
     public void getLobBindList() throws Throwable {
         String sample001 = Resource.getString("samples/sample_001.sql");
-        Sgbd sgbd = new Sgbd<>(new H2(), null, null);
+        Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, null);
 
-        List bind = sgbd.getLobBindList(sample001.trim());
+        List<String> bind = sgbd.getLobBindList(sample001.trim());
 
         log.info("{}", bind);
 
@@ -34,7 +34,7 @@ public class SgbdTest {
         OptionsDto dto = new OptionsDto();
         dto.setWorkdir(workdir);
 
-        Sgbd sgbd = new Sgbd<>(new H2(), null, dto);
+        Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, dto);
 
         TestUtil.createFile(String.format("%s/002_%s.sql", workdir, UUID.randomUUID().toString()), "001");
         TestUtil.createFile(String.format("%s/001_%s.sql", workdir, UUID.randomUUID().toString()), "001");
@@ -48,5 +48,19 @@ public class SgbdTest {
         }
 
         Assert.assertEquals(4, files.size());
+    }
+
+    @Test
+    public void quote(){
+        OptionsDto dto = new OptionsDto();
+        dto.setSgbdToInstance(new H2());
+        Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, dto);
+
+        Assert.assertEquals("ola_mundo", sgbd.quote(false, "ola_mundo"));
+        Assert.assertEquals("OLA_MUNDO", sgbd.quote(false, "OLA_MUNDO"));
+        Assert.assertEquals("\"Ola_Mundo\"", sgbd.quote(false, "Ola_Mundo"));
+        Assert.assertEquals("ol4_m4ndo", sgbd.quote(false, "ol4_m4ndo"));
+        Assert.assertEquals("\"ol4_N4do\"", sgbd.quote(false, "ol4_N4do"));
+        Assert.assertEquals("\"oL4_mundo\"", sgbd.quote(false, "oL4_mundo"));
     }
 }

@@ -13,6 +13,11 @@ import java.sql.ResultSet;
 @Slf4j
 public class H2 implements SgbdImpl {
     @Override
+    public String getQuote(){
+        return "\"";
+    }
+
+    @Override
     public String getSqlTabColumns() throws Throwable {
         return Resource.getString("sql/h2_tabcolumns.sql");
     }

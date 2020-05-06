@@ -5,7 +5,8 @@ field_number_precision,
 field_date,
 field_blob,
 field_clob,
-field_varchar2
+field_varchar2,
+"Field_Case"
 ) values (
 null,
 123,
@@ -13,5 +14,8 @@ null,
 SYSDATE,
 utl_raw.cast_to_raw('BLOB'),
 'CLOB',
-'VARCHAR2'
+'VARCHAR2',
+'Field_Case'
 );
+
+insert into "Tbl_DBBackup_Case" ("Field_Text", "Field_Integer") values ('TEXT', 123);
