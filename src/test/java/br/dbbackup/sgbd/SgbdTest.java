@@ -56,11 +56,11 @@ public class SgbdTest {
         dto.setSgbdToInstance(new H2());
         Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, dto);
 
-        Assert.assertEquals("ola_mundo", sgbd.quote("ola_mundo"));
-        Assert.assertEquals("OLA_MUNDO", sgbd.quote("OLA_MUNDO"));
-        Assert.assertEquals("\"Ola_Mundo\"", sgbd.quote("Ola_Mundo"));
-        Assert.assertEquals("ol4_m4ndo", sgbd.quote("ol4_m4ndo"));
-        Assert.assertEquals("\"ol4_N4do\"", sgbd.quote("ol4_N4do"));
-        Assert.assertEquals("\"oL4_mundo\"", sgbd.quote("oL4_mundo"));
+        Assert.assertEquals("ola_mundo", sgbd.quote(false, "ola_mundo"));
+        Assert.assertEquals("OLA_MUNDO", sgbd.quote(false, "OLA_MUNDO"));
+        Assert.assertEquals("\"Ola_Mundo\"", sgbd.quote(false, "Ola_Mundo"));
+        Assert.assertEquals("ol4_m4ndo", sgbd.quote(false, "ol4_m4ndo"));
+        Assert.assertEquals("\"ol4_N4do\"", sgbd.quote(false, "ol4_N4do"));
+        Assert.assertEquals("\"oL4_mundo\"", sgbd.quote(false, "oL4_mundo"));
     }
 }

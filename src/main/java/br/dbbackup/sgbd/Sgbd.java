@@ -20,6 +20,7 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -36,13 +37,13 @@ public class Sgbd<T extends SgbdImpl> {
         this.tabcolumns = new TabColumnsDto(options);
     }
 
-    public String quote(String object){
+    public String quote(boolean quoteFrom, String object){
         Pattern pU = Pattern.compile("[A-Z]");
         Pattern pL = Pattern.compile("[a-z]");
         Matcher mU = pU.matcher(object);
         Matcher mL = pL.matcher(object);
 
-        String quote = options.getSgbdToInstance().getQuote();
+        String quote = quoteFrom ? options.getSgbdFromInstance().getQuote() : options.getSgbdToInstance().getQuote();
 
         return mU.find() && mL.find() ? String.format("%s%s%s", quote, object, quote) : object;
     }
@@ -96,11 +97,9 @@ public class Sgbd<T extends SgbdImpl> {
         for (String table : tables){
             // Informando quantidade de registro
             ResultSet rsCount = stmt.executeQuery(String.format(
-                    "SELECT count(*) \"cnt\" FROM %s.%s%s%s",
+                    "SELECT count(*) \"cnt\" FROM %s.%s",
                     options.getSchema(),
-                    instance.getQuote(),
-                    table,
-                    instance.getQuote()
+                    quote(true, table)
             ));
             rsCount.next();
             int count = rsCount.getInt("cnt");
@@ -116,15 +115,15 @@ public class Sgbd<T extends SgbdImpl> {
             // Montando query
             String query = options.getTableQuery(table);
             if(query == null) {
+                List<String> colQuote = tabcolumns.getColumns(table).stream()
+                        .map(item -> quote(true, item))
+                        .collect(Collectors.toList());
+
                 query = String.format(
-                        "SELECT %s%s%s FROM %s.%s%s%s",
-                        instance.getQuote(),
-                        String.join(instance.getQuote() + ", " + instance.getQuote(), tabcolumns.getColumns(table)),
-                        instance.getQuote(),
+                        "SELECT %s FROM %s.%s",
+                        String.join(", ", colQuote),
                         options.getSchema(),
-                        instance.getQuote(),
-                        table,
-                        instance.getQuote()
+                        quote(true, table)
                 );
             }
 
@@ -146,8 +145,6 @@ public class Sgbd<T extends SgbdImpl> {
             ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);
 
             try {
-                final String quote = options.getSgbdToInstance().getQuote();
-                
                 while (rs.next()) {
                     List<String> param = new ArrayList<>();
 
@@ -155,15 +152,15 @@ public class Sgbd<T extends SgbdImpl> {
                         param.add(options.getSgbdToInstance().formatColumn(options, tabcolumns, rs, table, column));
                     }
 
+                    List<String> colQuote = tabcolumns.getColumns(table).stream()
+                            .map(item -> quote(false, item))
+                            .collect(Collectors.toList());
+
                     out.write(String.format(
-                            "INSERT INTO %s.%s%s%s (%s%s%s) VALUES (%s);\r\n",
+                            "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
                             options.getSchemaNewName(),
-                            quote,
-                            table,
-                            quote,
-                            quote,
-                            String.join(quote + ", " + quote, tabcolumns.getColumns(table)),
-                            quote,
+                            quote(false, table),
+                            String.join(", ", colQuote),
                             String.join(", ", param)
                     ));
 
@@ -320,11 +317,9 @@ public class Sgbd<T extends SgbdImpl> {
         for(TabInfoDto dto : dtoList){
             // get table count
             ResultSet rsCount = stmt.executeQuery(String.format(
-                    "SELECT count(*) \"cnt\" FROM %s.%s%s%s",
+                    "SELECT count(*) \"cnt\" FROM %s.%s",
                     options.getSchema(),
-                    instance.getQuote(),
-                    dto.getTable(),
-                    instance.getQuote()
+                    quote(true, dto.getTable())
             ));
             rsCount.next();
             dto.setQtdRows(rsCount.getLong("cnt"));
