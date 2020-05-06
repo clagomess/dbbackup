@@ -16,9 +16,9 @@ public class SgbdTest {
     @Test
     public void getLobBindList() throws Throwable {
         String sample001 = Resource.getString("samples/sample_001.sql");
-        Sgbd sgbd = new Sgbd<>(new H2(), null, null);
+        Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, null);
 
-        List bind = sgbd.getLobBindList(sample001.trim());
+        List<String> bind = sgbd.getLobBindList(sample001.trim());
 
         log.info("{}", bind);
 
@@ -34,7 +34,7 @@ public class SgbdTest {
         OptionsDto dto = new OptionsDto();
         dto.setWorkdir(workdir);
 
-        Sgbd sgbd = new Sgbd<>(new H2(), null, dto);
+        Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, dto);
 
         TestUtil.createFile(String.format("%s/002_%s.sql", workdir, UUID.randomUUID().toString()), "001");
         TestUtil.createFile(String.format("%s/001_%s.sql", workdir, UUID.randomUUID().toString()), "001");
