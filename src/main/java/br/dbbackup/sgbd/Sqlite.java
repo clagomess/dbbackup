@@ -12,6 +12,11 @@ import java.sql.ResultSet;
 @Slf4j
 public class Sqlite implements SgbdImpl {
     @Override
+    public String getQuote(){
+        return "\"";
+    }
+
+    @Override
     public String getSqlTabColumns() throws Throwable {
         return Resource.getString("sql/sqlite_tabcolumns.sql");
     }

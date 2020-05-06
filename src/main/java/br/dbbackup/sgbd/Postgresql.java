@@ -14,6 +14,11 @@ import java.util.Base64;
 @Slf4j
 public class Postgresql implements SgbdImpl {
     @Override
+    public String getQuote(){
+        return "\"";
+    }
+
+    @Override
     public String getSqlTabColumns() throws Throwable {
         return Resource.getString("sql/postgresql_tabcolumns.sql");
     }

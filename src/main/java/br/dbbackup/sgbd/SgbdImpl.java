@@ -12,4 +12,5 @@ public interface SgbdImpl {
     String getSqlInfo() throws Throwable;
     String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable;
     DataType getDataType(String dataType);
+    String getQuote();
 }

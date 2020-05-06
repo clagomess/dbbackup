@@ -84,7 +84,13 @@ public class Sgbd<T extends SgbdImpl> {
 
         for (String table : tables){
             // Informando quantidade de registro
-            ResultSet rsCount = stmt.executeQuery(String.format("SELECT count(*) \"cnt\" FROM %s.%s", options.getSchema(), table));
+            ResultSet rsCount = stmt.executeQuery(String.format(
+                    "SELECT count(*) \"cnt\" FROM %s.%s%s%s",
+                    options.getSchema(),
+                    instance.getQuote(),
+                    table,
+                    instance.getQuote()
+            ));
             rsCount.next();
             int count = rsCount.getInt("cnt");
             rsCount.close();
@@ -100,10 +106,14 @@ public class Sgbd<T extends SgbdImpl> {
             String query = options.getTableQuery(table);
             if(query == null) {
                 query = String.format(
-                        "SELECT %s FROM %s.%s",
-                        String.join(", ", tabcolumns.getColumns(table)),
+                        "SELECT %s%s%s FROM %s.%s%s%s",
+                        instance.getQuote(),
+                        String.join(instance.getQuote() + ", " + instance.getQuote(), tabcolumns.getColumns(table)),
+                        instance.getQuote(),
                         options.getSchema(),
-                        table
+                        instance.getQuote(),
+                        table,
+                        instance.getQuote()
                 );
             }
 
@@ -293,9 +303,11 @@ public class Sgbd<T extends SgbdImpl> {
         for(TabInfoDto dto : dtoList){
             // get table count
             ResultSet rsCount = stmt.executeQuery(String.format(
-                    "SELECT count(*) \"cnt\" FROM %s.%s",
+                    "SELECT count(*) \"cnt\" FROM %s.%s%s%s",
                     options.getSchema(),
-                    dto.getTable()
+                    instance.getQuote(),
+                    dto.getTable(),
+                    instance.getQuote()
             ));
             rsCount.next();
             dto.setQtdRows(rsCount.getLong("cnt"));
