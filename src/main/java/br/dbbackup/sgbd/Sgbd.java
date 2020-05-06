@@ -135,6 +135,8 @@ public class Sgbd<T extends SgbdImpl> {
             ProgressBar pb = new ProgressBar("Dump", count, ProgressBarStyle.ASCII);
 
             try {
+                final String quote = options.getSgbdToInstance().getQuote();
+                
                 while (rs.next()) {
                     List<String> param = new ArrayList<>();
 
@@ -143,10 +145,14 @@ public class Sgbd<T extends SgbdImpl> {
                     }
 
                     out.write(String.format(
-                            "INSERT INTO %s.%s (%s) VALUES (%s);\r\n",
+                            "INSERT INTO %s.%s%s%s (%s%s%s) VALUES (%s);\r\n",
                             options.getSchemaNewName(),
+                            quote,
                             table,
-                            String.join(", ", tabcolumns.getColumns(table)),
+                            quote,
+                            quote,
+                            String.join(quote + ", " + quote, tabcolumns.getColumns(table)),
+                            quote,
                             String.join(", ", param)
                     ));
 
