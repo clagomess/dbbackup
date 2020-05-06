@@ -5,7 +5,8 @@ import lombok.Getter;
 public enum Operation {
     GET("GET"),
     PUT("PUT"),
-    INFO("INFO");
+    INFO("INFO"),
+    DDL("DDL");
 
     @Getter
     private final String value;

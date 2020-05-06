@@ -371,4 +371,8 @@ public class Sgbd<T extends SgbdImpl> {
 
         return AsciiTable.build(result);
     }
+
+    public void buildDDL() throws Throwable {
+        //@TODO: implements
+    }
 }

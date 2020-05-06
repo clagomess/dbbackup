@@ -16,6 +16,7 @@ CLI DOC:
 usage: dbbackup
  -charset <arg>       Default: UTF-8. Ex.: UTF-8, ISO-8859-1 e US-ASCII
  -db <arg>            {ORACLE, MYSQL, MARIADB, POSTGRESQL, H2, SQLITE}
+ -ddl_add_table_prefix <arg>   Adiciona prefixo nas tabelas exportação DDL
  -dump_format <arg>   Formato de saída do dump. Ideal para migração. Ex.:
                       {ORACLE, MYSQL, POSTGRESQL, H2, SQLITE}
  -lob <arg>           {1} - Importar/Exportar LOB

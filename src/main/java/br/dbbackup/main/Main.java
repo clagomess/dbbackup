@@ -39,7 +39,7 @@ public class Main {
             conexao = DriverManager.getConnection(options.getUrl(), options.getUser(), options.getPass());
 
             // ### Instanciando SGBD ###
-            Sgbd sgbd;
+            Sgbd<?> sgbd;
 
             switch (options.getDatabase()) {
                 case ORACLE:
@@ -71,6 +71,9 @@ public class Main {
                     break;
                 case INFO:
                     sgbd.buildInfo();
+                    break;
+                case DDL:
+                    sgbd.buildDDL();
                     break;
                 default:
                     throw new DbbackupException(String.format("\"%s\" não implementado!", options.getOperation()));
