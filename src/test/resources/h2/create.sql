@@ -84,3 +84,8 @@ create table tbl_dbbackup_sqlite (
   field_real numeric,
   field_blob blob
 );
+
+create table tbl_dbbackup_vazio (
+   field_text text,
+   field_integer bigint,
+);

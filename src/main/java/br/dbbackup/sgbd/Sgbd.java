@@ -92,6 +92,7 @@ public class Sgbd<T extends SgbdImpl> {
             log.info("QTD Registro: {}", count);
 
             if(count == 0){
+                tableNum++;
                 continue;
             }
 

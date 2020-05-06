@@ -1,12 +1,17 @@
 package br.dbbackup.main;
 
+import br.dbbackup.util.TestLoggerAppender;
 import br.dbbackup.util.TestUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class MainH2Test {
@@ -52,6 +57,37 @@ public class MainH2Test {
                 "-schema", TestUtil.paramH2.getSchema(),
                 "-workdir", workdir
         });
+    }
+
+    @Test
+    public void dumpTabelaVazia() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        // setup log catch
+        TestLoggerAppender appender = new TestLoggerAppender("\\(\\d+\\/\\d+\\)");
+        Logger.getRootLogger().addAppender(appender);
+
+        // DUMP
+        Main.main(new String[]{
+                "-db", "H2",
+                "-lob", "1",
+                "-ope", "GET",
+                "-url", TestUtil.paramH2.getUrl(),
+                "-user", TestUtil.paramH2.getUser(),
+                "-pass", TestUtil.paramH2.getPass(),
+                "-schema", TestUtil.paramH2.getSchema(),
+                "-workdir", workdir
+        });
+
+        final List<String> list = appender.getLogList().stream().map(LoggingEvent::getRenderedMessage).collect(Collectors.toList());
+
+        for (int i = 1; i <= list.size(); i++) {
+            String search = String.format("(%s/%s)", i, list.size());
+            log.info("Teste log: {}", search);
+
+            boolean check = list.stream().anyMatch(item -> item.contains(search));
+            Assert.assertTrue("Erro no teste: " + search, check);
+        }
     }
 
     @Test
