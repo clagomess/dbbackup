@@ -36,6 +36,17 @@ public class Sgbd<T extends SgbdImpl> {
         this.tabcolumns = new TabColumnsDto(options);
     }
 
+    public String quote(String object){
+        Pattern pU = Pattern.compile("[A-Z]");
+        Pattern pL = Pattern.compile("[a-z]");
+        Matcher mU = pU.matcher(object);
+        Matcher mL = pL.matcher(object);
+
+        String quote = options.getSgbdToInstance().getQuote();
+
+        return mU.find() && mL.find() ? String.format("%s%s%s", quote, object, quote) : object;
+    }
+
     public void startDump() throws Throwable {
         log.info("Tabelas para exportação:");
         Statement stmt = conn.createStatement();
