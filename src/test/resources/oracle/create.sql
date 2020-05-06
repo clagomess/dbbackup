@@ -71,3 +71,8 @@ create table tbl_dbbackup_sqlite (
   field_real number(10,2),
   field_blob blob
 );
+
+create table "Tbl_DBBackup_Case" (
+    "Field_Text" varchar2(200),
+    "Field_Integer" number
+);

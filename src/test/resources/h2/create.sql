@@ -89,3 +89,8 @@ create table tbl_dbbackup_vazio (
    field_text text,
    field_integer bigint,
 );
+
+create table "Tbl_DBBackup_Case" (
+    "Field_Text" text,
+    "Field_Integer" bigint
+);

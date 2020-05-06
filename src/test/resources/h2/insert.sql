@@ -39,3 +39,5 @@ now(),
 'VARCHAR_IGNORECASE',
 true
 );
+
+insert into "Tbl_DBBackup_Case" ("Field_Text", "Field_Integer") values ('TEXT', 123);

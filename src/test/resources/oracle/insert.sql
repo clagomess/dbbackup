@@ -15,3 +15,5 @@ utl_raw.cast_to_raw('BLOB'),
 'CLOB',
 'VARCHAR2'
 );
+
+insert into "Tbl_DBBackup_Case" ("Field_Text", "Field_Integer") values ('TEXT', 123);

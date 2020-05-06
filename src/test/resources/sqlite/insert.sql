@@ -13,3 +13,5 @@ field_blob
   789.012,
   'BLOB'
 );
+
+insert into "Tbl_DBBackup_Case" ("Field_Text", "Field_Integer") values ('TEXT', 123);

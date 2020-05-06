@@ -77,3 +77,8 @@ create table tbl_dbbackup_h2 (
   field_varchar_ignorecase text,
   field_boolean integer
 );
+
+create table "Tbl_DBBackup_Case" (
+    "Field_Text" text,
+    "Field_Integer" bigint
+);
