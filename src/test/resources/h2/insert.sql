@@ -18,7 +18,8 @@ field_blob,
 field_clob,
 field_varchar,
 field_varchar_ignorecase,
-field_boolean
+field_boolean,
+"Field_Case"
 ) values (
 null,
 123,
@@ -37,7 +38,8 @@ now(),
 'CLOB',
 'VARCHAR',
 'VARCHAR_IGNORECASE',
-true
+true,
+'Field_Case'
 );
 
 insert into "Tbl_DBBackup_Case" ("Field_Text", "Field_Integer") values ('TEXT', 123);

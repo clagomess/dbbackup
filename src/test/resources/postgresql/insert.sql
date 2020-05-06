@@ -12,7 +12,8 @@ field_text,
 field_varchar,
 field_bytea,
 field_time,
-field_boolean
+field_boolean,
+"Field_Case"
 ) values (
 null,
 123.45,
@@ -27,7 +28,8 @@ now(),
 'VARCHAR',
 'BLOB',
 now(),
-true
+true,
+'Field_Case'
 );
 
 insert into "Tbl_DBBackup_Case" ("Field_Text", "Field_Integer") values ('TEXT', 123);

@@ -3,6 +3,7 @@ DROP TABLE if exists tbl_dbbackup_mysql;
 DROP TABLE if exists tbl_dbbackup_oracle;
 DROP TABLE if exists tbl_dbbackup_postgresql;
 DROP TABLE if exists tbl_dbbackup_h2;
+DROP TABLE if exists "Tbl_DBBackup_Case";
 
 create table tbl_dbbackup (
   field_null text,
@@ -10,7 +11,8 @@ create table tbl_dbbackup (
   field_integer integer,
   field_numeric numeric,
   field_real real,
-  field_blob blob
+  field_blob blob,
+  "Field_Case" text
 );
 
 -- TABELAS PARA TESTE DE MIGRAÇÃO
@@ -27,7 +29,8 @@ create table tbl_dbbackup_mysql (
   field_longtext text,
   field_varchar text,
   field_text text,
-  field_time text
+  field_time text,
+  "Field_Case" text
 );
 
 create table tbl_dbbackup_oracle (
@@ -37,7 +40,8 @@ create table tbl_dbbackup_oracle (
   field_date text,
   field_blob blob,
   field_clob text,
-  field_varchar2 text
+  field_varchar2 text,
+  "Field_Case" text
 );
 
 create table tbl_dbbackup_postgresql (
@@ -54,7 +58,8 @@ create table tbl_dbbackup_postgresql (
   field_varchar text,
   field_bytea blob,
   field_time text,
-  field_boolean integer
+  field_boolean integer,
+  "Field_Case" text
 );
 
 create table tbl_dbbackup_h2 (
@@ -75,7 +80,8 @@ create table tbl_dbbackup_h2 (
   field_clob text,
   field_varchar text,
   field_varchar_ignorecase text,
-  field_boolean integer
+  field_boolean integer,
+  "Field_Case" text
 );
 
 create table "Tbl_DBBackup_Case" (
