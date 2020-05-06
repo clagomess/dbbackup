@@ -11,6 +11,8 @@ services:
     build: src/test/resources/postgresql
     ports:
       - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=010203
 
   mariadb:
     container_name: dbbackup_mariadb

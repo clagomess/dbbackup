@@ -72,7 +72,7 @@ create table tbl_dbbackup_sqlite (
   field_blob blob
 );
 
-create table "Tbl_DBBackup_Case" (
-    "Field_Text" text,
-    "Field_Integer" bigint
+create table `Tbl_DBBackup_Case` (
+    `Field_Text` text,
+    `Field_Integer` bigint
 );
