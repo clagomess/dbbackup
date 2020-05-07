@@ -4,6 +4,7 @@ package br.dbbackup.sgbd;
 import br.dbbackup.constant.Database;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.dto.OptionsDto;
+import br.dbbackup.dto.TabColumnInfoDto;
 import br.dbbackup.dto.TabColumnsDto;
 import br.dbbackup.dto.TabInfoDto;
 import com.github.clagomess.asciitable.AsciiTable;
@@ -63,7 +64,10 @@ public class Sgbd<T extends SgbdImpl> {
             tabcolumns.setTabColumn(
                     rs.getString("table_name"),
                     rs.getString("column_name"),
-                    rs.getString("data_type")
+                    rs.getString("data_type"),
+                    rs.getBoolean("nullable"),
+                    rs.getLong("precision"),
+                    rs.getLong("scale")
             );
         }
 
@@ -398,6 +402,20 @@ public class Sgbd<T extends SgbdImpl> {
                             quote(false, item),
                             tabcolumns.getDataType(table, item)
                     );
+
+                    TabColumnInfoDto infoDto = tabcolumns.getColInfo(table, item);
+
+                    if(infoDto.getPrecision() > 0){
+                        if(infoDto.getScale() > 0){
+                            field += String.format("(%s, %s)", infoDto.getPrecision(), infoDto.getScale());
+                        }else {
+                            field += String.format("(%s)", infoDto.getPrecision());
+                        }
+                    }
+
+                    if(!infoDto.isNullable()){
+                        field += " NOT NULL";
+                    }
 
                     fields.add(field);
                 });

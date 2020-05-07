@@ -2,6 +2,7 @@ package br.dbbackup.main;
 
 import br.dbbackup.constant.Database;
 import br.dbbackup.util.DbParamDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -9,7 +10,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+@Slf4j
 public class MainTemplateTest {
     protected static void unitDll(Database database, DbParamDto param, String workdir) throws Throwable {
         Main.main(new String[]{
@@ -33,9 +37,16 @@ public class MainTemplateTest {
                 param.getPass()
         );
 
+        // Montar lista de create
+        Pattern p = Pattern.compile("CREATE(.*?)\\);", Pattern.DOTALL);
+        Matcher m = p.matcher(ddl);
+
         Statement stmt = conn.createStatement();
-        stmt.addBatch(ddl);
-        stmt.executeBatch();
-        stmt.close();
+
+        while (m.find()){
+            String sql = m.group(0);
+            log.info("EXEC: {}", sql);
+            stmt.execute(sql);
+        }
     }
 }
