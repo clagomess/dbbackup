@@ -404,13 +404,14 @@ public class Sgbd<T extends SgbdImpl> {
                     );
 
                     TabColumnInfoDto infoDto = tabcolumns.getColInfo(table, item);
+                    int dataTypePrecision = options.getSgbdFromInstance().getDataTypePrecision(infoDto.getType());
 
-                    if(infoDto.getPrecision() > 0){
-                        if(infoDto.getScale() > 0){
-                            field += String.format("(%s, %s)", infoDto.getPrecision(), infoDto.getScale());
-                        }else {
-                            field += String.format("(%s)", infoDto.getPrecision());
-                        }
+                    if(dataTypePrecision == 1 && infoDto.getPrecision() > 0){
+                        field += String.format("(%s)", infoDto.getPrecision());
+                    }
+
+                    if(dataTypePrecision == 2 && infoDto.getPrecision() > 0){
+                        field += String.format("(%s, %s)", infoDto.getPrecision(), infoDto.getScale());
                     }
 
                     if(!infoDto.isNullable()){

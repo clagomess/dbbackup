@@ -35,6 +35,7 @@ public class Mysql implements SgbdImpl {
             case "bigint":
             case "decimal":
             case "tinyint":
+            case "double":
                 return DataType.NUMBER;
             case "datetime":
                 return DataType.DATETIME;
@@ -52,6 +53,24 @@ public class Mysql implements SgbdImpl {
                 return DataType.VARCHAR;
             default:
                 return DataType.DEFAULT;
+        }
+    }
+
+    @Override
+    public int getDataTypePrecision(String dataType) {
+        switch (dataType){
+            case "double":
+            case "decimal":
+                return 2;
+            case "varchar":
+            case "bigint":
+            case "tinyint":
+            case "float":
+            case "int":
+            case "smallint":
+                return 1;
+            default:
+                return 0;
         }
     }
 

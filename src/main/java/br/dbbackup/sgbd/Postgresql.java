@@ -58,6 +58,18 @@ public class Postgresql implements SgbdImpl {
     }
 
     @Override
+    public int getDataTypePrecision(String dataType) {
+        switch (dataType){
+            case "numeric":
+                return 2;
+            case "varchar":
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "null";
 

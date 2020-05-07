@@ -3,6 +3,7 @@ package br.dbbackup.main;
 import br.dbbackup.constant.Database;
 import br.dbbackup.util.DbParamDto;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -24,7 +25,7 @@ public class MainTemplateTest {
                 "-pass", param.getPass(),
                 "-schema", param.getSchema(),
                 "-workdir", workdir,
-                "-ddl_add_table_prefix", UUID.randomUUID().toString().substring(0, 4) + "_" //@TODO: prefixo só com números
+                "-ddl_add_table_prefix", "x" + UUID.randomUUID().toString().substring(0, 4) + "_"
         });
 
         // TEST DDL
@@ -36,6 +37,9 @@ public class MainTemplateTest {
                 param.getUser(),
                 param.getPass()
         );
+
+        Assert.assertFalse("Contains quote in DDL", ddl.contains("TBL_DBBACKUP\""));
+        Assert.assertFalse("Contains quote in DDL", ddl.contains("TBL_DBBACKUP`"));
 
         // Montar lista de create
         Pattern p = Pattern.compile("CREATE(.*?)\\);", Pattern.DOTALL);
