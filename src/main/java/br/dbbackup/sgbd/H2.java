@@ -61,7 +61,7 @@ public class H2 implements SgbdImpl {
 
     @Override
     public int getDataTypePrecision(String dataType) {
-        return 0; //@TODO: implements
+        return 0;
     }
 
     @Override

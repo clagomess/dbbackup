@@ -63,4 +63,24 @@ public class SgbdTest {
         Assert.assertEquals("\"ol4_N4do\"", sgbd.quote(false, "ol4_N4do"));
         Assert.assertEquals("\"oL4_mundo\"", sgbd.quote(false, "oL4_mundo"));
     }
+
+    @Test
+    public void buildTablePrefix(){
+        Sgbd<H2> sgbd = new Sgbd<>(new H2(), null, null);
+
+        // lower case
+        Assert.assertEquals("pre_", sgbd.buildTablePrefix("pre_","table"));
+        Assert.assertEquals("pre_", sgbd.buildTablePrefix("PRE_","table"));
+        Assert.assertEquals("pre_", sgbd.buildTablePrefix("PrE_","table"));
+
+        // upper case
+        Assert.assertEquals("PRE_", sgbd.buildTablePrefix("pre_","TABLE"));
+        Assert.assertEquals("PRE_", sgbd.buildTablePrefix("PRE_","TABLE"));
+        Assert.assertEquals("PRE_", sgbd.buildTablePrefix("PrE_","TABLE"));
+
+        // keep case
+        Assert.assertEquals("pre_", sgbd.buildTablePrefix("pre_","Table"));
+        Assert.assertEquals("PRE_", sgbd.buildTablePrefix("PRE_","Table"));
+        Assert.assertEquals("PrE_", sgbd.buildTablePrefix("PrE_","Table"));
+    }
 }

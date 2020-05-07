@@ -379,6 +379,29 @@ public class Sgbd<T extends SgbdImpl> {
         return AsciiTable.build(result);
     }
 
+    public String buildTablePrefix(String prefix, String tabName){
+        if(prefix == null){
+            return "";
+        }
+
+        Pattern pU = Pattern.compile("[A-Z]");
+        Pattern pL = Pattern.compile("[a-z]");
+        Matcher mU = pU.matcher(tabName);
+        Matcher mL = pL.matcher(tabName);
+        boolean containsUpper = mU.find();
+        boolean containsLower = mL.find();
+
+        if(containsUpper && !containsLower){
+            return prefix.toUpperCase();
+        }
+
+        if(!containsUpper && containsLower){
+            return prefix.toLowerCase();
+        }
+
+        return prefix;
+    }
+
     public void buildDDL() throws Throwable {
         this.fillDBInfo();
 
@@ -421,7 +444,7 @@ public class Sgbd<T extends SgbdImpl> {
                     fields.add(field);
                 });
 
-                String prefix = options.getDdlAddTablePrefix() == null ? "" : options.getDdlAddTablePrefix();
+                String prefix = buildTablePrefix(options.getDdlAddTablePrefix(), table);
 
                 out.write(String.format(
                         createTBTemplate,
