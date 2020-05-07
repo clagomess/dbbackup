@@ -43,7 +43,7 @@ public class MainTemplateTest {
 
         // Montar lista de create
         Pattern p = Pattern.compile("CREATE(.*?)\\);", Pattern.DOTALL);
-        Matcher m = p.matcher(ddl);
+        Matcher m = p.matcher(ddl.replace(";", ""));
 
         Statement stmt = conn.createStatement();
 
