@@ -20,7 +20,7 @@ usage: dbbackup
  -dump_format <arg>   Formato de saída do dump. Ideal para migração. Ex.:
                       {ORACLE, MYSQL, POSTGRESQL, H2, SQLITE}
  -lob <arg>           {1} - Importar/Exportar LOB
- -ope <arg>           {GET, PUT, INFO}
+ -ope <arg>           {GET, PUT, INFO, DDL}
  -pass <arg>          pass
  -schema <arg>        schema
  -schema_exp <arg>    Nome do schema para exportação
