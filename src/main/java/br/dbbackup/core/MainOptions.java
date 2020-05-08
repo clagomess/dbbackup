@@ -8,7 +8,7 @@ public class MainOptions {
         Options options = new Options();
         Option option;
 
-        option = new Option("ope", true, "{GET, PUT, INFO}");
+        option = new Option("ope", true, "{GET, PUT, INFO, DDL}");
         option.setRequired(true);
         options.addOption(option);
 
@@ -51,6 +51,9 @@ public class MainOptions {
         options.addOption(option);
 
         option = new Option("table", true, "Tabela(s) a ser exportada(s). Ex.: -table foo -table bar ...");
+        options.addOption(option);
+
+        option = new Option("ddl_add_table_prefix", true, "Adiciona prefixo nas tabelas exportação DDL");
         options.addOption(option);
 
         option = new Option("table_query", true, "Query de consulta da(s) tabela(s) a ser exportada(s). Ex.: " +

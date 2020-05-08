@@ -4,6 +4,7 @@ package br.dbbackup.sgbd;
 import br.dbbackup.constant.Database;
 import br.dbbackup.core.DbbackupException;
 import br.dbbackup.dto.OptionsDto;
+import br.dbbackup.dto.TabColumnInfoDto;
 import br.dbbackup.dto.TabColumnsDto;
 import br.dbbackup.dto.TabInfoDto;
 import com.github.clagomess.asciitable.AsciiTable;
@@ -48,7 +49,7 @@ public class Sgbd<T extends SgbdImpl> {
         return mU.find() && mL.find() ? String.format("%s%s%s", quote, object, quote) : object;
     }
 
-    public void startDump() throws Throwable {
+    public void fillDBInfo() throws Throwable {
         log.info("Tabelas para exportação:");
         Statement stmt = conn.createStatement();
 
@@ -63,13 +64,23 @@ public class Sgbd<T extends SgbdImpl> {
             tabcolumns.setTabColumn(
                     rs.getString("table_name"),
                     rs.getString("column_name"),
-                    rs.getString("data_type")
+                    rs.getString("data_type"),
+                    rs.getBoolean("nullable"),
+                    rs.getLong("precision"),
+                    rs.getLong("scale")
             );
         }
 
         rs.close();
         stmt.close();
 
+        for (String table : tabcolumns.getTables()){
+            log.info("-> {}.{}", options.getSchema(), table);
+        }
+    }
+
+    public void startDump() throws Throwable {
+        this.fillDBInfo();
         this.startDumpProcess();
     }
 
@@ -78,10 +89,6 @@ public class Sgbd<T extends SgbdImpl> {
     }
 
     private void startDumpProcess() throws Throwable {
-        for (String table : tabcolumns.getTables()){
-            log.info("-> {}.{}", options.getSchema(), table);
-        }
-
         File outDir = new File(options.getWorkdir());
         if(!outDir.exists()){
             outDir.mkdir();
@@ -370,5 +377,90 @@ public class Sgbd<T extends SgbdImpl> {
         }
 
         return AsciiTable.build(result);
+    }
+
+    public String buildTablePrefix(String prefix, String tabName){
+        if(prefix == null){
+            return "";
+        }
+
+        Pattern pU = Pattern.compile("[A-Z]");
+        Pattern pL = Pattern.compile("[a-z]");
+        Matcher mU = pU.matcher(tabName);
+        Matcher mL = pL.matcher(tabName);
+        boolean containsUpper = mU.find();
+        boolean containsLower = mL.find();
+
+        if(containsUpper && !containsLower){
+            return prefix.toUpperCase();
+        }
+
+        if(!containsUpper && containsLower){
+            return prefix.toLowerCase();
+        }
+
+        return prefix;
+    }
+
+    public void buildDDL() throws Throwable {
+        this.fillDBInfo();
+
+        String sqlFile = String.format("%s/%s.sql", options.getWorkdir(), options.getSchema());
+        log.info("FILE: {}", sqlFile);
+        FileOutputStream fos = new FileOutputStream(sqlFile);
+        OutputStreamWriter out = new OutputStreamWriter(fos, options.getCharset());
+
+        ProgressBar pb = new ProgressBar("Dump", tabcolumns.getTables().size(), ProgressBarStyle.ASCII);
+
+        String createTBTemplate = "CREATE TABLE %s (\n%s\n);\n\n";
+        String fieldTemplate = "    %s %s";
+
+        try {
+            for (String table : tabcolumns.getTables()) {
+                List<String> fields = new ArrayList<>();
+
+                tabcolumns.getColumns(table).forEach(item -> {
+                    String field = String.format(
+                            fieldTemplate,
+                            quote(false, item),
+                            tabcolumns.getDataType(table, item)
+                    );
+
+                    TabColumnInfoDto infoDto = tabcolumns.getColInfo(table, item);
+                    int dataTypePrecision = options.getSgbdFromInstance().getDataTypePrecision(infoDto.getType());
+
+                    if(dataTypePrecision == 1 && infoDto.getPrecision() > 0){
+                        field += String.format("(%s)", infoDto.getPrecision());
+                    }
+
+                    if(dataTypePrecision == 2 && infoDto.getPrecision() > 0){
+                        field += String.format("(%s, %s)", infoDto.getPrecision(), infoDto.getScale());
+                    }
+
+                    if(!infoDto.isNullable()){
+                        field += " NOT NULL";
+                    }
+
+                    fields.add(field);
+                });
+
+                String prefix = buildTablePrefix(options.getDdlAddTablePrefix(), table);
+
+                out.write(String.format(
+                        createTBTemplate,
+                        quote(false, prefix + table),
+                        String.join(",\n", fields)
+                ));
+
+                out.flush();
+                pb.step();
+            }
+        }catch (Throwable e){
+            throw e;
+        } finally {
+            out.close();
+            fos.close();
+            pb.close();
+        }
     }
 }

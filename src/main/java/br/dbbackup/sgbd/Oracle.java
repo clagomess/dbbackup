@@ -47,6 +47,18 @@ public class Oracle implements SgbdImpl {
     }
 
     @Override
+    public int getDataTypePrecision(String dataType) {
+        switch (dataType){
+            case "NUMBER":
+                return 2;
+            case "VARCHAR2":
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "NULL";
 

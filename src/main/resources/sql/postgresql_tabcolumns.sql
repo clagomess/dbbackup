@@ -1,4 +1,10 @@
-select c.table_name, c.column_name, c.udt_name as data_type
+select
+c.table_name,
+c.column_name,
+c.udt_name as data_type,
+CASE WHEN is_nullable = 'YES' THEN true ELSE false END "nullable",
+coalesce(character_maximum_length, numeric_precision) "precision",
+numeric_scale "scale"
 from information_schema.columns c
 JOIN information_schema.tables t
   on t.table_catalog = c.table_catalog

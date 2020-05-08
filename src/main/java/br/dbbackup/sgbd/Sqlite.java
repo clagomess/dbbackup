@@ -41,6 +41,11 @@ public class Sqlite implements SgbdImpl {
     }
 
     @Override
+    public int getDataTypePrecision(String dataType) {
+        return 0;
+    }
+
+    @Override
     public String formatColumn(OptionsDto options, TabColumnsDto tabcolumns, ResultSet rs, String table, String column) throws Throwable {
         String toReturn = "NULL";
 

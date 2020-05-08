@@ -1,5 +1,6 @@
 package br.dbbackup.main;
 
+import br.dbbackup.constant.Database;
 import br.dbbackup.util.TestLoggerAppender;
 import br.dbbackup.util.TestUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -232,5 +233,12 @@ public class MainH2Test {
                 "-schema", TestUtil.paramSqlite.getSchema(),
                 "-workdir", workdir
         });
+    }
+
+    @Test
+    public void ddl() throws Throwable {
+        String workdir = TestUtil.getNewWorkDir();
+
+        MainTemplateTest.unitDll(Database.H2, TestUtil.paramH2, workdir);
     }
 }
